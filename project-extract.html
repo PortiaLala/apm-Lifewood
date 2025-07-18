@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lifewood - AI Data Extraction</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="log.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root { --brand-green: #046241; --brand-orange: #ffb347; --light-bg: #f9f7f7; --dark-text: #333; }
+        body {
+            margin: 0;
+            font-family: 'Manrope', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+        }
+
+        /* --- HEADER & FOOTER STYLES --- */
+        #preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; background-color: var(--light-bg); display: flex; justify-content: center; align-items: center; transition: opacity 0.75s ease, visibility 0.75s ease; }
+        .preloader-hidden { opacity: 0; visibility: hidden; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+        #preloader .hexagon-shape { animation: spin 2s linear infinite; width: 60px; height: 70px; background-color: var(--brand-orange); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+        .site-header { position: fixed; top: 0; left: 0; z-index: 10; box-sizing: border-box; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 20px 4%; background: linear-gradient(to bottom, rgba(249, 247, 247, 1) 80%, rgba(249, 247, 247, 0) 100%); }
+        .logo-container { display: flex; align-items: flex-start; flex-direction: column; gap: 2px; }
+        .logo-image { width: 210px; height: 45px; }
+        .tagline { font-size: 14px; letter-spacing: 2px; color: var(--brand-green); font-weight: 600; margin:0; }
+        .main-navigation ul { margin: 0; padding: 0; list-style-type: none; display: flex; gap: 35px; }
+        .main-navigation a { color: var(--brand-green); text-decoration: none; font-weight: 600; font-size: 15px; text-transform: uppercase; letter-spacing: 1.5px; transition: color 0.3s ease; padding-bottom: 5px; border-bottom: 2px solid transparent; }
+        .main-navigation a:hover { color: var(--brand-orange); }
+        .main-navigation a.active { color: var(--brand-orange); border-bottom-color: var(--brand-orange); }
+        /* Hamburger menu is initially hidden on large screens */
+        .hamburger-menu { display: none; }
+        
+        .page-hero { padding: 180px 4% 40px; background-color: var(--light-bg); text-align: center; }
+        .page-hero h1 { font-size: 52px; color: var(--brand-green); margin: 0 0 15px 0; font-weight: 800; }
+        .page-hero p { font-size: 18px; max-width: 700px; margin: 0 auto; line-height: 1.7; }
+        
+        .site-footer { background-color: var(--light-bg); color: var(--brand-green); padding: 40px 4%; border-top: 1px solid #e0e0e0;}
+        .footer-container { display: flex; justify-content: space-between; gap: 40px; max-width: 1200px; margin: 0 auto; flex-wrap: wrap;}
+        .footer-col { flex: 1; min-width: 200px;}
+        .footer-col-left { flex-basis: 30%; }
+        .footer-logo { display: block; width: 210px; height: auto; margin-bottom: 20px; }
+        .footer-copyright { font-size: 14px; margin-top: 10px; }
+        .footer-col h4 { font-size: 18px; font-weight: 800; margin-top: 0; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .footer-col ul { margin: 0; padding: 0; list-style: none; }
+        .footer-col ul li { margin-bottom: 10px; }
+        .footer-col a { color: var(--brand-green); text-decoration: none; transition: color 0.3s ease; }
+        .footer-col a:hover { color: var(--brand-orange); }
+        .footer-social-links { display: flex; gap: 15px; margin-top: 20px; }
+        .footer-social-links img { width: 24px; height: 24px; transition: opacity 0.3s ease, transform 0.3s ease; }
+        .footer-social-links a:hover img { opacity: 0.8; transform: scale(1.1); }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- NEW LAYOUT TO MATCH IMAGE --- */
+        .green-background-section {
+            background-color: var(--brand-green);
+            padding: 80px 0;
+            overflow: hidden;
+        }
+        
+        .project-detail-layout {
+            display: grid;
+            grid-template-columns: 1fr 0.2fr 1.5fr; /* Text | Gap | Demo */
+            align-items: stretch;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 4%;
+        }
+
+        .project-text-column {
+            grid-column: 1 / 2;
+            color: var(--light-bg);
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .project-demo-column {
+            grid-column: 2 / 4;
+            background-color: var(--light-bg);
+            border-radius: 20px;
+            clip-path: url(#panel-wave-divider);
+            padding: 40px 40px 40px 280px; 
+            position: relative;
+            left: -100px;
+            z-index: 2;
+        }
+        
+        /* Text styles */
+        .project-text-column h1 { color: white; background: none; -webkit-background-clip: initial; background-clip: initial; font-size: 42px; font-weight: 800; margin: 0 0 10px 0; line-height: 1.1; }
+        .project-text-column .metric-tagline { color: var(--brand-orange); font-size: 22px; font-weight: 600; margin: 0 0 40px 0; }
+        .project-text-column h3 { color: var(--brand-orange); background: none; -webkit-background-clip: initial; background-clip: initial; font-size: 26px; margin-top: 50px; margin-bottom: 20px; border-bottom: 2px solid rgba(249, 247, 247, 0.3); padding-bottom: 10px; }
+        .project-text-column p { font-size: 17px; line-height: 1.8; margin-bottom: 20px; opacity: 0.9; }
+        
+        .project-demo-column h3 { background: linear-gradient(90deg, var(--brand-green), #068c5c); -webkit-background-clip: text; background-clip: text; color: transparent; font-size: 28px; margin-top: 0; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #eee; }
+        
+        /* --- FULL DEMO STYLES --- */
+        .document-demo-container { background: transparent; box-shadow: none; border: none; padding: 0; }
+        .document-demo-container::before { content: none; }
+        .document-demo { display: flex; gap: 30px; align-items: flex-start; }
+        .document-viewer, .extracted-data { flex: 1; min-width: 0; }
+        .document-viewer { position: relative; }
+        #receipt-display { min-height: 300px; box-sizing: border-box; background-color: #fdf5e6; font-family: 'VT323', monospace; font-size: 16px; line-height: 1.4; color: #4a4a4a; padding: 20px; border: 1px solid #e0d8c8; border-radius: 3px; box-shadow: 0 5px 15px rgba(0,0,0,0.1) inset; white-space: pre-wrap; transition: border-color 0.3s ease; }
+        #receipt-display.editable { border-color: var(--brand-orange); }
+        #receipt-display:focus { outline: none; border-color: var(--brand-orange); }
+        .data-ping { position: absolute; border: 2px solid var(--brand-orange); background: rgba(255, 179, 71, 0.2); border-radius: 6px; pointer-events: none; opacity: 0; transform: scale(0.8); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .data-ping.active { opacity: 1; transform: scale(1); }
+        .data-ping::after { content: ''; position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px; border-radius: 10px; border: 2px solid var(--brand-orange); opacity: 0; animation: sonar-ripple 0.7s ease-out; }
+        @keyframes sonar-ripple { 0% { transform: scale(0.7); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+        #scanner-light { position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: linear-gradient(90deg, transparent, rgba(255, 179, 71, 0.1), rgba(4, 98, 65, 0.8), rgba(255, 179, 71, 0.1), transparent); box-shadow: 0 0 20px 3px rgba(4, 98, 65, 0.5); border-radius: 3px; opacity: 0; transform: translateY(-10px); pointer-events: none; }
+        #scanner-light::before { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 98%; height: 2px; background: #fff; opacity: 0.8; }
+        .extracted-data { padding-left: 20px; border-left: 2px dashed #ccc; }
+        .extracted-data h4 { font-size: 18px; margin-top: 0; color: var(--brand-green); }
+        .extracted-data table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .extracted-data th, .extracted-data td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #eee; }
+        .extracted-data th { width: 45%; color: var(--dark-text); font-weight: 600; font-family: 'Manrope', sans-serif; }
+        .extracted-data td { font-family: 'Manrope', sans-serif; font-weight: 600; color: var(--brand-green); position: relative; word-break: break-all; }
+        .extracted-data td.data-settled { animation: flash-bg 0.6s ease-out; }
+        @keyframes flash-bg { 0% { background-color: rgba(4, 98, 65, 0.2); } 100% { background-color: transparent; } }
+        .extracted-data td.typing::after { content: '|'; animation: blink 1s step-end infinite; }
+        @keyframes blink { from, to { opacity: 1; } 50% { opacity: 0; } }
+        .demo-controls { text-align: center; margin-top: 30px; }
+        .run-extraction-btn { display: inline-block; padding: 14px 30px; font-size: 16px; font-weight: 600; color: #fff; background: linear-gradient(45deg, var(--brand-orange), #ffc56e); border: none; border-radius: 50px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(255, 179, 71, 0.4); }
+        .run-extraction-btn:hover:not(:disabled) { transform: translateY(-3px) scale(1.05); box-shadow: 0 6px 20px rgba(255, 179, 71, 0.6); }
+        .run-extraction-btn:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; transform: none; }
+        .demo-note { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 15px; color: #777; font-style: italic; text-align: left; line-height: 1.6; }
+        .demo-note strong { color: var(--brand-green); font-style: normal; }
+
+        /* --- BACK TO PROJECTS BUTTON --- */
+        .back-to-projects-section {
+            padding: 40px 4% 80px;
+            text-align: left;
+            background-color: var(--light-bg);
+            max-width: 1400px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+        .back-to-projects-btn {
+            display: inline-block;
+            padding: 12px 28px;
+            background-color: transparent;
+            color: var(--brand-green);
+            border: 2px solid var(--brand-green);
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .back-to-projects-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(4, 98, 65, 0.4);
+            background-color: var(--brand-orange);
+            color: var(--brand-green);
+            border-color: var(--brand-orange);
+        }
+
+        /* RESPONSIVE STYLES */
+        /* For Tablets and smaller Desktops (up to 992px) */
+        @media (max-width: 992px) {
+            /* Header */
+            .site-header { padding: 15px 4%; }
+            .logo-image { width: 180px; height: 38px; }
+
+            /* Hero Section */
+            .page-hero { padding: 120px 4% 30px; }
+            .page-hero h1 { font-size: 40px; }
+            .page-hero p { font-size: 16px; }
+
+            /* Project Detail Layout (AI Demo) */
+            .green-background-section { padding: 0; } /* Remove overall padding, handled by columns */
+            .project-detail-layout { 
+                grid-template-columns: 1fr; /* Single column layout */
+                padding: 0;
+                max-width: none;
+                margin-top: 80px;
+             }
+            .project-text-column {
+                grid-column: 1;
+                padding: 40px;
+                text-align: center; /* Center text in text column on smaller screens */
+            }
+            .project-demo-column {
+                grid-column: 1;
+                padding: 40px; /* Adjust padding for single column */
+                clip-path: none; /* Remove wave clip-path */
+                border-radius: 20px 20px 0 0; /* Adjust border-radius */
+                margin-top: -20px; /* Bring it closer to the text column */
+                left: 0; /* Remove negative left offset */
+                width: auto; /* Ensure it takes full width */
+                background-color:  #ffffff;
+            }
+            
+            .project-text-column h1 { font-size: 36px; }
+            .project-text-column .metric-tagline { font-size: 20px; margin-bottom: 30px; }
+            .project-text-column h3 { font-size: 24px; margin-top: 30px; }
+            .project-text-column p { font-size: 16px; }
+            .project-demo-column h3 { font-size: 24px; text-align: center; } /* Center demo heading */
+
+            .document-demo {
+                flex-direction: column; /* Stack document viewer and extracted data */
+                gap: 20px;
+            }
+            .extracted-data {
+                padding-left: 0;
+                border-left: none;
+                margin-top: 20px;
+                padding-top: 20px;
+                border-top: 2px dashed #ccc; /* Add top border instead of left */
+            }
+            #receipt-display { min-height: 250px; font-size: 15px; padding: 15px; }
+            .extracted-data table { font-size: 13px; }
+            .extracted-data th, .extracted-data td { padding: 8px 5px; }
+
+            /* Back to Projects Button */
+            .back-to-projects-section {
+                text-align: center; /* Center button on smaller screens */
+                padding: 30px 4% 60px;
+            }
+
+            /* Footer */
+            .footer-container {
+                flex-direction: column; /* Stack footer columns */
+                gap: 30px;
+                text-align: center; /* Center footer content */
+            }
+            .footer-col {
+                min-width: unset; /* Remove min-width constraint */
+                flex-basis: auto;
+            }
+            .footer-col-left {
+                flex-basis: auto;
+            }
+            .footer-logo { margin: 0 auto 15px auto; } /* Center logo */
+            .footer-social-links { justify-content: center; margin-top: 15px; }
+            .site-footer { padding: 30px 4%; }
+            .footer-col h4 { margin-bottom: 15px; }
+            .footer-col ul li { margin-bottom: 8px; }
+        }
+
+        /* For Phones (up to 768px) */
+        @media (max-width: 768px) {
+            .site-header { padding: 12px 4%; }
+            .logo-image { width: 160px; height: 35px; }
+
+            /* Hamburger Button Styling */
+            .hamburger-menu { 
+                position: static; /* Keeps it in the header flow */
+                display: flex; 
+                flex-direction: column; 
+                justify-content: space-around; 
+                width: 30px; 
+                height: 30px; 
+                background: transparent; 
+                border: none; 
+                cursor: pointer; 
+                padding: 0; 
+                z-index: 12; /* Ensures it's above the menu overlay if needed */
+            } 
+            .hamburger-menu span { 
+                width: 30px; 
+                height: 3px; 
+                background: var(--brand-green); 
+                border-radius: 5px; 
+                transition: all 0.3s linear; 
+                position: relative; 
+                transform-origin: 1px; 
+            } 
+
+            /* Menu List (UL) - Hidden State */
+            .main-navigation ul { 
+                /* display: none; - Removed this */
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 25px;
+                position: fixed;
+                top: 35px; /* Positioned exactly below the mobile header */
+                left: 0;
+                width: 100%;
+                background: var(--light-bg);
+                box-shadow: 0 15px 20px rgba(0,0,0,0.1);
+                
+                /* Animation & Hiding */
+                max-height: 0;
+                overflow: hidden;
+                padding: 0; /* No padding when hidden */
+                transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+                z-index: 9; /* Below the header (Z-index 10) */
+            }
+
+            /* Menu List (UL) - Open State (Triggered by body.menu-open) */
+            body.menu-open .main-navigation ul { 
+                max-height: 400px; /* Enough height to show the links */
+                padding: 30px 0; /* Add padding when open */
+            } 
+
+            /* Link styles within the dropdown */
+            .main-navigation a {
+                font-size: 18px;
+            }
+
+            /* Hamburger "X" Animation */
+            /* body.menu-open .hamburger-menu { position: fixed; top: 30px; right: 4%; } - Removed fixed positioning */
+            body.menu-open .hamburger-menu span:nth-child(1) { transform: rotate(45deg); } 
+            body.menu-open .hamburger-menu span:nth-child(2) { opacity: 0; transform: translateX(20px); } 
+            body.menu-open .hamburger-menu span:nth-child(3) { transform: rotate(-45deg); }
+
+            .page-hero { padding: 100px 4% 25px; }
+            .page-hero h1 { font-size: 32px; }
+            .page-hero p { font-size: 15px; }
+
+            .project-text-column { padding: 30px; }
+            .project-text-column h1 { font-size: 30px; }
+            .project-text-column .metric-tagline { font-size: 18px; margin-bottom: 25px; }
+            .project-text-column h3 { font-size: 22px; margin-top: 25px; }
+            .project-text-column p { font-size: 15px; }
+
+            .project-demo-column { padding: 30px; }
+            .project-demo-column h3 { font-size: 22px; }
+            
+            #receipt-display { min-height: 200px; font-size: 14px; padding: 12px; }
+            .extracted-data h4 { font-size: 17px; }
+            .extracted-data table { font-size: 12px; }
+            .extracted-data th, .extracted-data td { padding: 6px 4px; }
+
+            .run-extraction-btn { padding: 12px 25px; font-size: 15px; }
+            .demo-note { font-size: 13px; margin-top: 20px; padding-top: 15px;}
+
+            .back-to-projects-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+
+        /* For Smaller Phones (up to 576px) */
+        @media (max-width: 576px) {
+            .site-header { padding: 10px 4%; }
+            .logo-image { width: 140px; height: 30px; }
+            .tagline { font-size: 12px; letter-spacing: 1px; }
+
+            .page-hero { padding: 80px 4% 20px; }
+            .page-hero h1 { font-size: 28px; }
+            .page-hero p { font-size: 14px; }
+
+            .project-text-column { padding: 25px; }
+            .project-text-column h1 { font-size: 26px; }
+            .project-text-column .metric-tagline { font-size: 16px; margin-bottom: 20px; }
+            .project-text-column h3 { font-size: 20px; margin-top: 20px; }
+            .project-text-column p { font-size: 14px; }
+
+            .project-demo-column { padding: 25px; }
+            .project-demo-column h3 { font-size: 20px; }
+
+            #receipt-display { min-height: 180px; font-size: 13px; padding: 10px; }
+            .extracted-data h4 { font-size: 16px; }
+            .extracted-data table { font-size: 11px; }
+            .extracted-data th, .extracted-data td { padding: 5px 3px; }
+
+            .run-extraction-btn { padding: 10px 20px; font-size: 14px; }
+            .demo-note { font-size: 12px; margin-top: 15px; padding-top: 10px;}
+
+            .back-to-projects-btn {
+                padding: 8px 18px;
+                font-size: 13px;
+            }
+
+            .site-footer { padding: 25px 4%; }
+            .footer-col h4 { font-size: 16px; margin-bottom: 10px; }
+            .footer-col ul li { font-size: 14px; margin-bottom: 5px; }
+            .footer-copyright { font-size: 12px; }
+        }
+        @media (max-width: 480px) { 
+            .hero-text-content h1 { font-size: 48px; } 
+            .site-header { padding: 15px 4%; background-color: var(--light-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.1); } /* Ensure header looks good on smallest screens */
+            .logo-image { width: 180px; height: 38px; }
+            /* Footer adjustments for smallest screen */
+            .footer-col h4 { font-size: 16px; margin-bottom: 15px; }
+            .footer-col ul li { font-size: 14px; }
+            .footer-social-links img { width: 20px; height: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- This SVG is hidden but defines the wave shape for the white panel -->
+    <svg width="0" height="0" style="position: absolute;">
+      <defs>
+        <clipPath id="panel-wave-divider" clipPathUnits="objectBoundingBox">
+          <path d="M 0.25,0 C 0,0.33 0.4,0.66 0.25,1 L 1,1 L 1,0 Z" />
+        </clipPath>
+      </defs>
+    </svg>
+
+    <header class="site-header">
+        <a href="index.html" class="logo-container">
+            <img src="Logo.png" alt="Lifewood Logo" class="logo-image">
+        </a>
+        <nav class="main-navigation">
+            <button class="hamburger-menu" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+            <ul>
+                <li><a href="index.html">home</a></li>
+                <li><a href="services.html">services</a></li>
+                <li><a href="operations.html">Operations</a></li>
+                <li><a href="projects.html" class="active">projects</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="green-background-section">
+            <div class="project-detail-layout">
+                <div class="project-text-column">
+                    <div> <!-- Extra wrapper for vertical centering -->
+                        <h1>AI-Powered Data Extraction</h1>
+                        <p class="metric-tagline">From Messy Text to Structured Data</p>
+                        <h3>What is AI Data Extraction?</h3>
+                        <p>AI data extraction unlocks hidden insights by turning unstructured images and documents into clear, usable data. It connects information across sources, making knowledge accessible and ready for innovation.</p>
+                        <h3>The Lifewood Solution</h3>
+                        <p>Lifewood combines smart AI tools with human expertise to capture and organize data at scale. We help you transform scattered records and imagery into powerful digital assets that inspire progress.</p>
+                    </div>
+                </div>
+                <div class="project-demo-column">
+                    <h3>Try the AI Yourself</h3>
+                    <div class="document-demo-container">
+                        <div class="document-demo">
+                            <div class="document-viewer">
+                                <div id="receipt-display" contenteditable="true"></div>
+                                <div id="scanner-light"></div>
+                            </div>
+                            <div class="extracted-data">
+                                <h4>Extracted Data</h4>
+                                <table>
+                                    <tbody>
+                                        <tr><th>Invoice #</th><td id="data-invoice"></td></tr>
+                                        <tr><th>Invoice Date</th><td id="data-date"></td></tr>
+                                        <tr><th>Customer</th><td id="data-customer"></td></tr>
+                                        <tr><th>Total Amount</th><td id="data-total"></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="demo-controls">
+                            <button id="run-doc-extraction" class="run-extraction-btn">Digitize & Extract Data</button>
+                        </div>
+                        <p class="demo-note">
+                            <strong>Feel free to edit the receipt above!</strong> Change dates, names, or amounts, then click the button to see our AI find and extract the data from your own text.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- NEW SECTION FOR THE "BACK" BUTTON -->
+    <section class="back-to-projects-section">
+        <!-- MODIFIED: Added arrow to button text -->
+        <a href="projects.html" class="back-to-projects-btn">← Back to All Projects</a>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-col footer-col-left">
+                <a href="index.html"><img src="Logo.png" alt="Lifewood Logo" class="footer-logo"></a>
+                <p class="footer-copyright">© 2024 Lifewood. All Rights Reserved.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Navigate</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="operations.html">Operations</a></li>
+                    <li><a href="projects.html">Projects</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact Us</h4>
+                <ul>
+                    <li><a href="mailto:hr.ph@lifewood.com">hr.ph@lifewood.com</a></li>
+                    <li><a href="tel:09276155464">+63 927 615 5464</a></li>
+                </ul>
+                <div class="footer-social-links">
+                    <a href="https://www.youtube.com/@LifewoodDataTechnology" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                        <img src="youtube.png" alt="YouTube" style="width: 32px; height: 24px;">
+                    </a>
+                    <a href="https://www.facebook.com/LifewoodPH" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                        <img src="facebook.png" alt="Facebook" style="width: 24px; height: 24px;">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const header = document.querySelector('.site-header');
+            if (header) {
+                const toggleHeaderShadow = () => { window.scrollY > 10 ? header.classList.add('scrolled') : header.classList.remove('scrolled'); };
+                window.addEventListener('scroll', toggleHeaderShadow);
+                toggleHeaderShadow();
+            }
+        });
+
+        window.onload=function(){setTimeout(function(){document.getElementById("preloader").classList.add("preloader-hidden")},500)};
+        
+        // Hamburger Menu Toggle (JS remains the same, CSS handles the new appearance)
+        const hamburgerBtn=document.querySelector(".hamburger-menu");
+        hamburgerBtn.addEventListener("click",function(){
+            document.body.classList.toggle("menu-open")
+        });
+    </script>
+
+    <!-- SCRIPT FOR THE AI DEMO -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const runBtn = document.getElementById('run-doc-extraction');
+        const scanner = document.getElementById('scanner-light');
+        const receiptDisplay = document.getElementById('receipt-display');
+
+        const SCAN_DURATION_MS = 5000;
+        // Increased delay to ensure scanner visibly passes BEFORE recognition
+        const RECOGNITION_DELAY_MS = 1200; // Delay from scanner passing to recognition start (increased)
+        const PING_TO_TYPE_DELAY_MS = 400; // Delay from recognition start to ping/typing (increased)
+
+        const dataDefinitions = [
+            { id: 'invoice', regex: /(INVOICE NO[:\s]+)([^\n\r]+)/i },
+            { id: 'date', regex: /(DATE[:\s]+)([^\n\r]+)/i },
+            { id: 'customer', regex: /(BILLED TO:\s*\n?\s*)([^\n\r]+)/i },
+            { id: 'total', regex: /(TOTAL DUE[:\s]+)(\S+)/i }
+        ];
+        
+        const defaultReceiptText = `LIFEWOOD SUPPLY CO.
+====================
+INVOICE NO: 94-815B
+DATE:       OCT 15 1994
+
+BILLED TO:
+ACME Widgets Inc.
+123 Industrial Way
+
+--------------------
+DESCRIPTION     QTY  TOTAL
+--------------------
+Cog Model A     15   $450.00
+Sprocket B-12   30   $600.00
+
+--------------------
+TOTAL DUE:      $1050.00
+====================`;
+
+        let animationFrameId;
+
+        function typeWriter(element, text, speed = 50) {
+            return new Promise(resolve => {
+                element.classList.add('typing'); let i = 0;
+                const type = () => {
+                    if (i < text.length) { element.innerHTML += text.charAt(i); i++; setTimeout(type, speed); } 
+                    else { 
+                        element.classList.remove('typing');
+                        if (element.parentElement.tagName === 'TD') {
+                           element.parentElement.classList.add('data-settled');
+                        }
+                        resolve(); 
+                    }
+                };
+                type();
+            });
+        }
+
+        function clearForNewRun() {
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            runBtn.textContent = 'Digitize & Extract Data';
+            document.querySelectorAll('.data-ping').forEach(p => p.remove());
+            scanner.style.transition = 'none';
+            scanner.style.opacity = '0';
+            scanner.style.transform = 'translateY(-10px)';
+            dataDefinitions.forEach(def => {
+                const td = document.getElementById(`data-${def.id}`);
+                td.innerHTML = '';
+                td.classList.remove('data-settled');
+            });
+        }
+
+        function finishAnimation() {
+            runBtn.disabled = false;
+            runBtn.textContent = 'Try Again';
+            receiptDisplay.contentEditable = 'true';
+            receiptDisplay.classList.add('editable');
+            const currentText = receiptDisplay.innerText;
+            receiptDisplay.innerHTML = ''; // Clear temporary spans
+            receiptDisplay.innerText = currentText; // Restore original text without spans
+            scanner.style.opacity = '0';
+            scanner.style.transform = 'translateY(-10px)';
+        }
+
+        async function triggerExtractionSequence(point) {
+            const viewer = document.querySelector('.document-viewer');
+            const pingEl = document.createElement('div');
+            pingEl.className = 'data-ping';
+            // Get fresh rect for accurate position relative to viewer
+            const rect = point.span.getBoundingClientRect(); 
+            const viewerRect = viewer.getBoundingClientRect();
+            
+            Object.assign(pingEl.style, {
+                top: `${rect.top - viewerRect.top}px`,
+                left: `${rect.left - viewerRect.left}px`,
+                width: `${rect.width}px`,
+                height: `${rect.height}px`
+            });
+            viewer.appendChild(pingEl);
+
+            requestAnimationFrame(() => pingEl.classList.add('active'));
+            await new Promise(resolve => setTimeout(resolve, PING_TO_TYPE_DELAY_MS));
+
+            const targetEl = document.getElementById(`data-${point.id}`);
+            await typeWriter(targetEl, point.text.trim());
+            
+            pingEl.style.opacity = '0';
+            setTimeout(() => pingEl.remove(), 300);
+        }
+
+        function runAnimation() {
+            runBtn.disabled = true;
+            runBtn.textContent = 'Processing...';
+            receiptDisplay.contentEditable = 'false';
+            receiptDisplay.classList.remove('editable');
+
+            let text = receiptDisplay.innerText;
+            let foundPoints = [];
+
+            // Add temporary spans for tracking
+            // Note: Reversing dataDefinitions ensures regexes don't interfere with each other if they contain parts of others.
+            // However, for this simple case, the order doesn't critically matter for the regex matches.
+            // The important part is that spans are added to the DOM for bounding client rects.
+            dataDefinitions.slice().reverse().forEach(def => {
+                text = text.replace(def.regex, (match, p1, p2) => {
+                    return `${p1}<span data-point-id="${def.id}" class="temp-highlight">${p2}</span>`;
+                });
+            });
+            receiptDisplay.innerHTML = text; // Update DOM with spans
+
+            // Get receiptDisplay's position for relative calculations
+            const receiptDisplayRect = receiptDisplay.getBoundingClientRect();
+
+            // Collect elements and their positions after DOM update
+            receiptDisplay.querySelectorAll('[data-point-id]').forEach(span => {
+                const id = span.dataset.pointId;
+                const rect = span.getBoundingClientRect();
+                foundPoints.push({
+                    id: id, text: span.innerText, span: span,
+                    // Calculate trigger point: scanner's bottom edge should clear text's bottom + a buffer (10px)
+                    triggerScannerBottomY: (rect.bottom - receiptDisplayRect.top) + 10,
+                    hasBeenScannedOver: false, 
+                    hasBeenTriggeredForExtraction: false 
+                });
+            });
+
+            // Sort points by their vertical position to process them in scan order
+            foundPoints.sort((a, b) => a.triggerScannerBottomY - b.triggerScannerBottomY);
+
+
+            if (foundPoints.length === 0) {
+                finishAnimation();
+                return;
+            }
+
+            // Start scanner animation
+            scanner.style.transition = `transform ${SCAN_DURATION_MS}ms ease-in-out, opacity 300ms ease-in-out`;
+            scanner.style.opacity = '1';
+            scanner.style.transform = `translateY(${receiptDisplay.clientHeight}px)`;
+
+            let allPointsProcessed = false; 
+
+            function checkScannerPosition() {
+                if(allPointsProcessed) return;
+
+                const scannerRect = scanner.getBoundingClientRect();
+                // Get the position of the scanner's bottom edge relative to the receipt display's top
+                const scannerBottomYRelative = scannerRect.bottom - receiptDisplayRect.top; 
+                
+                let remainingPointsToExtract = 0;
+
+                foundPoints.forEach(point => {
+                    // Check if scanner has passed this point AND it hasn't been marked as scanned over yet
+                    if (!point.hasBeenScannedOver && scannerBottomYRelative >= point.triggerScannerBottomY) { 
+                        point.hasBeenScannedOver = true;
+                        // Schedule extraction after RECOGNITION_DELAY_MS
+                        setTimeout(() => {
+                            // Ensure extraction is triggered only once
+                            if (!point.hasBeenTriggeredForExtraction) { 
+                                point.hasBeenTriggeredForExtraction = true;
+                                triggerExtractionSequence(point);
+                            }
+                        }, RECOGNITION_DELAY_MS);
+                    }
+                    // Count points that are still waiting for extraction to be scheduled
+                    if (!point.hasBeenTriggeredForExtraction) { 
+                        remainingPointsToExtract++;
+                    }
+                });
+
+                if (remainingPointsToExtract === 0) {
+                    allPointsProcessed = true;
+                    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                    // Give a bit more time for the last pings/typing to complete
+                    setTimeout(finishAnimation, RECOGNITION_DELAY_MS + PING_TO_TYPE_DELAY_MS + 500); 
+                } else {
+                    animationFrameId = requestAnimationFrame(checkScannerPosition);
+                }
+            }
+            animationFrameId = requestAnimationFrame(checkScannerPosition);
+
+            // Fallback: Ensure animation finishes even if not all points are found or an edge case occurs
+            // This timeout should cover the scanner's duration plus all subsequent delays.
+            setTimeout(() => {
+                if(!allPointsProcessed) {
+                    allPointsProcessed = true;
+                    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                    finishAnimation();
+                }
+            }, SCAN_DURATION_MS + RECOGNITION_DELAY_MS + PING_TO_TYPE_DELAY_MS + 1000); 
+        }
+
+        // Initialize display
+        receiptDisplay.innerText = defaultReceiptText;
+        receiptDisplay.classList.add('editable');
+        
+        runBtn.addEventListener('click', () => {
+            if (runBtn.textContent.includes('Again')) {
+                clearForNewRun();
+                setTimeout(runAnimation, 50); 
+            } else {
+                runAnimation();
+            }
+        });
+    });
+    </script>
+</body>
+</html>

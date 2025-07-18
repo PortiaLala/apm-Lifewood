@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lifewood - Services</title>
+    
+    <!-- Google Fonts Link -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link rel="icon" href="log.png" type="image/png"> <!-- Added missing favicon link, assuming 'log.png' is in root or 'images/hf/' as in home page example -->
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- GLOBAL CSS STYLES --- */
+        :root { --brand-green: #046241; --brand-orange: #ffb347; --light-bg: #f9f7f7; --dark-text: #333; }
+        body { margin: 0; font-family: 'Manrope', sans-serif; font-weight: 400; background-color: #ffffff; color: var(--dark-text); overflow-x: hidden; }
+        h2 { font-weight: 500; }
+        #preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; background-color: var(--light-bg); display: flex; justify-content: center; align-items: center; transition: opacity 0.75s ease, visibility 0.75s ease; }
+        .preloader-hidden { opacity: 0; visibility: hidden; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+        #preloader .hexagon-shape { animation: spin 2s linear infinite; width: 60px; height: 70px; background-color: var(--brand-orange); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+
+        /* --- Header & Navigation (Desktop) --- */
+        .site-header { position: fixed; top: 0; left: 0; z-index: 10; box-sizing: border-box; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 20px 4%; background: linear-gradient(to bottom, rgba(249, 247, 247, 1) 80%, rgba(249, 247, 247, 0) 100%); transition: background 0.3s ease, box-shadow 0.3s ease; height: 87px; }
+        .site-header.scrolled { background: rgba(249, 247, 247, 0.9); backdrop-filter: blur(5px); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .logo-container { display: flex; align-items: flex-start; flex-direction: column; gap: 2px; }
+        .logo-image { width: 210px; height: 45px; }
+        .tagline { font-size: 14px; letter-spacing: 2px; color: var(--brand-green); font-weight: 600; margin:0; }
+        .main-navigation ul { margin: 0; padding: 0; list-style-type: none; display: flex; gap: 35px; }
+        .main-navigation a { color: var(--brand-green); text-decoration: none; font-weight: 600; font-size: 15px; text-transform: uppercase; letter-spacing: 1.5px; transition: color 0.3s ease; padding-bottom: 5px; border-bottom: 2px solid transparent; }
+        .main-navigation a:hover { color: var(--brand-orange); }
+        .main-navigation a.active { color: var(--brand-orange); border-bottom-color: var(--brand-orange); }
+        .hamburger-menu { display: none; } /* Hidden on desktop */
+
+        /* --- INTRO SECTION STYLES --- */
+        .page-intro-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            padding: 50px 4% 40px;
+            background-color: var(--light-bg);
+            text-align: center;
+            position: relative; 
+            overflow: hidden;
+        }
+        .page-intro-section h1 {
+            font-size: 52px;
+            color: var(--brand-green);
+            margin: 0 0 15px 0;
+            font-weight: 600;
+        }
+        .page-intro-section p {
+            font-size: 18px;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        .intro-content {
+            position: relative;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* ===== UPDATED RIPPLE EFFECT ===== */
+        .water-ripple {
+            position: absolute;
+            border-radius: 50%;
+            /* Background color is now set by JavaScript */
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 1;
+            animation: ripple-effect 1s linear forwards;
+        }
+
+        /* Reverted to a simpler animation for the colored ripple */
+        @keyframes ripple-effect {
+            from {
+                width: 20px;
+                height: 20px;
+                opacity: 0.8;
+            }
+            to {
+                width: 200px;
+                height: 200px;
+                opacity: 0;
+            }
+        }
+
+
+        /* --- HERO SECTION STYLES --- */
+        .travel-hero {
+            position: relative; 
+            height: 100vh; 
+            width: 100%; 
+            display: flex; 
+            align-items: center; 
+            color: #ffffff;
+            overflow: hidden;
+        }
+        .hero-background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(2, 62, 115, 0.5); z-index: 1; }
+        .hero-content {
+            position: relative; z-index: 10; width: 100%; display: flex; justify-content: space-between;
+            align-items: center; padding: 0 4%; box-sizing: border-box;
+        }
+        .hero-text-content { max-width: 600px; pointer-events: none; transition: opacity 0.3s ease-in-out; }
+        .hero-text-content.fade-out { opacity: 0; }
+        .hero-text-content > * { pointer-events: auto; }
+        .hero-location { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+        .hero-text-content h1 {
+            font-size: 100px; 
+            font-weight: 600; 
+            line-height: 1.1; 
+            margin: 0; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.3); 
+        }
+        .hero-text-content p { font-size: 16px; line-height: 1.6; max-width: 550px; margin: 30px 0; }
+        .hero-side-panel { display: flex; align-items: center; gap: 30px; }
+        .scroll-arrows { display: flex; flex-direction: column; gap: 15px; }
+
+        .location-cards { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px;
+            height: 390px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        .location-cards::-webkit-scrollbar { width: 5px; height: 5px; }
+        .location-cards::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        .location-cards::-webkit-scrollbar-thumb { background: var(--brand-orange); border-radius: 10px; }
+        .location-cards::-webkit-scrollbar-thumb:hover { background: #ffc77d; }
+
+        .location-card {
+            position: relative; width: 220px; height: 120px; border-radius: 15px; overflow: hidden;
+            cursor: pointer; transition: transform 0.3s ease, border-color 0.3s ease; background: #333;
+            border: 3px solid transparent; display: block;
+            text-decoration: none; color: inherit;
+            flex-shrink: 0;
+        }
+        .location-card:hover { transform: scale(1.05); }
+        .location-card.active { border-color: var(--brand-orange); }
+        .location-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: opacity 0.3s ease; }
+        .location-card.active img, .location-card:hover img { opacity: 1; }
+        .location-card .card-text { position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px; box-sizing: border-box; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); }
+        .location-card .card-text p { margin: 0; font-size: 12px; opacity: 0.9; }
+        .location-card .card-text h4 { margin: 5px 0 0 0; font-size: 16px; font-weight: 800; text-transform: uppercase; }
+
+        /* --- FEATURES SECTION --- */
+        .features-section { padding: 80px 4%; background-color: #ffffff; }
+        .features-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; max-width: 1200px; margin: 0 auto; }
+        .feature-item { text-align: center; opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease-out, transform 0.4s ease-out; }
+        .feature-item.is-visible { opacity: 1; transform: translateY(0); }
+        .feature-item.is-visible:hover { transform: translateY(-8px); }
+        .feature-icon-wrapper { width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 25px; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); }
+        .feature-icon-wrapper.icon-blue { background-color: #e0f2fe; }
+        .feature-icon-wrapper.icon-purple { background-color: #ede9fe; }
+        .feature-icon-wrapper.icon-orange { background-color: #fff7ed; }
+        .feature-icon-wrapper.icon-green { background-color: #f0fdf4; }
+        .feature-icon-wrapper img { width: 30px; height: 30px; }
+        .feature-item h3 { font-size: 18px; font-weight: 600; color: var(--dark-text); margin: 0 0 10px 0; }
+        .feature-item p { font-size: 15px; line-height: 1.6; color: #555; margin: 0; }
+
+        /* --- FOOTER STYLES --- */
+        .site-footer { background-color: var(--light-bg); color: var(--brand-green); padding: 50px 4%; }
+        .footer-container { display: flex; justify-content: space-between; gap: 40px; max-width: 1200px; margin: 0 auto; flex-wrap: wrap; } 
+        .footer-col { flex: 1; min-width: 200px; } 
+        .footer-col-left { flex-basis: 30%; } 
+        .footer-logo { display: block; width: 210px; height: auto; margin-bottom: 20px; } /* Adjusted logo size for consistency with other pages */
+        .footer-copyright { font-size: 14px; margin-top: 10px; } 
+        .footer-col h4 { font-size: 18px; font-weight: 800; margin-top: 0; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; } /* Adjusted h4 for consistency */
+        .footer-col ul { margin: 0; padding: 0; list-style: none; } 
+        .footer-col ul li { margin-bottom: 10px; } 
+        .footer-col a { color: var(--brand-green); text-decoration: none; transition: color 0.3s ease; } 
+        .footer-col a:hover { color: var(--brand-orange); } 
+        .footer-social-links { display: flex; gap: 15px; margin-top: 20px; } /* Adjusted margin-top for consistency */
+        .footer-social-links img { width: 24px; height: 24px; transition: opacity 0.3s ease, transform 0.3s ease; } 
+        .footer-social-links a:hover img { opacity: 0.8; transform: scale(1.1); }
+
+        
+
+        /* --- RESPONSIVE STYLES --- */
+        @media (max-width: 1200px) { 
+            .hero-text-content h1 { font-size: 80px; } 
+            .location-card { width: 180px; height: 100px; }
+            .location-cards { height: 330px; }
+            
+        }
+
+        @media (max-width: 992px) { 
+            
+
+            .hero-content {
+                flex-direction: column; 
+                justify-content: flex-end; 
+                text-align: center;
+                padding: 40px 4% 60px; 
+            } 
+            .hero-text-content {
+                max-width: 100%;
+                pointer-events: auto; 
+            } 
+            .hero-location { 
+                justify-content: center;
+            } 
+            .hero-text-content p { 
+                margin: 30px auto; 
+            }
+            .hero-side-panel {
+                display: flex;
+                width: 100%;
+                margin-top: 40px;
+                gap: 0; /* Ensures full width horizontal scroll */
+            }
+            .scroll-arrows {
+                display: none;
+            }
+            .location-cards {
+                flex-direction: row;
+                overflow-x: auto;
+                overflow-y: hidden;
+                height: auto;
+                width: 100%; /* Take full width of side panel */
+                padding: 10px 0;
+                -webkit-overflow-scrolling: touch; 
+                scrollbar-width: thin;
+            }
+            
+            .features-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 50px 30px;
+            }
+
+            /* Footer adjustments */
+            .footer-container { flex-direction: column; align-items: center; text-align: center; }
+            .footer-col { 
+                min-width: auto; width: 100%; margin-bottom: 30px; 
+                box-sizing: border-box; padding: 0 4%;
+            }
+            .footer-logo { margin-left: auto; margin-right: auto; }
+            .footer-social-links { justify-content: center; }
+        }
+
+        @media (max-width: 768px) { 
+            .site-header { height: 90px; } 
+            .logo-image { width: 180px; height: 38px; } 
+            /* main-navigation ul and hamburger-menu handled by 992px */
+            
+            .hero-text-content h1 { font-size: 60px; } 
+            .hero-text-content p { font-size: 14px; } 
+            /* Hamburger Button Styling */
+            .hamburger-menu { 
+                position: static; /* Keeps it in the header flow */
+                display: flex; 
+                flex-direction: column; 
+                justify-content: space-around; 
+                width: 30px; 
+                height: 30px; 
+                background: transparent; 
+                border: none; 
+                cursor: pointer; 
+                padding: 0; 
+                z-index: 12; /* Ensures it's above the menu overlay if needed */
+            } 
+            .hamburger-menu span { 
+                width: 30px; 
+                height: 3px; 
+                background: var(--brand-green); 
+                border-radius: 5px; 
+                transition: all 0.3s linear; 
+                position: relative; 
+                transform-origin: 1px; 
+            } 
+
+            /* Menu List (UL) - Hidden State */
+            .main-navigation ul { 
+                /* display: none; - Removed this */
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 25px;
+                position: fixed;
+                top: 90px; /* Positioned exactly below the mobile header */
+                left: 0;
+                width: 100%;
+                background: var(--light-bg);
+                box-shadow: 0 15px 20px rgba(0,0,0,0.1);
+                
+                /* Animation & Hiding */
+                max-height: 0;
+                overflow: hidden;
+                padding: 0; /* No padding when hidden */
+                transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+                z-index: 9; /* Below the header (Z-index 10) */
+            }
+
+            /* Menu List (UL) - Open State (Triggered by body.menu-open) */
+            body.menu-open .main-navigation ul { 
+                max-height: 400px; /* Enough height to show the links */
+                padding: 30px 0; /* Add padding when open */
+            } 
+
+            /* Link styles within the dropdown */
+            .main-navigation a {
+                font-size: 18px;
+            }
+
+            /* Hamburger "X" Animation */
+            /* body.menu-open .hamburger-menu { position: fixed; top: 30px; right: 4%; } - Removed fixed positioning */
+            body.menu-open .hamburger-menu span:nth-child(1) { transform: rotate(45deg); } 
+            body.menu-open .hamburger-menu span:nth-child(2) { opacity: 0; transform: translateX(20px); } 
+            body.menu-open .hamburger-menu span:nth-child(3) { transform: rotate(-45deg); }
+        }
+
+        @media (max-width: 576px) {
+            .features-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) { 
+            .hero-text-content h1 { font-size: 48px; } 
+            .site-header { padding: 15px 4%; background-color: var(--light-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.1); } /* Ensure header looks good on smallest screens */
+            .logo-image { width: 180px; height: 38px; }
+            /* Footer adjustments for smallest screen */
+            .footer-col h4 { font-size: 16px; margin-bottom: 15px; }
+            .footer-col ul li { font-size: 14px; }
+            .footer-social-links img { width: 20px; height: 20px; }
+        }
+    </style>
+
+</head>
+<body>
+    <div id="preloader"><div class="hexagon-shape"></div></div>
+
+     <header class="site-header">
+        <div class="logo-container">
+            <img src="Logo.png" alt="Lifewood Logo" class="logo-image">
+        </div>
+        <nav class="main-navigation">
+            <button class="hamburger-menu" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+            <ul>
+                <li><a href="index.html">home</a></li>
+                <li><a href="services.html" class="active">services</a></li>
+                <li><a href="operations.html">Operations</a></li>
+                <li><a href="projects.html">projects</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- NEW INTRODUCTORY SECTION -->
+        <section class="page-intro-section">
+            <div class="intro-content">
+                <h1>Where Innovation Meets Expertise</h1>
+                <p>At Lifewood, we deliver comprehensive solutions that transform raw, unstructured information into dependable, high-quality assets for AI and machine learning. From idea to implementation, we’re here to help you build smarter systems, faster.</p>
+            </div>
+        </section>
+
+        <!-- INTERACTIVE HERO SECTION -->
+        <section class="travel-hero" id="hero-section">
+            <img src="" alt="Service background" id="hero-background-image" class="hero-background-image">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <div class="hero-text-content" id="hero-text-content">
+                    <div class="hero-location" id="hero-location">
+                        <span></span>
+                    </div>
+                    <h1 id="hero-title"></h1>
+                    <p id="hero-description"></p>
+                </div>
+
+                <div class="hero-side-panel">
+                    <div class="scroll-arrows">
+                         
+                    </div>
+                    <div class="location-cards">
+                        <a href="#" class="location-card" data-id="collection">
+                             <img src="collection.jpeg" alt="Data Collection">
+                             <div class="card-text">
+                                 <p>Our Services</p>
+                                 <h4>Data Collection</h4>
+                             </div>
+                        </a>
+                        <a href="#" class="location-card" data-id="annotation">
+                            <img src="annotation.jpeg" alt="Data Annotation">
+                            <div class="card-text">
+                                 <p>Our Services</p>
+                                 <h4>Data Annotation</h4>
+                             </div>
+                        </a>
+                        <a href="#" class="location-card" data-id="acquisition">
+                             <img src="acquisition.jpeg" alt="Data Acquisition">
+                             <div class="card-text">
+                                 <p>Our Services</p>
+                                 <h4>Data Acquisition</h4>
+                             </div>
+                        </a>
+                        <a href="#" class="location-card" data-id="curation">
+                             <img src="curation.png" alt="Data Curation">
+                             <div class="card-text">
+                                 <p>Our Services</p>
+                                 <h4>Data Curation</h4>
+                             </div>
+                        </a>
+                        <a href="#" class="location-card" data-id="validation">
+                             <img src="validation.png" alt="Data Validation">
+                             <div class="card-text">
+                                 <p>Our Services</p>
+                                 <h4>Data Validation</h4>
+                             </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================== -->
+        <!-- ===== NEW FEATURES SECTION ===== -->
+        <!-- ================================== -->
+        <section class="features-section">
+            <div class="features-container">
+                <!-- Feature 1 -->
+                <div class="feature-item">
+                    <div class="feature-icon-wrapper icon-blue">
+                        <img src="globe.png" alt="Globe Icon">
+                    </div>
+                    <h3>Global Expertise, Local Insight</h3>
+                    <p>We operate in 16+ countries, blending cultural knowledge with technical skill.</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="feature-item">
+                    <div class="feature-icon-wrapper icon-purple">
+                        <img src="graph.png" alt="Scales Icon">
+                    </div>
+                    <h3>Flexible and Scalable</h3>
+                    <p>From pilots to large-scale operations, we adapt fast to meet your goals.</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="feature-item">
+                    <div class="feature-icon-wrapper icon-orange">
+                         <img src="record.png" alt="Shield Icon">
+                    </div>
+                    <h3>Proven Track Record</h3>
+                    <p>Decades of success powering leading AI and data projects worldwide.</p>
+                </div>
+                
+                <!-- Feature 4 -->
+                <div class="feature-item">
+                    <div class="feature-icon-wrapper icon-green">
+                        <img src="collaboration.png" alt="Handshake Icon">
+                    </div>
+                    <h3>Transparent, Collaborative</h3>
+                    <p>You'll always know where your project stands—clear updates, no surprises.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-col footer-col-left">
+                <a href="index.html"><img src="Logo.png" alt="Lifewood Logo" class="footer-logo"></a>
+                <p class="footer-copyright">© 2024 Lifewood. All Rights Reserved.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Navigate</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="operations.html">Operations</a></li>
+                    <li><a href="projects.html">Projects</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact Us</h4>
+                <ul>
+                    <li><a href="mailto:hr.ph@lifewood.com">hr.ph@lifewood.com</a></li>
+                    <li><a href="tel:09276155464">+63 927 615 5464</a></li>
+                </ul>
+                <div class="footer-social-links">
+                    <a href="https://www.youtube.com/@LifewoodDataTechnology" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                        <img src="youtube.png" alt="YouTube">
+                    </a>
+                    <a href="https://www.facebook.com/LifewoodPH" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                        <img src="facebook.png" alt="Facebook">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const header = document.querySelector('.site-header');
+            if (header) {
+                const toggleHeaderShadow = () => { window.scrollY > 10 ? header.classList.add('scrolled') : header.classList.remove('scrolled'); };
+                window.addEventListener('scroll', toggleHeaderShadow);
+                toggleHeaderShadow();
+            }
+        });
+
+        window.onload=function(){setTimeout(function(){document.getElementById("preloader").classList.add("preloader-hidden")},500)};
+        
+        // Hamburger Menu Toggle (JS remains the same, CSS handles the new appearance)
+        const hamburgerBtn=document.querySelector(".hamburger-menu");
+        hamburgerBtn.addEventListener("click",function(){
+            document.body.classList.toggle("menu-open")
+        });
+    </script>
+
+   
+    <script>
+        
+
+        // --- INTERACTIVE HERO SCRIPT ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const servicesData = {
+                collection: {
+                    location: "Our Core Services",
+                    title: "Data<br>Collection",
+                    description: "We deliver end-to-end collection services across multiple formats and applications. Whether you need text data prepared and labeled, audio and speech recordings captured, or video content categorized and tagged, our teams ensure your data is organized, precise, and ready for training. From sentiment analysis to transcription, we help you cover every angle."
+                },
+                annotation: {
+                    location: "Our Core Services",
+                    title: "Data<br>Annotation",
+                    description: "High-quality annotation is essential for creating AI that understands and interprets the world. Lifewood offers specialized labeling services for text, images, audio, and video—helping you develop powerful models in computer vision and natural language processing. Our meticulous approach ensures your data is clear, structured, and consistent."
+                },
+                acquisition: {
+                    location: "Our Core Services",
+                    title: "Data<br>Acquisition",
+                    description: "At Lifewood, we help you build a strong foundation for intelligent systems by acquiring the right data from the right sources. From multilingual speech samples to specialized industry content, our solutions cover every step of gathering diverse datasets that empower AI to learn, adapt, and evolve."
+                },
+                curation: {
+                    location: "Our Core Services",
+                    title: "Data<br>Curation",
+                    description: "Our curation services transform raw information into well-organized, reliable datasets. We filter, sort, and index your data to make it easier to access, analyze, and apply—whether for scientific research, genealogy projects, business insights, or innovation initiatives. With Lifewood, your data becomes a strategic asset."
+                },
+                validation: {
+                    location: "Our Core Services",
+                    title: "Data<br>Validation",
+                    description: "We make sure your data is accurate, complete, and dependable before it ever reaches production. Lifewood’s validation processes confirm that every file meets your standards and performs as expected—reducing errors and ensuring you can trust the results. From consistency checks to rule-based reviews, we help you deliver data that’s ready for impact."
+                }
+            };
+
+            const heroBackgroundImage = document.getElementById('hero-background-image');
+            const heroTextContent = document.getElementById('hero-text-content');
+            const heroLocation = document.querySelector('#hero-location span');
+            const heroTitle = document.getElementById('hero-title');
+            const heroDescription = document.getElementById('hero-description');
+            const locationCards = document.querySelectorAll('.location-card');
+
+            function updateHeroContent(serviceId, imageSrc) {
+                const data = servicesData[serviceId];
+                if (!data) return;
+
+                heroTextContent.classList.add('fade-out');
+                heroBackgroundImage.style.opacity = '0'; 
+
+                setTimeout(() => {
+                    heroBackgroundImage.src = imageSrc;
+                    heroBackgroundImage.style.opacity = '1';
+
+                    heroLocation.textContent = data.location;
+                    heroTitle.innerHTML = data.title;
+                    heroDescription.textContent = data.description;
+
+                    locationCards.forEach(card => card.classList.remove('active'));
+                    document.querySelector(`.location-card[data-id="${serviceId}"]`).classList.add('active');
+                    
+                    heroTextContent.classList.remove('fade-out');
+                }, 300);
+            }
+
+            locationCards.forEach(card => {
+                card.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const selectedId = this.dataset.id;
+                    const imageSrc = this.querySelector('img').src;
+                    updateHeroContent(selectedId, imageSrc);
+                });
+            });
+
+            const initialCard = document.querySelector('.location-card[data-id="collection"]');
+            if (initialCard) {
+                const initialImageSrc = initialCard.querySelector('img').src;
+                updateHeroContent('collection', initialImageSrc);
+            }
+        });
+
+
+        /* --- SCROLL-IN ANIMATION FOR FEATURES --- */
+        document.addEventListener('DOMContentLoaded', function() {
+            const featureItems = document.querySelectorAll('.feature-item');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            featureItems.forEach(item => {
+                observer.observe(item);
+            });
+        });
+
+
+        /* --- CUSTOM COLOR RIPPLE EFFECT SCRIPT --- */
+        document.addEventListener('DOMContentLoaded', function() {
+            const introSection = document.querySelector('.page-intro-section');
+            
+            // An array holding your brand's color palette
+            const rippleColors = [
+                '#ffb347',
+                '#ffbb59',
+                '#ffc26c',
+                '#ffca7e',
+                '#ffd191',
+                '#ffd9a3',
+                '#ffe1b5'
+            ];
+            
+            // This will keep track of which color to use next
+            let colorIndex = 0;
+
+            if (introSection) {
+                introSection.addEventListener('mousemove', function(e) {
+                    const x = e.offsetX;
+                    const y = e.offsetY;
+
+                    const ripple = document.createElement('div');
+                    ripple.className = 'water-ripple';
+                    
+                    // Set the background color from our array
+                    ripple.style.backgroundColor = rippleColors[colorIndex];
+                    
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+
+                    this.appendChild(ripple);
+                    
+                    // Move to the next color in the array
+                    // The modulo (%) operator makes it loop back to the start
+                    colorIndex = (colorIndex + 1) % rippleColors.length;
+
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 1000); // Remove after 1 second (matches animation duration)
+                });
+            }
+        });
+
+        // --- FAB Navigation JavaScript (New) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const fabToggle = document.getElementById('fab-toggle');
+            const fabNavMenu = document.getElementById('fab-nav-menu');
+
+            if (fabToggle && fabNavMenu) {
+                fabToggle.addEventListener('click', (event) => {
+                    // Prevent the click from propagating to the document listener immediately
+                    event.stopPropagation(); 
+                    fabToggle.classList.toggle('is-active');
+                    fabNavMenu.classList.toggle('is-open');
+                });
+
+                // Close menu if clicked outside FAB or its menu
+                document.addEventListener('click', (event) => {
+                    const isClickInsideFab = fabToggle.contains(event.target) || fabNavMenu.contains(event.target);
+                    if (!isClickInsideFab && fabNavMenu.classList.contains('is-open')) {
+                        fabToggle.classList.remove('is-active');
+                        fabNavMenu.classList.remove('is-open');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
