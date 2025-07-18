@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lifewood - Natural Language Processing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="log.png" type="image/png">
+    <style>
+        :root { 
+            --brand-green: #046241; 
+            --brand-orange: #ffb347; 
+            --light-bg: #f9f7f7; 
+            --dark-text: #333;
+            --positive-bg: rgba(4, 185, 103, 0.2);
+            --negative-bg: rgba(255, 71, 71, 0.2);
+        }
+        body { margin: 0; font-family: 'Manrope', sans-serif; background-color: var(--light-bg); color: var(--dark-text); }
+        /* --- HEADER --- */
+        .site-header { position: fixed; top: 0; left: 0; z-index: 10; box-sizing: border-box; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 20px 4%; background: linear-gradient(to bottom, rgba(249, 247, 247, 1) 80%, rgba(249, 247, 247, 0) 100%); }
+        .logo-container { display: flex; align-items: flex-start; flex-direction: column; gap: 2px; }
+        .logo-image { width: 210px; height: 45px; }
+        .tagline { font-size: 14px; letter-spacing: 2px; color: var(--brand-green); font-weight: 600; margin:0; }
+        .main-navigation ul { margin: 0; padding: 0; list-style-type: none; display: flex; gap: 35px; }
+        .main-navigation a { color: var(--brand-green); text-decoration: none; font-weight: 600; font-size: 15px; text-transform: uppercase; letter-spacing: 1.5px; transition: color 0.3s ease; padding-bottom: 5px; border-bottom: 2px solid transparent; }
+        .main-navigation a:hover { color: var(--brand-orange); }
+        .main-navigation a.active { color: var(--brand-orange); border-bottom-color: var(--brand-orange); }
+        .hamburger-menu { display: none; }
+        
+        
+        .content-container {
+             max-width: 900px;
+             margin: 0 auto;
+             padding: 0 4%;
+        }
+
+        /* --- HERO SECTION STYLES --- */
+        .hero-section {
+            position: relative; 
+            height: 100vh; 
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 4%;
+            background-image: url('natural.jpeg'); 
+            background-size: cover;
+            background-position: center;
+        }
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(50, 50, 50, 0.7); 
+            z-index: 1; 
+        }
+        .hero-content {
+            position: relative; 
+            z-index: 2;
+            max-width: 900px;
+        }
+        .hero-content h1 {
+             font-size: 56px;
+             font-weight: 800;
+             margin-bottom: 15px;
+             text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+        }
+         .hero-content p {
+             font-size: 22px;
+             line-height: 1.6;
+             max-width: 800px;
+             margin: 0 auto;
+             text-shadow: 1px 1px 6px rgba(0,0,0,0.5);
+        }
+        
+        /* --- WAVE DIVIDER --- */
+        .wave-divider {
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+            transform: rotate(180deg);
+            z-index: 3;
+        }
+        .wave-divider svg {
+            position: relative;
+            display: block;
+            width: calc(100% + 1.3px);
+            height: 80px;
+        }
+        .wave-divider .shape-fill {
+            fill: #f9f7f7;
+        }
+        @media (max-width: 768px) { 
+            .wave-divider svg { height: 120px; } 
+            .site-header { padding: 15px 4%; background-color: var(--light-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            .logo-image { width: 180px; height: 38px; }
+            /* Hamburger Button Styling */
+            .hamburger-menu { 
+                position: static; /* Keeps it in the header flow */
+                display: flex; 
+                flex-direction: column; 
+                justify-content: space-around; 
+                width: 30px; 
+                height: 30px; 
+                background: transparent; 
+                border: none; 
+                cursor: pointer; 
+                padding: 0; 
+                z-index: 12; /* Ensures it's above the menu overlay if needed */
+            } 
+            .hamburger-menu span { 
+                width: 30px; 
+                height: 3px; 
+                background: var(--brand-green); 
+                border-radius: 5px; 
+                transition: all 0.3s linear; 
+                position: relative; 
+                transform-origin: 1px; 
+            } 
+
+            /* Menu List (UL) - Hidden State */
+            .main-navigation ul { 
+                /* display: none; - Removed this */
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 25px;
+                position: fixed;
+                top: 50px; /* Positioned exactly below the mobile header */
+                left: 0;
+                width: 100%;
+                background: var(--light-bg);
+                box-shadow: 0 15px 20px rgba(0,0,0,0.1);
+                
+                /* Animation & Hiding */
+                max-height: 0;
+                overflow: hidden;
+                padding: 0; /* No padding when hidden */
+                transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+                z-index: 9; /* Below the header (Z-index 10) */
+            }
+
+            /* Menu List (UL) - Open State (Triggered by body.menu-open) */
+            body.menu-open .main-navigation ul { 
+                max-height: 400px; /* Enough height to show the links */
+                padding: 30px 0; /* Add padding when open */
+            } 
+
+            /* Link styles within the dropdown */
+            .main-navigation a {
+                font-size: 18px;
+            }
+
+            /* Hamburger "X" Animation */
+            /* body.menu-open .hamburger-menu { position: fixed; top: 30px; right: 4%; } - Removed fixed positioning */
+            body.menu-open .hamburger-menu span:nth-child(1) { transform: rotate(45deg); } 
+            body.menu-open .hamburger-menu span:nth-child(2) { opacity: 0; transform: translateX(20px); } 
+            body.menu-open .hamburger-menu span:nth-child(3) { transform: rotate(-45deg); }
+            .footer-container { flex-direction: column; align-items: center; text-align: center; gap: 30px; }
+            .footer-col { flex-basis: auto; width: 100%; }
+             .footer-logo { margin-left: auto; margin-right: auto; }
+            .footer-social-links { justify-content: center; }
+        }
+        @media (max-width: 480px) {
+            .page-hero h1 { font-size: 32px; }
+            .page-hero p { font-size: 15px; }
+            .btn { padding: 10px 22px; font-size: 15px; }
+        }
+        /* --- SECTION 2: GREEN BACKGROUND --- */
+        .bottom-section-wrapper {
+             background-color: #f9f7f7;
+             padding: 120px 0 80px 0;
+             color: #fff;
+        }
+        .sentiment-analyzer-container {
+            padding: 50px 20px;
+            border-radius: 8px;
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 10px 40px rgba(4, 98, 65, 0.5); /* YELLOW SHADOW */
+        }
+        .sentiment-analyzer-container h3 { color: var(--dark-text); margin-top: 0; border-bottom: none; padding-bottom: 0; text-align: center; }
+        .sentiment-analyzer-container p.intro-text { color: var(--dark-text); text-align: center; max-width: 600px; margin: 15px auto 30px auto; }
+        #sentiment-input {
+            width: 100%; height: 120px; padding: 15px; font-family: 'Manrope', sans-serif;
+            font-size: 16px; border: 1px solid #ccc; border-radius: 8px; resize: vertical; box-sizing: border-box; margin-bottom: 20px;
+        }
+        #analyze-sentiment-btn {
+            display: block; margin: 0 auto; background-color: var(--brand-green); color: #fff;
+            border: none; padding: 12px 30px; font-size: 16px; font-weight: 600;
+            font-family: 'Manrope', sans-serif; border-radius: 50px; cursor: pointer; transition: all 0.3s ease;
+        }
+        #analyze-sentiment-btn:hover { background-color: var(--brand-orange); }
+        #sentiment-result {
+            margin-top: 30px; padding: 25px; display: none; line-height: 2.2; font-size: 18px; 
+            background-color: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px; color: var(--dark-text);
+        }
+        .sentiment-positive, .sentiment-negative { padding: 3px 2px; border-radius: 4px; margin: 0 -2px; }
+        .sentiment-positive { background-color: var(--positive-bg); }
+        .sentiment-negative { background-color: var(--negative-bg); }
+        
+        /* --- BACK TO PROJECTS BUTTON SECTION --- */
+        .back-to-projects-section {
+            padding: 40px 20px 80px; /* Reduced top padding, kept side padding */
+            text-align: left; /* Align button to the left */
+            max-width: 1200px; /* Align section with content above */
+            margin: 0 auto;    /* Center the section container */
+        }
+        .back-to-projects-btn {
+            display: inline-block;
+            padding: 12px 28px;
+            background-color: transparent;
+            color: var(--brand-green);
+            border: 2px solid var(--brand-green);
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+        .back-to-projects-btn:hover {
+            transform: translateY(-2px);
+            background-color: var(--brand-orange);
+            color: var(--dark-text);
+            border-color: var(--brand-orange);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        /* --- FOOTER --- */
+        .site-footer { background-color: var(--light-bg); color: var(--brand-green); padding: 40px 4%; }
+        .footer-container { display: flex; justify-content: space-between; gap: 40px; max-width: 1200px; margin: 0 auto; }
+        .footer-col { flex: 1; }
+        .footer-col-left { flex-basis: 30%; }
+        .footer-logo { display: block; width: 210px; height: auto; margin-bottom: 20px; }
+        .footer-copyright { font-size: 14px; margin-top: 10px; }
+        .footer-col h4 { font-size: 18px; font-weight: 800; margin-top: 0; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .footer-col ul { margin: 0; padding: 0; list-style: none; }
+        .footer-col ul li { margin-bottom: 10px; }
+        .footer-col a { color: var(--brand-green); text-decoration: none; transition: color 0.3s ease; }
+        .footer-col a:hover { color: var(--brand-orange); }
+
+        .footer-social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .footer-social-links img {
+            width: 24px;
+            height: 24px;
+            /* THE FIX: Add transform to the transition property */
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .footer-social-links a:hover img {
+            /* THE FIX: Add a scale effect and keep the opacity change for a better hover state */
+            opacity: 0.8; 
+            transform: scale(1.1);
+        }
+         
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <a href="index.html" class="logo-container">
+            <img src="Logo.png" alt="Lifewood Logo" class="logo-image">
+        </a>
+        <nav class="main-navigation">
+            <button class="hamburger-menu" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+            <ul>
+                <li><a href="index.html">home</a></li>
+                <li><a href="services.html">services</a></li>
+                <li><a href="operations.html">Operations</a></li>
+                <li><a href="projects.html" class="active">projects</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="hero-section">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                 <h1>Natural Language Processing</h1>
+                <p>Our teams collect and prepare diverse language datasets that power everything from intelligent virtual assistants to real-time translation tools. With a managed workforce spanning over 50 languages, we ensure your NLP models have the depth and accuracy needed to perform reliably in any market.</p>
+            </div>
+            <div class="wave-divider">
+                <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                    <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+                </svg>
+            </div>
+        </div>
+
+        <div class="bottom-section-wrapper">
+            <div class="content-container">
+                <div class="sentiment-analyzer-container">
+                    <h3>Visualize Sentiment</h3>
+                    <p class="intro-text">Paste your text to see how AI detects shifting tones and emotions within sentences and across your entire review.</p>
+                    <textarea id="sentiment-input" placeholder="Enter text here... e.g., 'The food was great, but the service was bad. The dessert was also good.'"></textarea>
+                    <button id="analyze-sentiment-btn">Analyze Sentiment</button>
+                    <div id="sentiment-result"></div>
+                </div>
+                 
+            </div>
+        </div>
+        <div class="back-to-projects-section">
+                    <a href="projects.html" class="back-to-projects-btn">← Back to All Projects</a>
+                </div>
+    </main>
+     <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-col footer-col-left">
+                <a href="index.html"><img src="Logo.png" alt="Lifewood Logo" class="footer-logo"></a>
+                <p class="footer-copyright">© 2024 Lifewood. All Rights Reserved.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Navigate</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="operations.html">Operations</a></li>
+                    <li><a href="projects.html">Projects</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact Us</h4>
+                <ul>
+                    <li><a href="mailto:hr.ph@lifewood.com">hr.ph@lifewood.com</a></li>
+                    <li><a href="tel:09276155464">+63 927 615 5464</a></li>
+                </ul>
+                <div class="footer-social-links">
+                    <a href="https://www.youtube.com/@LifewoodDataTechnology" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><img src="youtube.png" alt="YouTube"></a>
+                    <a href="https://www.facebook.com/LifewoodPH" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="facebook.png" alt="Facebook"></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const header = document.querySelector('.site-header');
+            if (header) {
+                const toggleHeaderShadow = () => { window.scrollY > 10 ? header.classList.add('scrolled') : header.classList.remove('scrolled'); };
+                window.addEventListener('scroll', toggleHeaderShadow);
+                toggleHeaderShadow();
+            }
+        });
+
+        window.onload=function(){setTimeout(function(){document.getElementById("preloader").classList.add("preloader-hidden")},500)};
+        
+        // Hamburger Menu Toggle (JS remains the same, CSS handles the new appearance)
+        const hamburgerBtn=document.querySelector(".hamburger-menu");
+        hamburgerBtn.addEventListener("click",function(){
+            document.body.classList.toggle("menu-open")
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const analyzeBtn = document.getElementById('analyze-sentiment-btn');
+            const sentimentInput = document.getElementById('sentiment-input');
+            const resultDiv = document.getElementById('sentiment-result');
+
+            const lexicon = {
+                positive: ['love', 'loved', 'happy', 'joy', 'great', 'excellent', 'good', 'amazing', 'fantastic', 'success', 'wonderful', 'beautiful', 'brilliant', 'celebrate', 'charm', 'cheer', 'delight', 'enjoy', 'glad', 'gorgeous', 'impressive', 'lovely', 'nice', 'superb', 'terrific', 'yay', 'wow', 'also good'],
+                negative: ['hate', 'hates', 'sad', 'bad', 'terrible', 'awful', 'poor', 'angry', 'dislike', 'fail', 'fear', 'grief', 'horrible', 'pathetic', 'reject', 'stupid', 'tragic', 'ugly', 'unfortunate', 'unhappy', 'worst', 'agony', 'cry', 'damn', 'disaster', 'furious', 'pain'],
+                shifters: ['but', 'however', 'although', 'though', 'despite']
+            };
+
+            analyzeBtn.addEventListener('click', () => {
+                const text = sentimentInput.value.trim();
+                if (text === '') {
+                    resultDiv.innerHTML = 'Please enter some text to analyze.';
+                    resultDiv.style.display = 'block';
+                    return;
+                }
+
+                let finalHTML = '';
+                const sentences = text.match(/[^.!?]+[.!?]*/g) || [text];
+
+                sentences.forEach(sentence => {
+                    if (sentence.trim() === '') return;
+
+                    const shifterRegex = new RegExp(`(\\b(?:${lexicon.shifters.join('|')})\\b)`, 'gi');
+                    const clauses = sentence.split(shifterRegex).filter(c => c);
+                    
+                    let sentenceHTML = '';
+                    clauses.forEach(clause => {
+                        if (lexicon.shifters.includes(clause.toLowerCase().trim())) {
+                            sentenceHTML += clause;
+                            return;
+                        }
+
+                        let positiveHits = 0;
+                        let negativeHits = 0;
+                        const words = clause.toLowerCase().split(/\s+/);
+
+                        words.forEach(word => {
+                            const cleanWord = word.replace(/[.,!?;:]/g, '');
+                            if (lexicon.positive.includes(cleanWord)) positiveHits++;
+                            if (lexicon.negative.includes(cleanWord)) negativeHits++;
+                        });
+
+                        let sentimentClass = '';
+                        if (positiveHits > 0 && negativeHits === 0) {
+                            sentimentClass = 'sentiment-positive';
+                        } else if (negativeHits > 0 && positiveHits === 0) {
+                            sentimentClass = 'sentiment-negative';
+                        }
+
+                        if (sentimentClass) {
+                            sentenceHTML += `<span class="${sentimentClass}">${clause}</span>`;
+                        } else {
+                            sentenceHTML += clause;
+                        }
+                    });
+                    finalHTML += sentenceHTML;
+                });
+
+                resultDiv.innerHTML = finalHTML;
+                resultDiv.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

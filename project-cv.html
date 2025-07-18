@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lifewood - Computer Vision</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="log.png" type="image/png">
+    <style>
+        /* CSS Variables */
+        :root {
+            --brand-green: #046241;
+            --brand-orange: #ffb347;
+            --light-bg: #f9f7f7;
+            --dark-text: #333;
+        }
+
+        /* Base Styles */
+        body {
+            margin: 0;
+            font-family: 'Manrope', sans-serif;
+            background-color: #ffffff;
+            color: var(--dark-text);
+        }
+
+        .site-header { position: fixed; top: 0; left: 0; z-index: 10; box-sizing: border-box; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 20px 4%; background: linear-gradient(to bottom, rgba(249, 247, 247, 1) 80%, rgba(249, 247, 247, 0) 100%); }
+        .logo-container { display: flex; align-items: flex-start; flex-direction: column; gap: 2px; }
+        .logo-image { width: 210px; height: 45px; }
+        .tagline { font-size: 14px; letter-spacing: 2px; color: var(--brand-green); font-weight: 600; margin:0; }
+        .main-navigation ul { margin: 0; padding: 0; list-style-type: none; display: flex; gap: 35px; }
+        .main-navigation a { color: var(--brand-green); text-decoration: none; font-weight: 600; font-size: 15px; text-transform: uppercase; letter-spacing: 1.5px; transition: color 0.3s ease; padding-bottom: 5px; border-bottom: 2px solid transparent; }
+        .main-navigation a:hover { color: var(--brand-orange); }
+        .main-navigation a.active { color: var(--brand-orange); border-bottom-color: var(--brand-orange); }
+        /* Hamburger menu is initially hidden on large screens */
+        .hamburger-menu { display: none; }
+        /* Project Detail Hero Section */
+        .project-detail-hero {
+            width: 100%;
+            height: 60vh;
+            max-height: 500px;
+            overflow: hidden;
+        }
+        .project-detail-hero img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Project Detail Content Section */
+        .project-detail-content {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 30px 4% 100px; /* MODIFIED: Added 100px padding to the bottom to make space for the wave */
+        }
+        .project-detail-content h1 {
+            font-size: 48px;
+            color: var(--dark-text);
+            font-weight: 800;
+            margin: 0 0 10px 0;
+        }
+        .project-detail-content .metric-tagline {
+            font-size: 24px;
+            color: var(--brand-green);
+            font-weight: 600;
+            margin: 0 0 40px 0;
+        }
+        .project-detail-content h3 {
+            font-size: 28px;
+            color: var(--dark-text);
+            margin-top: 50px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .project-detail-content p {
+            font-size: 18px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+        .back-to-projects-btn {
+            display: inline-block;
+            margin-top: 50px;
+            color: var(--brand-green);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 20px;
+            border: 2px solid var(--brand-green);
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+        .back-to-projects-btn:hover {
+            background-color: var(--brand-green);
+            color: #fff;
+        }
+
+        /* Computer Vision in Action Section (New) */
+        .cv-in-action-section {
+            padding: 20px 20px 4%; /* More vertical padding than other sections */
+            background-color: #046241; /* Use light background for this section */
+            text-align: center;
+        }
+
+        .cv-in-action-section h2 {
+            font-size: 40px;
+            color: #f9f7f7;
+            font-weight: 800;
+            margin-bottom: 50px;
+            position: relative;
+            display: inline-block; /* To allow pseudo-elements for line */
+            padding-bottom: 15px; /* Space for the underline */
+        }
+
+        .cv-in-action-section h2::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: 80px; /* Length of the line */
+            height: 4px;
+            background-color: var(--brand-orange);
+            border-radius: 2px;
+        }
+
+        .cv-slider-container {
+            max-width: 1200px; /* Limit slider width */
+            margin: 0 auto;
+        }
+
+        .cv-slider {
+            display: flex;
+            overflow-x: scroll; /* Enable horizontal scrolling */
+            scroll-snap-type: x mandatory; /* Snap to cards */
+            scroll-behavior: smooth; /* Smooth scrolling */
+            -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
+            padding-bottom: 20px; /* Space for potential scrollbar if not hidden */
+            margin-bottom: -20px; /* Offset the padding bottom to keep height consistent */
+            gap: 40px; /* Gap between cards */
+            padding-left: 4%; /* Match body padding for left alignment */
+            padding-right: 4%; /* Match body padding for right alignment */
+        }
+
+        /* Hide scrollbar for WebKit browsers */
+        .cv-slider::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for Firefox */
+        .cv-slider {
+            scrollbar-width: none;
+        }
+
+        .cv-card {
+            flex: 0 0 calc((100% / 3) - (40px * 2 / 3)); /* For 3 cards with 40px gap */
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            padding: 40px;
+            text-align: center;
+            scroll-snap-align: start; /* Snap to the start of the card */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: zoom-in; /* MODIFIED: Changed cursor to a magnifying glass */
+        }
+
+        /* REMOVED: .cv-card:active rule is no longer needed */
+
+        .cv-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        }
+
+        .cv-card-icon {
+            width: 80px;
+            height: 80px;
+            background-color: var(--brand-green);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .cv-card-icon img {
+            width: 50px;
+            height: 50px;
+            filter: brightness(0) invert(1); /* Make the icons white */
+            /* Note: These icon images (e.g., images/icons/autonomous-driving.png) would need to be provided */
+        }
+
+        .cv-card h4 {
+            font-size: 24px;
+            color: var(--brand-green);
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .cv-card p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--dark-text);
+        }
+
+        /* Footer */
+        .site-footer {
+            background-color: var(--light-bg);
+            color: var(--brand-green);
+            padding: 60px 4%;
+            border-top: 1px solid #e0e0e0;
+        }
+        /* Further footer styling would typically go here */
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        .footer-col {
+            flex: 1;
+            min-width: 180px; /* Ensure columns don't get too small */
+        }
+        .footer-col-left {
+            flex: 2; /* Make logo column wider */
+            min-width: 250px;
+        }
+        .footer-logo {
+            width: 200px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        .footer-copyright {
+            font-size: 14px;
+            color: #777;
+        }
+        .site-footer h4 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--brand-orange);
+        }
+        .site-footer ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .site-footer ul li {
+            margin-bottom: 10px;
+        }
+        .site-footer ul li a {
+            color: var(--dark-text);
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
+        .site-footer ul li a:hover {
+            color: var(--brand-orange);
+        }
+        .footer-social-links {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+        }
+        .footer-social-links img {
+            width: 30px;
+            height: 30px;
+            transition: transform 0.3s ease;
+        }
+        .footer-social-links img:hover {
+            transform: scale(1.1);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 1024px) {
+            .cv-card {
+                flex: 0 0 calc((100% / 2) - (40px / 2)); /* Show 2 cards, 40px gap means 20px per side */
+            }
+            .project-detail-content h1 {
+                font-size: 38px;
+            }
+        }
+
+       
+        @media (max-width: 768px) { 
+            .vertical-wave-divider svg{margin-top: -150px;}
+            .site-header { padding: 15px 4%; background-color: var(--light-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            .logo-image { width: 180px; height: 38px; }
+            .cv-in-action-section h2{font-size: 30px; }
+            /* Hamburger Button Styling */
+            .hamburger-menu { 
+                position: static; /* Keeps it in the header flow */
+                display: flex; 
+                flex-direction: column; 
+                justify-content: space-around; 
+                width: 30px; 
+                height: 30px; 
+                background: transparent; 
+                border: none; 
+                cursor: pointer; 
+                padding: 0; 
+                z-index: 12; /* Ensures it's above the menu overlay if needed */
+            } 
+            .hamburger-menu span { 
+                width: 30px; 
+                height: 3px; 
+                background: var(--brand-green); 
+                border-radius: 5px; 
+                transition: all 0.3s linear; 
+                position: relative; 
+                transform-origin: 1px; 
+            } 
+
+            /* Menu List (UL) - Hidden State */
+            .main-navigation ul { 
+                /* display: none; - Removed this */
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 25px;
+                position: fixed;
+                top: 50px; /* Positioned exactly below the mobile header */
+                left: 0;
+                width: 100%;
+                background: var(--light-bg);
+                box-shadow: 0 15px 20px rgba(0,0,0,0.1);
+                
+                /* Animation & Hiding */
+                max-height: 0;
+                overflow: hidden;
+                padding: 0; /* No padding when hidden */
+                transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+                z-index: 9; /* Below the header (Z-index 10) */
+            }
+
+            /* Menu List (UL) - Open State (Triggered by body.menu-open) */
+            body.menu-open .main-navigation ul { 
+                max-height: 400px; /* Enough height to show the links */
+                padding: 30px 0; /* Add padding when open */
+            } 
+
+            /* Link styles within the dropdown */
+            .main-navigation a {
+                font-size: 18px;
+            }
+
+            /* Hamburger "X" Animation */
+            /* body.menu-open .hamburger-menu { position: fixed; top: 30px; right: 4%; } - Removed fixed positioning */
+            body.menu-open .hamburger-menu span:nth-child(1) { transform: rotate(45deg); } 
+            body.menu-open .hamburger-menu span:nth-child(2) { opacity: 0; transform: translateX(20px); } 
+            body.menu-open .hamburger-menu span:nth-child(3) { transform: rotate(-45deg); }
+            .footer-container { flex-direction: column; align-items: center; text-align: center; gap: 30px; }
+            .footer-col { flex-basis: auto; width: 100%; }
+             .footer-logo { margin-left: auto; margin-right: auto; }
+            .footer-social-links { justify-content: center; }
+        }
+        /* --- WAVE DIVIDER WITH OVERLAP --- */
+        .wave-divider {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+            z-index: 5; 
+            margin-top: -60px; 
+        }
+        .wave-divider svg {
+            position: relative;
+            display: block;
+            width: calc(100% + 1.3px);
+            height: 60px;
+        }
+        .wave-fill {
+            fill: #046241; 
+        }
+        
+        /* --- SPLIT-SCREEN DEMO --- */
+        .demo-container { 
+            max-width: 1200px; 
+            margin: 40px auto 0; /* UPDATED: Removed bottom margin */
+            padding: 0 20px; 
+        }
+        .demo-header { text-align: center; margin-bottom: 40px; }
+        .demo-header h2 { font-size: 42px; margin: 0 0 10px 0; color: var(--brand-green); }
+        .demo-header p { 
+            font-size: 18px; 
+            max-width: 700px; 
+            margin: 0 auto; 
+            color: var(--grey-text);
+        }
+        .split-screen-wrapper { display: flex; gap: 30px; justify-content: center; align-items: stretch; }
+        .model-panel {
+            flex: 1;
+            background-color: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.3s ease, border-color 0.3s ease;
+            color: var(--dark-text); 
+        }
+        /* --- BACK TO PROJECTS BUTTON SECTION --- */
+        .back-to-projects-section {
+            padding: 40px 20px 80px; /* Reduced top padding, kept side padding */
+            text-align: left; /* Align button to the left */
+            max-width: 1200px; /* Align section with content above */
+            margin: 0 auto;    /* Center the section container */
+        }
+        .back-to-projects-btn {
+            display: inline-block;
+            padding: 12px 28px;
+            background-color: transparent;
+            color:#ffffff;
+            border: 2px solid #ffffff;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+        .back-to-projects-btn:hover {
+            transform: translateY(-2px);
+            background-color: var(--brand-orange);
+            color: var(--dark-text);
+            border-color: var(--brand-orange);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <a href="index.html" class="logo-container">
+            <img src="Logo.png" alt="Lifewood Logo" class="logo-image">
+        </a>
+        <nav class="main-navigation">
+            <button class="hamburger-menu" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+            <ul>
+                <li><a href="index.html">home</a></li>
+                <li><a href="services.html">services</a></li>
+                <li><a href="operations.html">Operations</a></li>
+                <li><a href="projects.html" class="active">projects</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="project-detail-content">
+            <h1>Computer Vision</h1>
+            <h3>Training AI to See the World with Clarity</h3>
+            <p>At Lifewood, we enable machines to see and understand the world like humans—only faster and at scale. Our computer vision solutions turn visual data into actionable insights across diverse industries.</p>
+        </div>
+         <!-- WAVE DIVIDER START -->
+        <div class="wave-divider">
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" class="wave-fill"></path>
+            </svg>
+        </div>
+        <!-- WAVE DIVIDER END -->
+
+        <!-- NEW SECTION: Computer Vision in Action -->
+        <section class="cv-in-action-section">
+            <h2>Computer Vision<br> in Action</br></h2>
+            <div class="cv-slider-container">
+                <div class="cv-slider">
+                    <div class="cv-card">
+                        <div class="cv-card-icon"><img src="auto.png" alt="Autonomous Driving Icon"></div>
+                        <h4>Autonomous Driving</h4>
+                        <p>Training AI to recognize road signs, obstacles, and lane boundaries.</p>
+                        <!-- Future content for flip/expand could go here -->
+                    </div>
+                    <div class="cv-card">
+                        <div class="cv-card-icon"><img src="health.png" alt="Healthcare Icon"></div>
+                        <h4>Healthcare</h4>
+                        <p>Helping machines detect tumors or anomalies in medical scans.</p>
+                    </div>
+                    <div class="cv-card">
+                        <div class="cv-card-icon"><img src="retail.png" alt="Retail Analytics Icon"></div>
+                        <h4>Retail Analytics</h4>
+                        <p>Enabling shelf inventory tracking and customer heatmaps.</p>
+                    </div>
+                    <div class="cv-card">
+                        <div class="cv-card-icon"><img src="agri.png" alt="Agriculture Icon"></div>
+                        <h4>Agriculture</h4>
+                        <p>Monitoring crops and livestock through drone imagery.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="back-to-projects-section">
+            <a href="projects.html" class="back-to-projects-btn">← Back to All Projects</a>
+        </div>
+        </section>
+        <!-- END NEW SECTION -->
+         <!-- BACK TO PROJECTS SECTION -->
+        
+
+    </main>
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-col footer-col-left">
+                <a href="index.html"><img src="Logo.png" alt="Lifewood Logo" class="footer-logo"></a>
+                <p class="footer-copyright">© 2024 Lifewood. All Rights Reserved.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Navigate</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="operations.html">Operations</a></li>
+                    <li><a href="projects.html">Projects</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact Us</h4>
+                <ul>
+                    <li><a href="mailto:hr.ph@lifewood.com">hr.ph@lifewood.com</a></li>
+                    <li><a href="tel:09276155464">+63 927 615 5464</a></li>
+                </ul>
+                <div class="footer-social-links">
+                    <a href="https://www.youtube.com/@LifewoodDataTechnology" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><img src="youtube.png" alt="YouTube"></a>
+                    <a href="https://www.facebook.com/LifewoodPH" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="facebook.png" alt="Facebook"></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const header = document.querySelector('.site-header');
+            if (header) {
+                const toggleHeaderShadow = () => { window.scrollY > 10 ? header.classList.add('scrolled') : header.classList.remove('scrolled'); };
+                window.addEventListener('scroll', toggleHeaderShadow);
+                toggleHeaderShadow();
+            }
+        });
+
+        window.onload=function(){setTimeout(function(){document.getElementById("preloader").classList.add("preloader-hidden")},500)};
+        
+        // Hamburger Menu Toggle (JS remains the same, CSS handles the new appearance)
+        const hamburgerBtn=document.querySelector(".hamburger-menu");
+        hamburgerBtn.addEventListener("click",function(){
+            document.body.classList.toggle("menu-open")
+        });
+    </script>
+</body>
+</html> 
