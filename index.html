@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lifewood - Home</title>
+
+    <!-- Google Fonts Import for 'Manrope' -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link rel="icon" href="log.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- GLOBAL CSS STYLES (Used on all pages) --- */
+        :root {
+            --brand-green: #046241;
+            --brand-orange: #ffb347;
+            --light-bg: #f9f7f7;
+            --dark-text: #333;
+        }
+        body { margin: 0; font-family: 'Manrope', sans-serif; background-color: #ffffff; color: var(--dark-text); overflow-x: hidden; }
+        #preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; background-color: var(--light-bg); display: flex; justify-content: center; align-items: center; transition: opacity 0.75s ease, visibility 0.75s ease; }
+        .preloader-hidden { opacity: 0; visibility: hidden; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+        #preloader .hexagon-shape { animation: spin 2s linear infinite; width: 60px; height: 70px; background-color: var(--brand-orange); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+        .site-header { position: fixed; top: 0; left: 0; z-index: 10; box-sizing: border-box; height: 100vh; width: 100%; background-color: var(--light-bg); display: flex; justify-content: center; align-items: center; overflow: hidden; transition: height 1.5s ease, padding 1.5s ease, background-color 1.5s ease; }
+        .logo-container { display: flex; flex-direction: column; align-items: center; gap: 10px; transition: gap 1.5s ease, align-items 1.5s ease; }
+        .logo-image { width: 50vw; max-width: 600px; height: auto; transition: width 1.5s ease, height 1.5s ease; }
+        .tagline { opacity: 1; transition: font-size 1.5s ease, letter-spacing 1.5s ease; color: var(--brand-green); font-weight: 600; font-size: 1.8vw; letter-spacing: 3px; }
+        body.scrolled-state .site-header { height: 110px; padding: 0 4%; justify-content: space-between; background: linear-gradient(to bottom, var(--light-bg) 80%, rgba(249, 247, 247, 0) 100%); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        body.scrolled-state .logo-container { align-items: flex-start; gap: 2px; }
+        body.scrolled-state .logo-image { width: 210px; height: 45px; }
+        .main-navigation ul { margin: 0; padding: 0; list-style-type: none; display: flex; gap: 35px; transition: opacity 1.5s ease, visibility 1.5s ease; }
+        .main-navigation a { color: var(--brand-green); text-decoration: none; font-weight: 600; font-size: 15px; text-transform: uppercase; letter-spacing: 1.5px; transition: color 0.3s ease; padding-bottom: 5px; border-bottom: 2px solid transparent; }
+        .main-navigation a:hover { color: var(--brand-orange); }
+        .main-navigation a.active { color: var(--brand-orange); border-bottom-color: var(--brand-orange); }
+        body:not(.scrolled-state) .main-navigation ul { opacity: 0; visibility: hidden; }
+        body.scrolled-state .main-navigation ul { opacity: 1; visibility: visible; }
+        .hamburger-menu { display: none; }
+        main { padding-top: 0; }
+        body.scrolled-state main { margin-top: 110px; transition: margin-top 1.5s ease; }
+        .video-container { width: 100%; height: 100vh; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; background-color: #111; }
+        .video-container video { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); min-width: 100%; min-height: 100%; width: auto; height: auto; z-index: 0; opacity: 0.3; }
+        .video-overlay-text { position: relative; z-index: 2; color: #ffffff; text-align: center; padding: 20px; text-shadow: 2px 2px 8px rgba(0,0,0,0.7); }
+        .video-overlay-text h1 { font-size: 50px; font-weight: 800; margin-bottom: 20px; }
+        .video-overlay-text p { font-size: 20px; max-width: 900px; margin: 0 auto; line-height: 1.6; }
+        
+        /* Adjusted cta-button margin-top */
+        .cta-button { 
+            display: inline-block; 
+            /* REMOVED: margin-top: 30px; - This will now be handled by parent containers */
+            padding: 12px 30px; 
+            background-color: var(--brand-orange); 
+            color: var(--brand-green); 
+            text-decoration: none; 
+            font-weight: 800; 
+            border-radius: 50px; 
+            text-transform: uppercase; 
+            letter-spacing: 1.5px; 
+            font-size: 16px; 
+            transition: background-color 0.3s ease, transform 0.3s ease; 
+            text-shadow: none; 
+        }
+        /* Re-apply margin-top specifically for the button in the video overlay */
+        .video-overlay-text .cta-button {
+            margin-top: 30px; 
+        }
+
+        .cta-button:hover { background-color: #f7a823; transform: translateY(-3px); }
+        
+        /* New styling for the button wrapper in video-text-section */
+        .cta-buttons-wrapper {
+            display: flex;
+            gap: 20px; /* Space between buttons */
+            margin-top: 30px; /* Margin above the buttons */
+            justify-content: center; /* Center buttons when the column text is centered */
+            flex-wrap: wrap; /* Allow buttons to wrap to the next line on smaller screens */
+        }
+
+
+        .pop-out-section { display: flex; align-items: center; justify-content: center; gap: 50px; padding: 100px 4%; overflow: hidden; }
+        .pop-out-image img { max-width: 350px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: block; }
+        .animate-on-scroll { opacity: 0; transition: opacity 1s ease-out, transform 1s ease-out; }
+        .animate-on-scroll.slide-from-left { transform: translateX(-50px); }
+        .animate-on-scroll.slide-from-right { transform: translateX(50px); }
+        .animate-on-scroll.fade-in-up { transform: translateY(50px); }
+        .animate-on-scroll.is-visible { opacity: 1; transform: none; }
+        .pop-out-content { max-width: 400px; }
+        .pop-out-content h3 { font-size: 28px; font-weight: 800; color: var(--brand-green); margin-top: 0; }
+        .pop-out-content h3:not(:first-child) { margin-top: 40px; }
+        .pop-out-content p { line-height: 1.7; }
+        .video-text-section { display: flex; align-items: center; gap: 60px; padding: 100px 4%; background-color: var(--light-bg); }
+        .video-column, .text-column { flex: 1; }
+        .video-column video { width: 100%; height: auto; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: block; }
+        .text-column h3 { font-size: 32px; font-weight: 800; color: var(--brand-green); margin-top: 0; margin-bottom: 15px; }
+        .text-column p { line-height: 1.8; margin-bottom: 20px; }
+        .quote-section { padding: 120px 4%; background-color: var(--brand-green); color: #ffffff; text-align: center; }
+        .quote-section blockquote { max-width: 800px; margin: 0 auto; border: none; padding: 0; }
+        .quote-section blockquote p { font-size: 32px; font-style: italic; font-weight: 600; line-height: 1.5; margin: 0 0 20px 0; color: var(--brand-orange); text-shadow: none; }
+        .quote-section .quote-author { font-size: 18px; font-weight: 400; font-style: normal; color: rgba(255, 255, 255, 0.8); }
+        
+        .site-footer { background-color: var(--light-bg); color: var(--brand-green); padding: 40px 4%; }
+        .footer-container { display: flex; justify-content: space-between; gap: 40px; max-width: 1200px; margin: 0 auto; }
+        .footer-col { flex: 1; }
+        .footer-col-left { flex-basis: 30%; }
+        .footer-logo { display: block; width: 210px; height: auto; margin-bottom: 20px; }
+        .footer-copyright { font-size: 14px; margin-top: 10px; }
+        .footer-col h4 { font-size: 18px; font-weight: 800; margin-top: 0; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .footer-col ul { margin: 0; padding: 0; list-style: none; }
+        .footer-col ul li { margin-bottom: 10px; }
+        .footer-col a { color: var(--brand-green); text-decoration: none; transition: color 0.3s ease; }
+        .footer-col a:hover { color: var(--brand-orange); }
+
+        .footer-social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .footer-social-links img {
+            width: 24px;
+            height: 24px;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .footer-social-links a:hover img {
+            opacity: 0.8; 
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 900px) {
+            .pop-out-section, .video-text-section { flex-direction: column; text-align: center; }
+            .pop-out-content.right { order: -1; }
+            .video-overlay-text h1 { font-size: 36px; }
+            .video-overlay-text p { font-size: 18px; }
+            /* Ensure buttons center when column is centered */
+            .cta-buttons-wrapper {
+                justify-content: center;
+            }
+        }
+        @media (max-width: 768px) {
+            body.scrolled-state .site-header { height: 90px; }
+            body.scrolled-state main { margin-top: 90px; }
+            body.scrolled-state .logo-image { width: 180px; height: 38px; }
+            body.scrolled-state .tagline { display: none; }
+            /* Hamburger Button Styling */
+            body.scrolled-state .hamburger-menu { 
+                position: static; /* Keeps it in the header flow */
+                display: flex; 
+                flex-direction: column; 
+                justify-content: space-around; 
+                width: 30px; 
+                height: 30px; 
+                background: transparent; 
+                border: none; 
+                cursor: pointer; 
+                padding: 0; 
+                z-index: 12; /* Ensures it's above the menu overlay if needed */
+            } 
+             body.scrolled-state .hamburger-menu span { 
+                width: 30px; 
+                height: 3px; 
+                background: var(--brand-green); 
+                border-radius: 5px; 
+                transition: all 0.3s linear; 
+                position: relative; 
+                transform-origin: 1px; 
+            } 
+
+            /* Menu List (UL) - Hidden State */
+            .main-navigation ul { 
+                /* display: none; - Removed this */
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 25px;
+                position: fixed;
+                top: 70px; /* Positioned exactly below the mobile header */
+                left: 0;
+                width: 100%;
+                background: var(--light-bg);
+                box-shadow: 0 15px 20px rgba(0,0,0,0.1);
+                
+                /* Animation & Hiding */
+                max-height: 0;
+                overflow: hidden;
+                padding: 0; /* No padding when hidden */
+                transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+                z-index: 9; /* Below the header (Z-index 10) */
+            }
+
+            /* Menu List (UL) - Open State (Triggered by body.menu-open) */
+            body.menu-open .main-navigation ul { 
+                max-height: 400px; /* Enough height to show the links */
+                padding: 30px 0; /* Add padding when open */
+            } 
+
+            /* Link styles within the dropdown */
+            .main-navigation a {
+                font-size: 18px;
+            }
+
+            /* Hamburger "X" Animation */
+            /* body.menu-open .hamburger-menu { position: fixed; top: 30px; right: 4%; } - Removed fixed positioning */
+            body.menu-open .hamburger-menu span:nth-child(1) { transform: rotate(45deg); } 
+            body.menu-open .hamburger-menu span:nth-child(2) { opacity: 0; transform: translateX(20px); } 
+            body.menu-open .hamburger-menu span:nth-child(3) { transform: rotate(-45deg); }
+            .tagline { font-size: 3vw; }
+            .logo-image { width: 70vw; }
+            .quote-section blockquote p { font-size: 24px; }
+            .footer-container { flex-direction: column; text-align: center; }
+            .footer-col-left { order: 3; } 
+            .footer-logo { margin-left: auto; margin-right: auto; }
+            .footer-social-links { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="preloader">
+        <div class="hexagon-shape"></div>
+    </div>
+
+    <header class="site-header">
+        <div class="logo-container">
+            <img src="Logo.png" alt="Lifewood Logo" class="logo-image">
+        </div>
+        <nav class="main-navigation">
+            <button class="hamburger-menu" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+            <ul>
+                <li><a href="index.html" class="active">home</a></li>
+                <li><a href="services.html">services</a></li>
+                <li><a href="operations.html">Operations</a></li>
+                <li><a href="projects.html">projects</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="video-container">
+            <video src="Data.mp4" autoplay loop muted playsinline></video>
+            <div class="video-overlay-text">
+                <h1>Empowering AI Through Quality Data</h1>
+                <p>Lifewood partners with organizations worldwide to create, collect, and manage high-quality data that powers AI and machine learning systems. With a presence in over 16 countries, we combine global expertise with rigorous processes to help technology reach its full potential.</p>
+                <a href="operations.html" class="cta-button">See our Global Operations</a>
+            </div>
+        </div>
+
+        <div class="pop-out-section scroll-animation-section">
+            <div class="pop-out-content animate-on-scroll slide-from-left">
+                <h3>Celebrate Uniqueness</h3>
+                <p>We believe that every background, belief, and story adds value. It’s the mix of voices that shapes our strength and keeps us moving forward.</p>
+                <h3>Lead with Heart</h3>
+                <p>We leverage a data-first approach, transforming complex streams of information into clear, actionable insights that drive growth and efficiency.</p>
+            </div>
+            <div class="pop-out-image">
+                <img src="Logos.png" alt="Lifewood Logos">
+            </div>
+            <div class="pop-out-content animate-on-scroll slide-from-right">
+                <h3>Fuel Progress</h3>
+                <p>We never stop asking, “What’s next?” Curiosity drives us. Innovation is not a buzzword—it’s a habit that makes us better every day.</p>
+                <h3>Stand for What’s Right</h3>
+                <p>We do what’s right even when it’s not easy. Our promise: stay ethical, stay transparent, and never compromise on our values.</p>
+            </div>
+        </div>
+        
+        <div class="video-text-section scroll-animation-section">
+            <div class="video-column">
+                <video src="Life.mp4" autoplay loop muted playsinline></video>
+            </div>
+            <div class="text-column animate-on-scroll slide-from-right">
+                <h3>Driven by Purpose, Proven by Results</h3>
+                <p>Since 2004, Lifewood has helped organizations worldwide transform raw information into high-quality data that powers smarter technology. Our work fuels breakthroughs in artificial intelligence, machine learning, and digital heritage preservation.</p>
+                <p>Our goal is to help your technology reach its full potential by building a data foundation you can trust.</p>
+                <!-- NEW: Wrapper for the buttons -->
+                <div class="cta-buttons-wrapper">
+                    <a href="services.html" class="cta-button">Explore our Services</a>
+                    <a href="projects.html" class="cta-button">Explore our Projects</a> <!-- NEW BUTTON HERE -->
+                </div>
+            </div>
+        </div>
+
+        <div class="quote-section scroll-animation-section">
+            <blockquote class="animate-on-scroll fade-in-up">
+                <p>"Always On Never Off"</p>
+                <cite class="quote-author">— Lifewood</cite>
+            </blockquote>
+        </div>
+
+    </main>
+    
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-col footer-col-left">
+                <a href="index.html"><img src="Logo.png" alt="Lifewood Logo" class="footer-logo"></a>
+                <p class="footer-copyright">© 2024 Lifewood. All Rights Reserved.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Navigate</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="operations.html">Operations</a></li>
+                    <li><a href="projects.html">Projects</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact Us</h4>
+                <ul>
+                    <li><a href="mailto:hr.ph@lifewood.com">hr.ph@lifewood.com</a></li>
+                    <li><a href="tel:09276155464">+63 927 615 5464</a></li>
+                </ul>
+                <div class="footer-social-links">
+                    <a href="https://www.youtube.com/@LifewoodDataTechnology" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                        <img src="youtube.png" alt="YouTube">
+                    </a>
+                    <a href="https://www.facebook.com/LifewoodPH" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                        <img src="facebook.png" alt="Facebook">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- PRELOADER SCRIPT ---
+        window.onload = function() {
+            setTimeout(function() {
+                const preloader = document.getElementById('preloader');
+                preloader.classList.add('preloader-hidden');
+            }, 500);
+        };
+
+        // --- SCROLLING HEADER SCRIPT ---
+        const body = document.body;
+        const scrollThreshold = 1; 
+
+        function handleHeaderScroll() {
+            if (window.scrollY > scrollThreshold) {
+                body.classList.add('scrolled-state');
+            } else {
+                body.classList.remove('scrolled-state');
+            }
+        }
+        window.addEventListener('scroll', handleHeaderScroll);
+
+        // --- HAMBURGER MENU SCRIPT ---
+        const hamburgerBtn = document.querySelector('.hamburger-menu');
+        hamburgerBtn.addEventListener('click', function() {
+            document.body.classList.toggle('menu-open');
+        });
+
+        // --- REUSABLE ANIMATION SCRIPT ---
+        const animatedSections = document.querySelectorAll('.scroll-animation-section');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const animatedElements = entry.target.querySelectorAll('.animate-on-scroll');
+                animatedElements.forEach(el => {
+                    el.classList.toggle('is-visible', entry.isIntersecting);
+                });
+            });
+        }, { threshold: 0.2 });
+        animatedSections.forEach(section => { observer.observe(section); });
+    </script>
+</body>
+</html>
