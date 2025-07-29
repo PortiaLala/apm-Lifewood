@@ -12,7 +12,6 @@
         /* --- GLOBAL CSS STYLES --- */
         :root { --brand-green: #046241; --brand-orange: #ffb347; --light-bg: #f9f7f7; --dark-text: #333; }
         
-        /* Global Box-Sizing for better responsive layouts */
         html { box-sizing: border-box; }
         *, *::before, *::after { box-sizing: inherit; }
 
@@ -33,13 +32,12 @@
         .main-navigation a { color: var(--brand-green); text-decoration: none; font-weight: 600; font-size: 15px; text-transform: uppercase; letter-spacing: 1.5px; transition: color 0.3s ease; padding-bottom: 5px; border-bottom: 2px solid transparent; }
         .main-navigation a:hover { color: var(--brand-orange); }
         .main-navigation a.active { color: var(--brand-orange); border-bottom-color: var(--brand-orange); }
-        .hamburger-menu { display: none; } /* Hidden on desktop */
+        .hamburger-menu { display: none; }
         
         .page-hero { padding: 180px 4% 40px; background-color: #ffffff; text-align: center; }
         .page-hero h1 { font-size: 52px; color: var(--brand-green); margin: 0 0 15px 0; font-weight: 800; }
         .page-hero p { font-size: 18px; max-width: 700px; margin: 0 auto; line-height: 1.7; }
         
-        /* --- INTERACTIVE PROJECT SECTION STYLES --- */
         .interactive-project-section { 
             background-color: #ffffff; 
             padding: 40px 4% 80px; 
@@ -53,7 +51,7 @@
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            gap: 20px; /* Base gap */
+            gap: 20px;
             max-width: 1300px; 
             width: 100%; 
             margin: 0 auto; 
@@ -148,8 +146,7 @@
         }
         .project-image.is-active { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
 
-        /* --- FOOTER & RESPONSIVE STYLES --- */
-        .site-footer { background-color: var(--light-bg); color: var(--brand-green); padding: 40px 4%; border-top: 1px solid #e0e0e0;}
+        .site-footer { background-color: var(--light-bg); color: var(--brand-green); padding: 40px 4%; position: relative; border-top: 1px solid #e0e0e0;}
         .footer-container { display: flex; justify-content: space-between; gap: 40px; max-width: 1200px; margin: 0 auto; flex-wrap: wrap;}
         .footer-col { flex: 1; min-width: 200px;}
         .footer-col-left { flex-basis: 30%; }
@@ -164,191 +161,99 @@
         .footer-social-links img { width: 24px; height: 24px; transition: opacity 0.3s ease, transform 0.3s ease; }
         .footer-social-links a:hover img { opacity: 0.8; transform: scale(1.1); }
         
+        /* NEW: Styles for Admin, Modal, Form, Toast */
+        .admin-login-icon { position: absolute; bottom: 20px; right: 20px; width: 28px; height: 28px; color: var(--brand-green); opacity: 0.6; transition: opacity 0.3s ease, transform 0.3s ease, color 0.3s ease; }
+        .admin-login-icon svg { width: 100%; height: 100%; fill: currentColor; }
+        .admin-login-icon:hover { opacity: 1; transform: scale(1.1); color: var(--brand-orange); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: #fff; padding: 40px; border-radius: 8px; max-width: 800px; width: 90%; position: relative; max-height: 80vh; overflow-y: auto; }
+        .modal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 28px; cursor: pointer; color: #aaa; }
+        .modal-content h2 { color: var(--brand-green); margin-top: 0; }
+        .modal-content .form-group { margin-bottom: 15px; }
+        .modal-content .form-group label { display: block; font-weight: 600; margin-bottom: 5px; }
+        .modal-content .form-group input, .modal-content .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .form-row { display: flex; gap: 15px; }
+        .form-row .form-group { flex: 1; }
+        .toast { visibility: hidden; min-width: 250px; background-color: var(--brand-green); color: #fff; text-align: center; border-radius: 5px; padding: 16px; position: fixed; z-index: 2000; right: 30px; top: 30px; font-size: 17px; opacity: 0; transition: opacity 0.5s, top 0.5s, visibility 0.5s; }
+        .toast.show { visibility: visible; opacity: 1; top: 50px; }
+        .toast.error { background-color: #dc3545; }
+        .cta-button {
+            display: inline-block; padding: 12px 30px; background-color: transparent;
+            color: var(--brand-orange); border: 2px solid var(--brand-orange);
+            text-decoration: none; font-weight: 800; border-radius: 50px;
+            text-transform: uppercase; letter-spacing: 1.5px; font-size: 16px;
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            text-shadow: none; cursor: pointer;
+        }
+        .cta-button:hover { background-color: var(--brand-orange); color: var(--brand-green); transform: translateY(-3px); box-shadow: 0 5px 15px rgba(255, 179, 71, 0.4); }
+        #application-form .cta-button { width: 100%; border-color: var(--brand-green); color: var(--brand-green); }
+        #application-form .cta-button:hover { background-color: var(--brand-green); color: #fff; box-shadow: 0 5px 15px rgba(4, 98, 65, 0.4); }
+        #application-form .cta-button:disabled { background-color: #ccc; border-color: #ccc; color: #666; cursor: not-allowed; }
         
-        /* Tablet & Smaller Desktop Adjustments (max-width: 992px) */
         @media (max-width: 992px) {
-        
-            /* Page Hero Centering */
             .page-hero { padding-top: 120px; padding-left: 4%; padding-right: 4%; box-sizing: border-box; }
             .page-hero h1 { font-size: 44px; }
-            .page-hero p { font-size: 16px; max-width: 90%; margin: 0 auto; } /* Ensure paragraph itself stays centered */
-
-            /* Main Interactive Section Adjustments */
-            .project-display-container { 
-                flex-direction: column-reverse; /* Stacks content vertically */
-                width: 100%; /* Take full available width within its parent */
-                padding: 0 4%; /* Add page padding to the container itself */
-                box-sizing: border-box; /* Include padding in width calculation */
-                margin: 0 auto; /* Ensure the container is centered */
-            }
-
-            /* Project Info Panel Centering */
-            .project-info-panel { 
-                padding-right: 0; /* Remove right padding from desktop style */
-                max-width: 600px; /* Constrain width for readability on larger tablets */
-                width: 100%; /* Take full width up to max-width */
-                min-width: unset; /* IMPORTANT: Allow panel to shrink below 350px on smaller screens */
-                text-align: center; /* Center text content */
-                margin: 0 auto; /* Center the info panel block horizontally */
-                padding-left: 0; /* Remove internal padding as parent container now handles it */
-                padding-right: 0;
-            }
+            .page-hero p { font-size: 16px; max-width: 90%; margin: 0 auto; }
+            .project-display-container { flex-direction: column-reverse; width: 100%; padding: 0 4%; box-sizing: border-box; margin: 0 auto; }
+            .project-info-panel { padding-right: 0; max-width: 600px; width: 100%; min-width: unset; text-align: center; margin: 0 auto; padding-left: 0; padding-right: 0; }
             .project-info-panel h2 { font-size: 38px; }
             .project-info-panel .metric { font-size: 30px; }
-            
-            /* Project Navigation Centering */
             .project-navigation { justify-content: center; margin-bottom: 25px; }
             .case-study-btn { margin: 0 auto; padding: 14px 28px; }
-
-            /* Project Image Panel Centering */
-            .project-image-panel { 
-                height: 450px; 
-                width: 100%; /* Take full width of parent */
-                max-width: 450px; /* Constrain max width for consistent ratio on larger tablets */
-                min-width: unset; /* IMPORTANT: Allow image panel to shrink below 450px */
-                margin: 0 auto 40px; /* Center the image panel block horizontally, add bottom margin */
-                transform: translateY(0); /* Remove desktop transform */
-            }
-            /* Centering the background shape within its panel */
-            .background-shape { 
-                width: 420px; height: 420px; 
-                transform: translate(-50%, -50%); left: 50%; /* Ensure it's horizontally centered */
-            } 
-            /* Centering the project image within its panel */
-            .project-image { 
-                width: 100%; max-width: 500px; /* Image fills its panel width and scales down */
-                left: 50%; /* Ensure image is horizontally centered */
-                transform: translate(-50%, -50%) scale(1); /* Ensure active state scales to 1 and is centered */
-            } 
-            
-            /* Project Selector Wrapper (Horizontal Scroll) */
-            /* This will take 100% width of its centered parent (.project-info-panel) */
-            /* and its content will start from the left within that scrollable area. */
-            .project-selector-wrapper { 
-                padding: 0; /* Remove internal padding to fill parent width */
-                width: 100%; /* Take full width of its parent */
-                margin: 0 auto; /* Ensures the wrapper itself is centered if it had a fixed width */
-            }
-
-            /* Footer Centering */
+            .project-image-panel { height: 450px; width: 100%; max-width: 450px; min-width: unset; margin: 0 auto 40px; transform: translateY(0); }
+            .background-shape { width: 420px; height: 420px; transform: translate(-50%, -50%); left: 50%; } 
+            .project-image { width: 100%; max-width: 500px; left: 50%; transform: translate(-50%, -50%) scale(1); } 
+            .project-selector-wrapper { padding: 0; width: 100%; margin: 0 auto; }
             .footer-container { flex-direction: column; align-items: center; text-align: center; }
-            .footer-col { 
-                min-width: auto; width: 100%; margin-bottom: 30px; 
-                box-sizing: border-box; padding: 0 4%; /* Add page padding to individual footer columns */
-            }
-            .footer-logo { margin-left: auto; margin-right: auto; } /* Center logo */
-            .footer-social-links { justify-content: center; } /* Center social icons */
+            .footer-col { min-width: auto; width: 100%; margin-bottom: 30px; box-sizing: border-box; padding: 0 4%; }
+            .footer-logo { margin-left: auto; margin-right: auto; }
+            .footer-social-links { justify-content: center; }
         }
 
-        /* Mobile Adjustments (max-width: 768px) */
         @media (max-width: 768px) {
-            .site-header { padding: 15px 4%; background-color: var(--light-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            .site-header { padding: 15px 4%; background-color: var(--light-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.1); height: 70px;}
             .logo-image { width: 180px; height: 38px; }
             .tagline { display: none; }
-            /* Hamburger Button Styling */
-            .hamburger-menu { 
-                position: static; /* Keeps it in the header flow */
-                display: flex; 
-                flex-direction: column; 
-                justify-content: space-around; 
-                width: 30px; 
-                height: 30px; 
-                background: transparent; 
-                border: none; 
-                cursor: pointer; 
-                padding: 0; 
-                z-index: 12; /* Ensures it's above the menu overlay if needed */
-            } 
-            .hamburger-menu span { 
-                width: 30px; 
-                height: 3px; 
-                background: var(--brand-green); 
-                border-radius: 5px; 
-                transition: all 0.3s linear; 
-                position: relative; 
-                transform-origin: 1px; 
-            } 
-
-            /* Menu List (UL) - Hidden State */
+            .hamburger-menu { position: static; display: flex; flex-direction: column; justify-content: space-around; width: 30px; height: 30px; background: transparent; border: none; cursor: pointer; padding: 0; z-index: 12; } 
+            .hamburger-menu span { width: 30px; height: 3px; background: var(--brand-green); border-radius: 5px; transition: all 0.3s linear; position: relative; transform-origin: 1px; } 
             .main-navigation ul { 
-                /* display: none; - Removed this */
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 25px;
-                position: fixed;
-                top: 70px; /* Positioned exactly below the mobile header */
-                left: 0;
-                width: 100%;
-                background: var(--light-bg);
-                box-shadow: 0 15px 20px rgba(0,0,0,0.1);
-                
-                /* Animation & Hiding */
-                max-height: 0;
-                overflow: hidden;
-                padding: 0; /* No padding when hidden */
-                transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
-                z-index: 9; /* Below the header (Z-index 10) */
+                display: flex; flex-direction: column; align-items: center; gap: 25px;
+                position: fixed; top: 70px; left: 0; width: 100%; background: var(--light-bg);
+                box-shadow: 0 15px 20px rgba(0,0,0,0.1); max-height: 0; overflow: hidden;
+                padding: 0; transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+                z-index: 9;
             }
-
-            /* Menu List (UL) - Open State (Triggered by body.menu-open) */
-            body.menu-open .main-navigation ul { 
-                max-height: 400px; /* Enough height to show the links */
-                padding: 30px 0; /* Add padding when open */
-            } 
-
-            /* Link styles within the dropdown */
-            .main-navigation a {
-                font-size: 18px;
-            }
-
-            /* Hamburger "X" Animation */
-            /* body.menu-open .hamburger-menu { position: fixed; top: 30px; right: 4%; } - Removed fixed positioning */
+            body.menu-open .main-navigation ul { max-height: 400px; padding: 30px 0; } 
+            .main-navigation a { font-size: 18px; }
             body.menu-open .hamburger-menu span:nth-child(1) { transform: rotate(45deg); } 
             body.menu-open .hamburger-menu span:nth-child(2) { opacity: 0; transform: translateX(20px); } 
             body.menu-open .hamburger-menu span:nth-child(3) { transform: rotate(-45deg); }
-
             .page-hero h1 { font-size: 38px; }
             .page-hero p { font-size: 15px; }
-
             .interactive-project-section { padding: 30px 4% 60px; }
-
             .project-info-panel h2 { font-size: 32px; }
             .project-info-panel .metric { font-size: 26px; }
             .project-info-panel .description { font-size: 15px; }
             .case-study-btn { padding: 12px 25px; font-size: 15px; }
-
-            .project-image-panel { 
-                height: 300px; 
-                max-width: 380px; /* Further constrain max width for smaller phones */
-                min-width: unset; /* Ensure it can shrink */
-            }
+            .project-image-panel { height: 300px; max-width: 380px; min-width: unset; }
             .background-shape { width: 300px; height: 300px; } 
             .project-image { width: 100%; max-width: 400px; } 
-            
             .footer-col h4 { font-size: 16px; margin-bottom: 15px; }
             .footer-col ul li { font-size: 14px; }
             .footer-social-links img { width: 20px; height: 20px; }
+            .form-row { flex-direction: column; }
         }
 
-        /* Even Smaller Mobile Screens (max-width: 480px) */
         @media (max-width: 480px) {
             .page-hero h1 { font-size: 32px; }
             .page-hero p { font-size: 14px; }
-
             .project-info-panel h2 { font-size: 28px;margin-top: 180px; }
             .project-info-panel .metric { font-size: 22px; }
             .project-info-panel .description { font-size: 14px; }
-
-            .project-image-panel { 
-                height: 120px; 
-                max-width: 200px; 
-                min-width: unset; /* Ensure it can shrink */
-            }
+            .project-image-panel { height: 120px; max-width: 200px; min-width: unset; }
             .background-shape { width: 250px; height: 250px; margin-top: 105px; }
             .project-image { width: 100%; max-width: 320px; margin-top: 105px;}
             .case-study-btn{margin-bottom: 15px;}
-
             .project-choice-card { width: 90px; padding: 8px;margin-top: 10px; }
             .project-choice-card img { height: 40px; }
             .project-choice-card h4 { font-size: 12px; }
@@ -368,6 +273,8 @@
                 <li><a href="services.html">services</a></li>
                 <li><a href="operations.html">Operations</a></li>
                 <li><a href="projects.html" class="active">projects</a></li>
+                <!-- NEW: Apply Now Link -->
+                <li><a href="#" id="apply-now-link">Apply Now!</a></li>
             </ul>
         </nav>
     </header>
@@ -432,32 +339,137 @@
                 </div>
             </div>
         </div>
+        <!-- NEW: Admin Icon -->
+        <a href="admin-login.html" class="admin-login-icon" aria-label="Admin Login" title="Admin Login"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5a5.5 5.5 0 0 1 5.5 5.5c0 1.58-.68 3-1.75 3.99.72.74 1.25 1.73 1.25 2.76v.25a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2v-.25c0-1.03.53-2.02 1.25-2.76A5.49 5.49 0 0 1 6.5 8a5.5 5.5 0 0 1 5.5-5.5zm0 1c-2.48 0-4.5 2.02-4.5 4.5s2.02 4.5 4.5 4.5 4.5-2.02 4.5-4.5-2.02-4.5-4.5-4.5zm0 10c-1.93 0-3.5 1.57-3.5 3.5v.25h7v-.25c0-1.93-1.57-3.5-3.5-3.5z"/></svg></a>
     </footer>
 
+    <!-- NEW: Application Modal HTML -->
+    <div id="application-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close" id="modal-close-btn">×</button>
+            <h2>Become a part of Lifewood</h2>
+            <p>Tell us about yourself and take the first step toward your next career.</p>
+            <form id="application-form">
+                <div class="form-row">
+                    <div class="form-group"><label for="appFirstName">First Name</label><input type="text" id="appFirstName" required></div>
+                    <div class="form-group"><label for="appLastName">Last Name</label><input type="text" id="appLastName" required></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label for="appEmail">Email</label><input type="email" id="appEmail" required></div>
+                    <div class="form-group"><label for="appAge">Age</label><input type="number" id="appAge" min="18" required></div>
+                </div>
+                <div class="form-group"><label for="appDegree">Degree</label><input type="text" id="appDegree" required></div>
+                <div class="form-group"><label for="appProject">Project Applied For</label><input type="text" id="appProject" required></div>
+                <div class="form-group"><label for="appExperience">Relevant Job Experience</label><textarea id="appExperience" rows="4"></textarea></div>
+                <div class="form-group"><label for="appResumeLink">Resume Link (Google Drive, LinkedIn, etc.)</label><input type="url" id="appResumeLink" placeholder="https://..." required></div>
+                <div class="form-row">
+                    <div class="form-group"><label for="appStartTime">Available Start Time</label><input type="time" id="appStartTime" required></div>
+                    <div class="form-group"><label for="appEndTime">Available End Time</label><input type="time" id="appEndTime" required></div>
+                </div>
+                <button type="submit" id="submit-application-btn" class="cta-button">Submit Application</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- NEW: Toast Notification HTML -->
+    <div id="toast-notification" class="toast"><span id="toast-message"></span></div>
+
+    <!-- NEW: Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
     <script>
+        // NEW: Firebase Configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyCaxTZTSP_Q1z77VvF7vxpjzth_1oShhws",
+          authDomain: "lifewood-app.firebaseapp.com",
+          projectId: "lifewood-app",
+          storageBucket: "lifewood-app.appspot.com",
+          messagingSenderId: "141075525037",
+          appId: "1:141075525037:web:9b236d3367024528088524",
+          measurementId: "G-CB8L8WS3NJ"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         document.addEventListener('DOMContentLoaded', () => {
+            // --- Existing header, preloader, and hamburger menu logic ---
             const header = document.querySelector('.site-header');
             if (header) {
                 const toggleHeaderShadow = () => { window.scrollY > 10 ? header.classList.add('scrolled') : header.classList.remove('scrolled'); };
                 window.addEventListener('scroll', toggleHeaderShadow);
                 toggleHeaderShadow();
             }
-        });
 
-        window.onload=function(){setTimeout(function(){document.getElementById("preloader").classList.add("preloader-hidden")},500)};
-        
-        // Hamburger Menu Toggle (JS remains the same, CSS handles the new appearance)
-        const hamburgerBtn=document.querySelector(".hamburger-menu");
-        hamburgerBtn.addEventListener("click",function(){
-            document.body.classList.toggle("menu-open")
-        });
-    </script>
+            const preloader = document.getElementById('preloader');
+            if(preloader) {
+                setTimeout(function(){ preloader.classList.add("preloader-hidden")}, 500);
+            }
+            
+            const hamburgerBtn = document.querySelector(".hamburger-menu");
+            if(hamburgerBtn) {
+                hamburgerBtn.addEventListener("click",function(){
+                    document.body.classList.toggle("menu-open")
+                });
+            }
 
-    <script>
-        
-        
-        // --- Project Interactive Section JavaScript ---
-        document.addEventListener('DOMContentLoaded', () => {
+            // --- NEW: Logic for Application Modal, Toast, and Form Submission ---
+            function showToast(message, isError = false) {
+                const toast = document.getElementById('toast-notification');
+                const toastMessage = document.getElementById('toast-message');
+                if (!toast || !toastMessage) return;
+                toastMessage.textContent = message;
+                if (isError) toast.classList.add('error'); else toast.classList.remove('error');
+                toast.classList.add('show');
+                setTimeout(() => { toast.classList.remove('show'); }, 3000);
+            }
+
+            const applyLink = document.getElementById('apply-now-link');
+            const modal = document.getElementById('application-modal');
+            const closeBtn = document.getElementById('modal-close-btn');
+            if (applyLink && modal && closeBtn) {
+                applyLink.addEventListener('click', (e) => { e.preventDefault(); modal.style.display = 'flex'; });
+                closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
+                window.addEventListener('click', (e) => { if (e.target === modal) { modal.style.display = 'none'; } });
+            }
+
+            const applicationForm = document.getElementById('application-form');
+            const submitBtn = document.getElementById('submit-application-btn');
+            if (applicationForm && submitBtn) {
+                applicationForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Submitting...';
+                    try {
+                        const newApplicant = {
+                            firstName: document.getElementById('appFirstName').value,
+                            lastName: document.getElementById('appLastName').value,
+                            email: document.getElementById('appEmail').value,
+                            age: document.getElementById('appAge').value,
+                            degree: document.getElementById('appDegree').value,
+                            projectAppliedFor: document.getElementById('appProject').value,
+                            experience: document.getElementById('appExperience').value,
+                            resumeLink: document.getElementById('appResumeLink').value,
+                            availabilityStart: document.getElementById('appStartTime').value,
+                            availabilityEnd: document.getElementById('appEndTime').value,
+                            status: 'Pending',
+                            submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        };
+                        await db.collection('applicants').add(newApplicant);
+                        showToast("Application submitted successfully!");
+                        if (modal) modal.style.display = 'none';
+                        applicationForm.reset();
+                    } catch (error) {
+                        console.error("Error submitting application:", error);
+                        showToast("Submission failed. Please try again.", true);
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Submit Application';
+                    }
+                });
+            }
+
+            // --- Existing Project Interactive Section JavaScript ---
             const projectsData = [
                 { id: 0, title: 'AI Data Extraction', metric: 'Intelligent Capture Redefined', description: 'We leverage artificial intelligence to gather and organize images and text from drone imagery, scans, and archives, converting scattered information into structured datasets you can trust.', image: 'extraction.png', color: '#046241', url: 'project-extract.html' },
                 { id: 1, title: 'Machine Learning Enablement', metric: 'Empower Advanced Learning', description: 'Our flexible data services equip machine learning models with rich, diverse training material to improve performance, speed, and accuracy.', image: 'mle.png', color: '#ffb347', url: 'project-mle.html' },
@@ -482,62 +494,63 @@
             const totalProjects = projectsData.length;
             let backgroundShape; 
 
-            function initializeProjects() {
-                backgroundShape = document.createElement('div');
-                backgroundShape.className = 'background-shape';
-                imagePanel.appendChild(backgroundShape);
-                projectsData.forEach(project => {
-                    const img = document.createElement('img');
-                    img.className = 'project-image';
-                    img.src = project.image;
-                    img.alt = project.title;
-                    img.dataset.id = project.id;
-                    imagePanel.appendChild(img);
-                    const card = document.createElement('div');
-                    card.className = 'project-choice-card';
-                    card.dataset.id = project.id;
-                    card.style.backgroundColor = project.color;
-                    card.innerHTML = `<img src="${project.image}" alt="${project.title} thumbnail"><h4>${project.title}</h4>`;
-                    selectorWrapper.appendChild(card);
-                });
-            }
+            if (titleEl) { // Check if we are on the projects page
+                function initializeProjects() {
+                    backgroundShape = document.createElement('div');
+                    backgroundShape.className = 'background-shape';
+                    imagePanel.appendChild(backgroundShape);
+                    projectsData.forEach(project => {
+                        const img = document.createElement('img');
+                        img.className = 'project-image';
+                        img.src = project.image;
+                        img.alt = project.title;
+                        img.dataset.id = project.id;
+                        imagePanel.appendChild(img);
+                        const card = document.createElement('div');
+                        card.className = 'project-choice-card';
+                        card.dataset.id = project.id;
+                        card.style.backgroundColor = project.color;
+                        card.innerHTML = `<img src="${project.image}" alt="${project.title} thumbnail"><h4>${project.title}</h4>`;
+                        selectorWrapper.appendChild(card);
+                    });
+                }
 
-            function updateDisplay(index, isInitial = false) {
-                const project = projectsData[index];
-                const textElements = [titleEl, metricEl, descriptionEl];
-                if (!isInitial) {
-                    textElements.forEach(el => el.classList.add('fade-out'));
+                function updateDisplay(index, isInitial = false) {
+                    const project = projectsData[index];
+                    const textElements = [titleEl, metricEl, descriptionEl];
+                    if (!isInitial) {
+                        textElements.forEach(el => el.classList.add('fade-out'));
+                    }
+                    setTimeout(() => {
+                        titleEl.textContent = project.title;
+                        metricEl.textContent = project.metric;
+                        descriptionEl.textContent = project.description;
+                        counterEl.textContent = (project.id + 1).toString().padStart(2, '0');
+                        textElements.forEach(el => el.classList.remove('fade-out'));
+                    }, isInitial ? 0 : 300);
+                    document.querySelectorAll('.project-choice-card').forEach(card => {
+                        card.classList.toggle('active', parseInt(card.dataset.id) === index);
+                    });
+                    backgroundShape.style.backgroundColor = project.color;
+                    document.querySelectorAll('.project-image').forEach(img => {
+                        img.classList.toggle('is-active', parseInt(img.dataset.id) === index);
+                    });
+                    caseStudyLink.href = project.url;
                 }
-                setTimeout(() => {
-                    titleEl.textContent = project.title;
-                    metricEl.textContent = project.metric;
-                    descriptionEl.textContent = project.description;
-                    counterEl.textContent = (project.id + 1).toString().padStart(2, '0');
-                    textElements.forEach(el => el.classList.remove('fade-out'));
-                }, isInitial ? 0 : 300);
-                document.querySelectorAll('.project-choice-card').forEach(card => {
-                    card.classList.toggle('active', parseInt(card.dataset.id) === index);
+                
+                selectorWrapper.addEventListener('click', (e) => {
+                    const card = e.target.closest('.project-choice-card');
+                    if (card) {
+                        const id = parseInt(card.dataset.id);
+                        if (id !== currentProjectIndex) { currentProjectIndex = id; updateDisplay(currentProjectIndex); }
+                    }
                 });
-                backgroundShape.style.backgroundColor = project.color;
-                document.querySelectorAll('.project-image').forEach(img => {
-                    img.classList.toggle('is-active', parseInt(img.dataset.id) === index);
-                });
-                caseStudyLink.href = project.url;
+                prevBtn.addEventListener('click', () => { currentProjectIndex = (currentProjectIndex - 1 + totalProjects) % totalProjects; updateDisplay(currentProjectIndex); });
+                nextBtn.addEventListener('click', () => { currentProjectIndex = (currentProjectIndex + 1) % totalProjects; updateDisplay(currentProjectIndex); });
+                
+                initializeProjects();
+                updateDisplay(currentProjectIndex, true);
             }
-            
-            selectorWrapper.addEventListener('click', (e) => {
-                const card = e.target.closest('.project-choice-card');
-                if (card) {
-                    const id = parseInt(card.dataset.id);
-                    if (id !== currentProjectIndex) { currentProjectIndex = id; updateDisplay(currentProjectIndex); }
-                }
-            });
-            prevBtn.addEventListener('click', () => { currentProjectIndex = (currentProjectIndex - 1 + totalProjects) % totalProjects; updateDisplay(currentProjectIndex); });
-            nextBtn.addEventListener('click', () => { currentProjectIndex = (currentProjectIndex + 1) % totalProjects; updateDisplay(currentProjectIndex); });
-            
-            initializeProjects();
-            updateDisplay(currentProjectIndex, true);
-            
         });
     </script>
 </body>
