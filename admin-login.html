@@ -3,21 +3,98 @@
 <head>
     <!-- Your existing head content -->
     <title>Admin Login - Lifewood</title>
+    
+    <!-- ===== ADD THIS LINE FOR MOBILE COMPATIBILITY ===== -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="icon" href="log.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --brand-green: #046241; --brand-orange: #ffb347; --light-bg: #f9f7f7; --dark-text: #333; --error-red: #d9534f; }
-        body { margin: 0; font-family: 'Manrope', sans-serif; background-color: var(--light-bg); color: var(--dark-text); display: flex; align-items: center; justify-content: center; height: 100vh; }
-        .login-container { background-color: #ffffff; padding: 40px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        .login-logo { width: 210px; height: auto; margin-bottom: 30px; }
-        .login-form h2 { color: var(--brand-green); font-weight: 800; margin-bottom: 25px; }
-        .form-group { margin-bottom: 20px; text-align: left; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: var(--brand-green); }
-        input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-family: 'Manrope', sans-serif; font-size: 16px; box-sizing: border-box; }
-        .login-button { display: inline-block; width: 100%; padding: 12px 30px; background-color: var(--brand-orange); color: var(--brand-green); text-decoration: none; font-weight: 800; border-radius: 50px; text-transform: uppercase; letter-spacing: 1.5px; font-size: 16px; border: none; cursor: pointer; transition: background-color 0.3s ease; }
-        .error-message { color: var(--error-red); margin-top: 15px; font-size: 14px; font-weight: 600; height: 20px; }
+        
+        body { 
+            margin: 0; 
+            font-family: 'Manrope', sans-serif; 
+            background-color: var(--light-bg); 
+            color: var(--dark-text); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; /* Use min-height to prevent issues on mobile when keyboard appears */
+            padding: 20px; /* Add some padding for small screens */
+            box-sizing: border-box; /* Ensure padding is included in the body's total dimensions */
+        }
 
-        /* ===== NEW CSS FOR THE BACK BUTTON ===== */
+        .login-container { 
+            background-color: #ffffff; 
+            padding: 40px; 
+            border-radius: 10px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            width: 100%; 
+            max-width: 400px; 
+            text-align: center; 
+        }
+
+        .login-logo { 
+            width: 210px; 
+            height: auto; 
+            margin-bottom: 30px; 
+        }
+
+        .login-form h2 { 
+            color: var(--brand-green); 
+            font-weight: 800; 
+            margin-bottom: 25px; 
+        }
+
+        .form-group { 
+            margin-bottom: 20px; 
+            text-align: left; 
+        }
+
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            font-size: 14px; 
+            color: var(--brand-green); 
+        }
+
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+            font-family: 'Manrope', sans-serif; 
+            font-size: 16px; 
+            box-sizing: border-box; 
+        }
+
+        .login-button { 
+            display: inline-block; 
+            width: 100%; 
+            padding: 12px 30px; 
+            background-color: var(--brand-orange); 
+            color: var(--brand-green); 
+            text-decoration: none; 
+            font-weight: 800; 
+            border-radius: 50px; 
+            text-transform: uppercase; 
+            letter-spacing: 1.5px; 
+            font-size: 16px; 
+            border: none; 
+            cursor: pointer; 
+            transition: background-color 0.3s ease; 
+        }
+
+        .error-message { 
+            color: var(--error-red); 
+            margin-top: 15px; 
+            font-size: 14px; 
+            font-weight: 600; 
+            height: 20px; 
+        }
+
         .back-to-home-link {
             display: inline-block;
             margin-top: 30px;
@@ -27,10 +104,28 @@
             font-weight: 600;
             transition: color 0.2s;
         }
+
         .back-to-home-link:hover {
             color: var(--brand-orange);
             text-decoration: underline;
         }
+        
+        /* ===== NEW CSS FOR MOBILE RESPONSIVENESS ===== */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 25px; /* Reduce padding on smaller screens */
+            }
+
+            .login-logo {
+                width: 180px; /* Make logo a bit smaller */
+                margin-bottom: 25px;
+            }
+
+            .login-form h2 {
+                font-size: 1.5em; /* Adjust heading size */
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -43,10 +138,7 @@
             <button type="submit" class="login-button">Login</button>
             <div id="errorMessage" class="error-message"></div>
         </form>
-
-        <!-- ===== NEW HTML FOR THE BACK BUTTON ===== -->
         <a href="index.html" class="back-to-home-link">← Back to Home</a>
-
     </div>
 
     <!-- Firebase SDKs -->
@@ -80,7 +172,7 @@
             auth.signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     // Signed in successfully
-                    window.location.href = 'admin-dashboard.html'; // Changed from admin-dashboard.html to match previous context
+                    window.location.href = 'admin-dashboard.html';
                 })
                 .catch((error) => {
                     errorMessageDiv.textContent = 'Invalid email or password.';
