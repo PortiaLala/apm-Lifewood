@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Anyone can create (submit) an application.
+    // Only logged-in admins can read, update, or delete them.
+    match /applicants/{applicantId} {
+      allow create; // Allow public submissions
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // Only logged-in admins can read or write to the employees list.
+    match /employees/{employeeId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

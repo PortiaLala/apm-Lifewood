@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Lifewood</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="log.png" type="image/png">
+    <style>
+        :root {
+            --brand-green: #046241;
+            --brand-orange: #ffb347;
+            --light-bg: #f9f7f7;
+            --dark-text: #333;
+            --error-red: #d9534f;
+        }
+        body {
+            margin: 0;
+            font-family: 'Manrope', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .login-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .login-logo {
+            width: 210px;
+            height: auto;
+            margin-bottom: 30px;
+        }
+        .login-form h2 {
+            color: var(--brand-green);
+            font-weight: 800;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--brand-green);
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: 'Manrope', sans-serif;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--brand-orange);
+        }
+        .login-button {
+            display: inline-block;
+            width: 100%;
+            padding: 12px 30px;
+            background-color: var(--brand-orange);
+            color: var(--brand-green);
+            text-decoration: none;
+            font-weight: 800;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .login-button:hover {
+            background-color: #f7a823;
+            transform: translateY(-2px);
+        }
+        .error-message {
+            color: var(--error-red);
+            margin-top: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            height: 20px; /* Reserve space to prevent layout shift */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <img src="Logo.png" alt="Lifewood Logo" class="login-logo">
+        <form id="adminLoginForm" class="login-form">
+            <h2>Admin Authentication</h2>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="login-button">Login</button>
+            <div id="errorMessage" class="error-message"></div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('adminLoginForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form from submitting normally
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            // --- IMPORTANT SECURITY WARNING ---
+            // This is a "client-side" check and is NOT secure.
+            // Anyone can view the page source to find the password.
+            // For a real application, this check MUST be done on a server.
+            
+            // For demonstration, we'll use a hardcoded username and password.
+            const correctUsername = "admin";
+            const correctPassword = "lifewood_admin_2024!"; // Example password
+
+            if (username === correctUsername && password === correctPassword) {
+                // If credentials are correct, redirect to the dashboard.
+                errorMessage.textContent = '';
+                window.location.href = 'dashboard.html';
+            } else {
+                // If credentials are wrong, show an error message.
+                errorMessage.textContent = 'Invalid username or password.';
+            }
+        });
+    </script>
+
+</body>
+</html>

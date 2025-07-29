@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Lifewood</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="log.png" type="image/png">
+    <style>
+        :root { --brand-green: #046241; --brand-orange: #ffb347; --light-bg: #f9f7f7; --dark-text: #333; --border-color: #e0e0e0; }
+        body { margin: 0; font-family: 'Manrope', sans-serif; background-color: var(--light-bg); color: var(--dark-text); }
+        .dashboard-header { background-color: #fff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .dashboard-header img { height: 40px; }
+        #logout-btn { color: var(--brand-orange); font-weight: 600; text-decoration: none; background: none; border: none; cursor: pointer; font-size: 16px; font-family: inherit; }
+        main { padding: 30px; }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 30px; }
+        .dashboard-card { background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .card-header { padding: 20px; border-bottom: 1px solid var(--border-color); }
+        .card-header h2 { margin: 0; font-size: 22px; color: var(--brand-green); }
+        .card-body { padding: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 14px; vertical-align: middle; }
+        th { font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--brand-green); }
+        td small { color: #777; }
+        .actions { display: flex; gap: 10px; }
+        .action-btn { background: none; border: 1px solid; border-radius: 5px; cursor: pointer; padding: 6px 10px; font-weight: 600; transition: background-color 0.2s, color 0.2s; }
+        .btn-accept { color: #28a745; border-color: #28a745; }
+        .btn-accept:hover { background-color: #28a745; color: #fff; }
+        .btn-reject { color: #dc3545; border-color: #dc3545; }
+        .btn-reject:hover { background-color: #dc3545; color: #fff; }
+    </style>
+</head>
+<body>
+
+    <header class="dashboard-header">
+        <img src="Logo.png" alt="Lifewood Logo">
+        <button id="logout-btn">Logout</button>
+    </header>
+
+    <main>
+        <div class="dashboard-grid">
+            <!-- PENDING APPLICATIONS TABLE -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2>Pending Applications</h2>
+                </div>
+                <div class="card-body">
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name & Email</th>
+                                    <th>Position</th>
+                                    <th>School & Course</th>
+                                    <th>Resume</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="applicants-table-body">
+                                <!-- Pending applicants will be dynamically inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EMPLOYEES / INTERNS TABLE -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2>Employees & Interns</h2>
+                </div>
+                <div class="card-body">
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Position</th>
+                                    <th>School & Course</th>
+                                    <th>Date Accepted</th>
+                                    <th>Resume</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employees-table-body">
+                                <!-- Current employees will be dynamically inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+  apiKey: "AIzaSyCaxTZTSP_Q1z77VvF7vxpjzth_1oShhws",
+  authDomain: "lifewood-app.firebaseapp.com",
+  projectId: "lifewood-app",
+  storageBucket: "lifewood-app.firebasestorage.app",
+  messagingSenderId: "141075525037",
+  appId: "1:141075525037:web:9b236d3367024528088524",
+  measurementId: "G-CB8L8WS3NJ"
+};
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // --- Auth Guard: Redirect if not logged in ---
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                window.location.replace('admin-login.html');
+            } else {
+                initializeDashboard();
+            }
+        });
+
+        function initializeDashboard() {
+            const applicantsTbody = document.getElementById('applicants-table-body');
+            const employeesTbody = document.getElementById('employees-table-body');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            const applicantsCol = db.collection('applicants');
+            const employeesCol = db.collection('employees');
+
+            // --- Fetch and display PENDING applicants ---
+            applicantsCol.where("status", "==", "Pending").orderBy("submittedAt", "desc").onSnapshot(snapshot => {
+                applicantsTbody.innerHTML = '';
+                if (snapshot.empty) {
+                    applicantsTbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">No pending applications.</td></tr>`;
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    const app = doc.data();
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${app.name}<br><small>${app.email}</small></td>
+                        <td>${app.position}</td>
+                        <td>${app.school}<br><small>${app.course}</small></td>
+                        <td><a href="${app.resumeURL}" target="_blank" rel="noopener">View</a></td>
+                        <td class="actions">
+                            <button class="action-btn btn-accept" data-id="${doc.id}">✔ Accept</button>
+                            <button class="action-btn btn-reject" data-id="${doc.id}">✖ Reject</button>
+                        </td>
+                    `;
+                    applicantsTbody.appendChild(row);
+                });
+            });
+
+            // --- Fetch and display all employees ---
+            employeesCol.orderBy("name").onSnapshot(snapshot => {
+                employeesTbody.innerHTML = '';
+                if (snapshot.empty) {
+                    employeesTbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">No employees found.</td></tr>`;
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    const emp = doc.data();
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${emp.name}</td>
+                        <td>${emp.position}</td>
+                        <td>${emp.school}<br><small>${emp.course}</small></td>
+                        <td>${emp.acceptanceDate}</td>
+                        <td><a href="${emp.resumeURL}" target="_blank" rel="noopener">View</a></td>
+                    `;
+                    employeesTbody.appendChild(row);
+                });
+            });
+
+            // --- Handle Accept / Reject Clicks ---
+            applicantsTbody.addEventListener('click', async (e) => {
+                const id = e.target.dataset.id;
+                if (!id) return;
+
+                const applicantDocRef = applicantsCol.doc(id);
+
+                if (e.target.classList.contains('btn-accept')) {
+                    e.target.disabled = true; // Prevent double clicks
+                    const appDoc = await applicantDocRef.get();
+                    if (!appDoc.exists) return;
+                    
+                    const appData = appDoc.data();
+                    const today = new Date().toISOString().slice(0, 10);
+
+                    const employeeData = {
+                        name: appData.name,
+                        email: appData.email,
+                        position: appData.position,
+                        school: appData.school,
+                        course: appData.course,
+                        resumeURL: appData.resumeURL,
+                        acceptanceDate: today
+                    };
+
+                    const batch = db.batch();
+                    batch.set(employeesCol.doc(), employeeData);
+                    batch.delete(applicantDocRef);
+                    await batch.commit();
+
+                } else if (e.target.classList.contains('btn-reject')) {
+                    if (confirm("Are you sure you want to reject this applicant? This cannot be undone.")) {
+                        e.target.disabled = true; // Prevent double clicks
+                        await applicantDocRef.delete();
+                    }
+                }
+            });
+
+            // Logout button logic
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                auth.signOut();
+            });
+        }
+    </script>
+
+</body>
+</html>

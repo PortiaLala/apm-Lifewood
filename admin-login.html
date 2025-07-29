@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Your existing head content -->
+    <title>Admin Login - Lifewood</title>
+    <link rel="icon" href="log.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --brand-green: #046241; --brand-orange: #ffb347; --light-bg: #f9f7f7; --dark-text: #333; --error-red: #d9534f; }
+        body { margin: 0; font-family: 'Manrope', sans-serif; background-color: var(--light-bg); color: var(--dark-text); display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .login-container { background-color: #ffffff; padding: 40px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        .login-logo { width: 210px; height: auto; margin-bottom: 30px; }
+        .login-form h2 { color: var(--brand-green); font-weight: 800; margin-bottom: 25px; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: var(--brand-green); }
+        input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-family: 'Manrope', sans-serif; font-size: 16px; box-sizing: border-box; }
+        .login-button { display: inline-block; width: 100%; padding: 12px 30px; background-color: var(--brand-orange); color: var(--brand-green); text-decoration: none; font-weight: 800; border-radius: 50px; text-transform: uppercase; letter-spacing: 1.5px; font-size: 16px; border: none; cursor: pointer; transition: background-color 0.3s ease; }
+        .error-message { color: var(--error-red); margin-top: 15px; font-size: 14px; font-weight: 600; height: 20px; }
+
+        /* ===== NEW CSS FOR THE BACK BUTTON ===== */
+        .back-to-home-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: var(--brand-green);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .back-to-home-link:hover {
+            color: var(--brand-orange);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <img src="Logo.png" alt="Lifewood Logo" class="login-logo">
+        <form id="adminLoginForm" class="login-form">
+            <h2>Admin Authentication</h2>
+            <div class="form-group"><label for="username">Email</label><input type="email" id="username" required></div>
+            <div class="form-group"><label for="password">Password</label><input type="password" id="password" required></div>
+            <button type="submit" class="login-button">Login</button>
+            <div id="errorMessage" class="error-message"></div>
+        </form>
+
+        <!-- ===== NEW HTML FOR THE BACK BUTTON ===== -->
+        <a href="index.html" class="back-to-home-link">← Back to Home</a>
+
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
+    <script>
+        // PASTE YOUR FIREBASE CONFIG OBJECT HERE
+        const firebaseConfig = {
+          apiKey: "AIzaSyCaxTZTSP_Q1z77VvF7vxpjzth_1oShhws",
+          authDomain: "lifewood-app.firebaseapp.com",
+          projectId: "lifewood-app",
+          storageBucket: "lifewood-app.appspot.com",
+          messagingSenderId: "141075525037",
+          appId: "1:141075525037:web:9b236d3367024528088524",
+          measurementId: "G-CB8L8WS3NJ"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        const loginForm = document.getElementById('adminLoginForm');
+        const errorMessageDiv = document.getElementById('errorMessage');
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Signed in successfully
+                    window.location.href = 'dashboard.html'; // Changed from admin-dashboard.html to match previous context
+                })
+                .catch((error) => {
+                    errorMessageDiv.textContent = 'Invalid email or password.';
+                    console.error("Authentication Error:", error);
+                });
+        });
+    </script>
+</body>
+</html>
