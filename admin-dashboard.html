@@ -6,61 +6,158 @@
     <title>Admin Dashboard - Lifewood</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="log.png" type="image/png">
     <style>
-        :root { --brand-green: #046241; --brand-orange: #ffb347; --light-bg: #f9f7f7; --dark-text: #333; --border-color: #e0e0e0; }
-        body { margin: 0; font-family: 'Manrope', sans-serif; background-color: var(--light-bg); color: var(--dark-text); }
-        .dashboard-header { background-color: #fff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .dashboard-header img { height: 40px; }
-        #logout-btn { color: var(--brand-orange); font-weight: 600; text-decoration: none; background: none; border: none; cursor: pointer; font-size: 16px; font-family: inherit; }
-        main { padding: 30px; }
+        :root {
+            --brand-green: #046241;
+            --brand-orange: #ffb347;
+            --light-bg: #f7f8fc;
+            --dark-text: #2a313a;
+            --light-text: #8e94a3;
+            --border-color: #e8e9ef;
+            --card-bg: #ffffff;
+            --success: #198754;
+            --danger: #dc3545;
+            --shadow: 0 5px 20px rgba(42, 49, 58, 0.08);
+            --sidebar-width: 260px;
+        }
+        body { margin: 0; font-family: 'Manrope', sans-serif; background-color: var(--light-bg); color: var(--dark-text); font-size: 16px; }
+
+        /* --- Sidebar Navigation --- */
+        .sidebar {
+            background: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 25px;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+        .sidebar-header img { height: 45px; margin-bottom: 40px; }
+        .sidebar-nav a { display: flex; align-items: center; gap: 15px; color: var(--light-text); text-decoration: none; font-weight: 500; padding: 15px; border-radius: 8px; margin: 5px 0; transition: background-color 0.2s ease, color 0.2s ease; }
+        .sidebar-nav a:hover { background-color: var(--light-bg); color: var(--dark-text); }
+        .sidebar-nav a.active { background-color: var(--brand-green); color: #fff; font-weight: 700; }
+        .sidebar-nav a .icon { width: 22px; height: 22px; color: var(--light-text); transition: color 0.2s ease; }
+        .sidebar-nav a:hover .icon, .sidebar-nav a:focus .icon { color: var(--dark-text); }
+        .sidebar-nav a.active .icon { color: #fff; }
+        
+        /* --- UPDATED: Logout Button Style --- */
+        #logout-btn {
+            margin-top: auto; /* Pushes to the bottom */
+            padding: 10px; /* Creates a larger clickable area */
+            border-radius: 50%; /* Makes the button a circle */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            align-self: center; /* Centers the button in the flex column */
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+        }
+
+        #logout-btn .icon {
+            width: 22px;
+            height: 22px;
+            color: var(--brand-green); /* Icon color is now dark green */
+        }
+
+        #logout-btn:hover {
+            background-color: rgba(4, 98, 65, 0.1); /* Subtle, noticeable green hover */
+        }
+        
+        /* --- Main Content Area --- */
+        main { margin-left: var(--sidebar-width); padding: 40px; }
+        .main-header h1 { font-size: 32px; font-weight: 800; margin: 0 0 30px 0; color: var(--dark-text); }
         .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 30px; }
-        .dashboard-card { background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .card-header { padding: 20px; border-bottom: 1px solid var(--border-color); }
-        .card-header h2 { margin: 0; font-size: 22px; color: var(--brand-green); }
-        .card-body { padding: 20px; }
+        .dashboard-card { background-color: var(--card-bg); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
+        .card-header { padding: 20px 25px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+        .card-title-group { display: flex; align-items: center; gap: 15px; }
+        .card-title-group .icon { width: 24px; height: 24px; color: var(--brand-green); }
+        .card-title-group h2 { margin: 0; font-size: 20px; font-weight: 700; }
+        .card-header .count { font-size: 18px; font-weight: 700; background-color: var(--light-bg); color: var(--brand-green); padding: 4px 12px; border-radius: 20px; }
+        .card-body { padding: 10px; }
+        
+        /* --- Table Styles --- */
+        .table-container { overflow-x: auto; width: 100%; }
         table { width: 100%; border-collapse: collapse; }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 14px; vertical-align: middle; }
-        th { font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--brand-green); }
-        td small { color: #777; }
-        .actions { display: flex; gap: 10px; }
-        .action-btn { background: none; border: 1px solid; border-radius: 5px; cursor: pointer; padding: 6px 10px; font-weight: 600; transition: background-color 0.2s, color 0.2s; }
-        .btn-accept { color: #28a745; border-color: #28a745; }
-        .btn-accept:hover { background-color: #28a745; color: #fff; }
-        .btn-reject { color: #dc3545; border-color: #dc3545; }
-        .btn-reject:hover { background-color: #dc3545; color: #fff; }
+        th, td { text-align: left; padding: 15px 20px; border-bottom: 1px solid var(--border-color); font-size: 14px; vertical-align: middle; white-space: nowrap; }
+        th { font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--light-text); font-size: 11px; }
+        tbody tr:last-child td { border-bottom: none; }
+        td { font-weight: 500; }
+        .actions { display: flex; gap: 8px; }
+        .action-btn { background: none; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; padding: 6px 10px; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; }
+        .btn-accept { color: var(--success); border-color: var(--success); }
+        .btn-accept:hover { background-color: var(--success); color: #fff; }
+        .btn-reject { color: var(--danger); border-color: var(--danger); }
+        .btn-reject:hover { background-color: var(--danger); color: #fff; }
+        .btn-view { color: var(--brand-green); border-color: var(--brand-green); }
+        .btn-view:hover { background-color: var(--brand-green); color: #fff; }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* --- Mobile Responsiveness --- */
+        @media (max-width: 992px) {
+            .sidebar { width: 100%; height: auto; position: static; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px 20px; border-right: none; }
+            .sidebar-header { display: contents; }
+            .sidebar-header img { margin-bottom: 0; }
+            .sidebar-nav { display: none; }
+            #logout-btn { margin-top: 0; align-self: auto; }
+            main { margin-left: 0; padding: 20px; }
+            .main-header h1 { font-size: 26px; }
+        }
     </style>
 </head>
 <body>
 
-    <header class="dashboard-header">
-        <img src="Logo.png" alt="Lifewood Logo">
-        <button id="logout-btn">Logout</button>
-    </header>
+    <aside class="sidebar">
+        <div>
+            <div class="sidebar-header">
+                <a href="#"><img src="Logo.png" alt="Lifewood Logo"></a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="active">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
+                    <span>Dashboard</span>
+                </a>
+            </nav>
+        </div>
+        <!-- UPDATED: Logout button is now just a single icon -->
+        <a href="#" id="logout-btn" title="Logout">
+             <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+        </a>
+    </aside>
 
     <main>
+        <header class="main-header">
+            <h1>Dashboard Overview</h1>
+        </header>
         <div class="dashboard-grid">
             <!-- PENDING APPLICATIONS TABLE -->
             <div class="dashboard-card">
                 <div class="card-header">
-                    <h2>Pending Applications</h2>
+                    <div class="card-title-group">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <h2 id="applicants-title">Pending Applications</h2>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <div style="overflow-x: auto;">
+                    <div class="table-container">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Name & Email</th>
-                                    <th>Position</th>
-                                    <th>School & Course</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Project Applied For</th>
+                                    <th>Availability</th>
                                     <th>Resume</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="applicants-table-body">
-                                <!-- Pending applicants will be dynamically inserted here -->
-                            </tbody>
+                            <tbody id="applicants-table-body"></tbody>
                         </table>
                     </div>
                 </div>
@@ -69,23 +166,25 @@
             <!-- EMPLOYEES / INTERNS TABLE -->
             <div class="dashboard-card">
                 <div class="card-header">
-                    <h2>Employees & Interns</h2>
+                    <div class="card-title-group">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                        <h2 id="employees-title">Employees & Interns</h2>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <div style="overflow-x: auto;">
+                    <div class="table-container">
                         <table>
                             <thead>
                                 <tr>
                                     <th>Name</th>
-                                    <th>Position</th>
-                                    <th>School & Course</th>
-                                    <th>Date Accepted</th>
+                                    <th>Email</th>
+                                    <th>Project</th>
+                                    <th>Availability</th>
                                     <th>Resume</th>
+                                    <th>Date Accepted</th>
                                 </tr>
                             </thead>
-                            <tbody id="employees-table-body">
-                                <!-- Current employees will be dynamically inserted here -->
-                            </tbody>
+                            <tbody id="employees-table-body"></tbody>
                         </table>
                     </div>
                 </div>
@@ -93,134 +192,77 @@
         </div>
     </main>
 
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <script>
+        // The JavaScript does not need any changes and remains the same.
         const firebaseConfig = {
-  apiKey: "AIzaSyCaxTZTSP_Q1z77VvF7vxpjzth_1oShhws",
-  authDomain: "lifewood-app.firebaseapp.com",
-  projectId: "lifewood-app",
-  storageBucket: "lifewood-app.firebasestorage.app",
-  messagingSenderId: "141075525037",
-  appId: "1:141075525037:web:9b236d3367024528088524",
-  measurementId: "G-CB8L8WS3NJ"
-};
-
-        // Initialize Firebase
+            apiKey: "AIzaSyCaxTZTSP_Q1z77VvF7vxpjzth_1oShhws",
+            authDomain: "lifewood-app.firebaseapp.com",
+            projectId: "lifewood-app",
+            storageBucket: "lifewood-app.appspot.com",
+            messagingSenderId: "141075525037",
+            appId: "1:141075525037:web:9b236d3367024528088524",
+            measurementId: "G-CB8L8WS3NJ"
+        };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-
-        // --- Auth Guard: Redirect if not logged in ---
-        auth.onAuthStateChanged(user => {
-            if (!user) {
-                window.location.replace('admin-login.html');
-            } else {
-                initializeDashboard();
-            }
-        });
-
+        auth.onAuthStateChanged(user => user ? initializeDashboard() : window.location.replace('admin-login.html'));
         function initializeDashboard() {
             const applicantsTbody = document.getElementById('applicants-table-body');
             const employeesTbody = document.getElementById('employees-table-body');
             const logoutBtn = document.getElementById('logout-btn');
-
+            const applicantsCardHeader = document.querySelector('#applicants-title').parentElement.parentElement;
+            const employeesCardHeader = document.querySelector('#employees-title').parentElement.parentElement;
             const applicantsCol = db.collection('applicants');
             const employeesCol = db.collection('employees');
-
-            // --- Fetch and display PENDING applicants ---
+            const sanitize = (str) => { const temp = document.createElement('div'); temp.textContent = str; return temp.innerHTML; };
             applicantsCol.where("status", "==", "Pending").orderBy("submittedAt", "desc").onSnapshot(snapshot => {
+                let countSpan = applicantsCardHeader.querySelector('.count');
+                if (!countSpan) { countSpan = document.createElement('span'); countSpan.className = 'count'; applicantsCardHeader.appendChild(countSpan); }
+                countSpan.textContent = snapshot.size;
                 applicantsTbody.innerHTML = '';
-                if (snapshot.empty) {
-                    applicantsTbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">No pending applications.</td></tr>`;
-                    return;
-                }
+                if (snapshot.empty) { applicantsTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 40px 0;">No pending applications.</td></tr>`; return; }
                 snapshot.forEach(doc => {
-                    const app = doc.data();
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${app.name}<br><small>${app.email}</small></td>
-                        <td>${app.position}</td>
-                        <td>${app.school}<br><small>${app.course}</small></td>
-                        <td><a href="${app.resumeURL}" target="_blank" rel="noopener">View</a></td>
-                        <td class="actions">
-                            <button class="action-btn btn-accept" data-id="${doc.id}">✔ Accept</button>
-                            <button class="action-btn btn-reject" data-id="${doc.id}">✖ Reject</button>
-                        </td>
-                    `;
+                    const app = doc.data(); const fullName = `${app.firstName || ''} ${app.lastName || ''}`.trim(); const row = document.createElement('tr');
+                    row.innerHTML = `<td><strong>${sanitize(fullName)}</strong></td><td>${sanitize(app.email)}</td><td>${sanitize(app.projectAppliedFor)}</td><td>${app.availabilityStart || 'N/A'} - ${app.availabilityEnd || 'N/A'}</td><td><a href="${app.resumeLink}" class="action-btn btn-view" target="_blank" rel="noopener">View</a></td><td class="actions"><button class="action-btn btn-accept" data-id="${doc.id}">✔ Accept</button><button class="action-btn btn-reject" data-id="${doc.id}">✖ Reject</button></td>`;
                     applicantsTbody.appendChild(row);
                 });
             });
-
-            // --- Fetch and display all employees ---
-            employeesCol.orderBy("name").onSnapshot(snapshot => {
+            employeesCol.orderBy("acceptanceDate", "desc").onSnapshot(snapshot => {
+                let countSpan = employeesCardHeader.querySelector('.count');
+                if (!countSpan) { countSpan = document.createElement('span'); countSpan.className = 'count'; employeesCardHeader.appendChild(countSpan); }
+                countSpan.textContent = snapshot.size;
                 employeesTbody.innerHTML = '';
-                if (snapshot.empty) {
-                    employeesTbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">No employees found.</td></tr>`;
-                    return;
-                }
+                if (snapshot.empty) { employeesTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 40px 0;">No employees found.</td></tr>`; return; }
                 snapshot.forEach(doc => {
-                    const emp = doc.data();
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${emp.name}</td>
-                        <td>${emp.position}</td>
-                        <td>${emp.school}<br><small>${emp.course}</small></td>
-                        <td>${emp.acceptanceDate}</td>
-                        <td><a href="${emp.resumeURL}" target="_blank" rel="noopener">View</a></td>
-                    `;
+                    const emp = doc.data(); const fullName = `${emp.firstName || ''} ${emp.lastName || ''}`.trim(); const row = document.createElement('tr');
+                    row.innerHTML = `<td><strong>${sanitize(fullName)}</strong></td><td>${sanitize(emp.email)}</td><td>${sanitize(emp.projectAppliedFor)}</td><td>${emp.availabilityStart || 'N/A'} - ${emp.availabilityEnd || 'N/A'}</td><td><a href="${emp.resumeLink}" class="action-btn btn-view" target="_blank" rel="noopener">View</a></td><td>${emp.acceptanceDate}</td>`;
                     employeesTbody.appendChild(row);
                 });
             });
-
-            // --- Handle Accept / Reject Clicks ---
             applicantsTbody.addEventListener('click', async (e) => {
-                const id = e.target.dataset.id;
-                if (!id) return;
-
+                const targetButton = e.target.closest('.action-btn'); if (!targetButton) return; const id = targetButton.dataset.id; if (!id) return;
                 const applicantDocRef = applicantsCol.doc(id);
-
-                if (e.target.classList.contains('btn-accept')) {
-                    e.target.disabled = true; // Prevent double clicks
-                    const appDoc = await applicantDocRef.get();
-                    if (!appDoc.exists) return;
-                    
-                    const appData = appDoc.data();
-                    const today = new Date().toISOString().slice(0, 10);
-
-                    const employeeData = {
-                        name: appData.name,
-                        email: appData.email,
-                        position: appData.position,
-                        school: appData.school,
-                        course: appData.course,
-                        resumeURL: appData.resumeURL,
-                        acceptanceDate: today
-                    };
-
-                    const batch = db.batch();
-                    batch.set(employeesCol.doc(), employeeData);
-                    batch.delete(applicantDocRef);
-                    await batch.commit();
-
-                } else if (e.target.classList.contains('btn-reject')) {
-                    if (confirm("Are you sure you want to reject this applicant? This cannot be undone.")) {
-                        e.target.disabled = true; // Prevent double clicks
-                        await applicantDocRef.delete();
+                if (targetButton.classList.contains('btn-accept')) {
+                    targetButton.disabled = true;
+                    try {
+                        const appDoc = await applicantDocRef.get(); if (!appDoc.exists) return;
+                        const appData = appDoc.data(); const today = new Date().toISOString().slice(0, 10); const employeeData = { ...appData, status: 'Accepted', acceptanceDate: today };
+                        const batch = db.batch(); batch.set(employeesCol.doc(), employeeData); batch.delete(applicantDocRef); await batch.commit();
+                    } catch (error) { console.error("Error accepting applicant:", error); targetButton.disabled = false; }
+                } else if (targetButton.classList.contains('btn-reject')) {
+                    if (confirm("Are you sure you want to reject this applicant?")) {
+                        targetButton.disabled = true;
+                        await applicantDocRef.delete().catch(error => { console.error("Error rejecting applicant:", error); targetButton.disabled = false; });
                     }
                 }
             });
-
-            // Logout button logic
-            logoutBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                auth.signOut();
-            });
+            logoutBtn.addEventListener('click', (e) => { e.preventDefault(); auth.signOut(); });
         }
     </script>
-
 </body>
 </html>
