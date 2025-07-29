@@ -28,15 +28,16 @@
         .logo-container { display: flex; flex-direction: column; align-items: center; gap: 10px; transition: gap 1.5s ease, align-items 1.5s ease; }
         .logo-image { width: 50vw; max-width: 600px; height: auto; transition: width 1.5s ease, height 1.5s ease; }
         .tagline { opacity: 1; transition: font-size 1.5s ease, letter-spacing 1.5s ease; color: var(--brand-green); font-weight: 600; font-size: 1.8vw; letter-spacing: 3px; }
-        body.scrolled-state .site-header { height: 110px; padding: 0 4%; justify-content: space-between; background: linear-gradient(to bottom, var(--light-bg) 80%, rgba(249, 247, 247, 0) 100%); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        body.scrolled-state .site-header { height: 110px; padding: 0 4%; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, var(--light-bg) 80%, rgba(249, 247, 247, 0) 100%); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         body.scrolled-state .logo-container { align-items: flex-start; gap: 2px; }
         body.scrolled-state .logo-image { width: 210px; height: 45px; }
+        .main-navigation { display: flex; align-items: center; gap: 20px; }
         .main-navigation ul { margin: 0; padding: 0; list-style-type: none; display: flex; gap: 35px; transition: opacity 1.5s ease, visibility 1.5s ease; }
         .main-navigation a { color: var(--brand-green); text-decoration: none; font-weight: 600; font-size: 15px; text-transform: uppercase; letter-spacing: 1.5px; transition: color 0.3s ease; padding-bottom: 5px; border-bottom: 2px solid transparent; }
         .main-navigation a:hover { color: var(--brand-orange); }
         .main-navigation a.active { color: var(--brand-orange); border-bottom-color: var(--brand-orange); }
-        body:not(.scrolled-state) .main-navigation ul { opacity: 0; visibility: hidden; }
-        body.scrolled-state .main-navigation ul { opacity: 1; visibility: visible; }
+        body:not(.scrolled-state) .main-navigation { opacity: 0; visibility: hidden; }
+        body.scrolled-state .main-navigation { opacity: 1; visibility: visible; }
         .hamburger-menu { display: none; }
         main { padding-top: 0; }
         body.scrolled-state main { margin-top: 110px; transition: margin-top 1.5s ease; }
@@ -46,39 +47,21 @@
         .video-overlay-text h1 { font-size: 50px; font-weight: 800; margin-bottom: 20px; }
         .video-overlay-text p { font-size: 20px; max-width: 900px; margin: 0 auto; line-height: 1.6; }
         
-        /* Adjusted cta-button margin-top */
-        .cta-button { 
-            display: inline-block; 
-            /* REMOVED: margin-top: 30px; - This will now be handled by parent containers */
-            padding: 12px 30px; 
-            background-color: var(--brand-orange); 
-            color: var(--brand-green); 
-            text-decoration: none; 
-            font-weight: 800; 
-            border-radius: 50px; 
-            text-transform: uppercase; 
-            letter-spacing: 1.5px; 
-            font-size: 16px; 
-            transition: background-color 0.3s ease, transform 0.3s ease; 
-            text-shadow: none; 
-        }
-        /* Re-apply margin-top specifically for the button in the video overlay */
-        .video-overlay-text .cta-button {
-            margin-top: 30px; 
-        }
-
+        .cta-button { display: inline-block; padding: 12px 30px; background-color: var(--brand-orange); color: var(--brand-green); text-decoration: none; font-weight: 800; border-radius: 50px; text-transform: uppercase; letter-spacing: 1.5px; font-size: 16px; transition: background-color 0.3s ease, transform 0.3s ease; text-shadow: none; cursor: pointer; border: none; }
+        .video-overlay-text .cta-button { margin-top: 30px; }
         .cta-button:hover { background-color: #f7a823; transform: translateY(-3px); }
-        
-        /* New styling for the button wrapper in video-text-section */
-        .cta-buttons-wrapper {
-            display: flex;
-            gap: 20px; /* Space between buttons */
-            margin-top: 30px; /* Margin above the buttons */
-            justify-content: center; /* Center buttons when the column text is centered */
-            flex-wrap: wrap; /* Allow buttons to wrap to the next line on smaller screens */
+
+        /* ===== NEW CSS RULE TO FIX THE BUTTON ===== */
+        body:not(.scrolled-state) #apply-now-btn {
+            opacity: 1;
+            visibility: visible;
+            position: fixed; /* Position it relative to the viewport */
+            top: 30px;       /* 30px from the top */
+            right: 4%;       /* 4% from the right, to match the scrolled header padding */
+            z-index: 11;     /* Make sure it's on top of the header background */
         }
-
-
+        
+        .cta-buttons-wrapper { display: flex; gap: 20px; margin-top: 30px; justify-content: center; flex-wrap: wrap; }
         .pop-out-section { display: flex; align-items: center; justify-content: center; gap: 50px; padding: 100px 4%; overflow: hidden; }
         .pop-out-image img { max-width: 350px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: block; }
         .animate-on-scroll { opacity: 0; transition: opacity 1s ease-out, transform 1s ease-out; }
@@ -100,7 +83,7 @@
         .quote-section blockquote p { font-size: 32px; font-style: italic; font-weight: 600; line-height: 1.5; margin: 0 0 20px 0; color: var(--brand-orange); text-shadow: none; }
         .quote-section .quote-author { font-size: 18px; font-weight: 400; font-style: normal; color: rgba(255, 255, 255, 0.8); }
         
-        .site-footer { background-color: var(--light-bg); color: var(--brand-green); padding: 40px 4%; }
+        .site-footer { background-color: var(--light-bg); color: var(--brand-green); padding: 40px 4%; position: relative; }
         .footer-container { display: flex; justify-content: space-between; gap: 40px; max-width: 1200px; margin: 0 auto; }
         .footer-col { flex: 1; }
         .footer-col-left { flex-basis: 30%; }
@@ -111,96 +94,55 @@
         .footer-col ul li { margin-bottom: 10px; }
         .footer-col a { color: var(--brand-green); text-decoration: none; transition: color 0.3s ease; }
         .footer-col a:hover { color: var(--brand-orange); }
+        .footer-social-links { display: flex; gap: 15px; margin-top: 20px; }
+        .footer-social-links img { width: 24px; height: 24px; transition: opacity 0.3s ease, transform 0.3s ease; }
+        .footer-social-links a:hover img { opacity: 0.8; transform: scale(1.1); }
+        .admin-login-icon { position: absolute; bottom: 20px; right: 20px; width: 28px; height: 28px; color: var(--brand-green); opacity: 0.6; transition: opacity 0.3s ease, transform 0.3s ease, color 0.3s ease; }
+        .admin-login-icon svg { width: 100%; height: 100%; fill: currentColor; }
+        .admin-login-icon:hover { opacity: 1; transform: scale(1.1); color: var(--brand-orange); }
 
-        .footer-social-links {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        .footer-social-links img {
-            width: 24px;
-            height: 24px;
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-        .footer-social-links a:hover img {
-            opacity: 0.8; 
-            transform: scale(1.1);
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: #fff; padding: 40px; border-radius: 8px; max-width: 500px; width: 90%; position: relative; max-height: 90vh; overflow-y: auto; }
+        .modal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 28px; cursor: pointer; color: #aaa; }
+        .modal-content h2 { color: var(--brand-green); margin-top: 0; }
+        .modal-content .form-group { margin-bottom: 15px; }
+        .modal-content .form-group label { display: block; font-weight: 600; margin-bottom: 5px; }
+        .modal-content .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+
+        .toast { visibility: hidden; min-width: 250px; background-color: var(--brand-green); color: #fff; text-align: center; border-radius: 5px; padding: 16px; position: fixed; z-index: 2000; right: 30px; top: 30px; font-size: 17px; opacity: 0; transition: opacity 0.5s, top 0.5s, visibility 0.5s; }
+        .toast.show { visibility: visible; opacity: 1; top: 50px; }
+        .toast.error { background-color: #dc3545; }
 
         @media (max-width: 900px) {
             .pop-out-section, .video-text-section { flex-direction: column; text-align: center; }
             .pop-out-content.right { order: -1; }
             .video-overlay-text h1 { font-size: 36px; }
             .video-overlay-text p { font-size: 18px; }
-            /* Ensure buttons center when column is centered */
-            .cta-buttons-wrapper {
-                justify-content: center;
-            }
+            .cta-buttons-wrapper { justify-content: center; }
         }
         @media (max-width: 768px) {
             body.scrolled-state .site-header { height: 90px; }
             body.scrolled-state main { margin-top: 90px; }
             body.scrolled-state .logo-image { width: 180px; height: 38px; }
             body.scrolled-state .tagline { display: none; }
-            /* Hamburger Button Styling */
-            body.scrolled-state .hamburger-menu { 
-                position: static; /* Keeps it in the header flow */
-                display: flex; 
-                flex-direction: column; 
-                justify-content: space-around; 
-                width: 30px; 
-                height: 30px; 
-                background: transparent; 
-                border: none; 
-                cursor: pointer; 
-                padding: 0; 
-                z-index: 12; /* Ensures it's above the menu overlay if needed */
-            } 
-             body.scrolled-state .hamburger-menu span { 
-                width: 30px; 
-                height: 3px; 
-                background: var(--brand-green); 
-                border-radius: 5px; 
-                transition: all 0.3s linear; 
-                position: relative; 
-                transform-origin: 1px; 
-            } 
-
-            /* Menu List (UL) - Hidden State */
+            .main-navigation .cta-button { display: none; } /* Hide Apply button in mobile nav bar */
+            .main-navigation { justify-content: flex-end; }
             .main-navigation ul { 
-                /* display: none; - Removed this */
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 25px;
-                position: fixed;
-                top: 70px; /* Positioned exactly below the mobile header */
-                left: 0;
-                width: 100%;
-                background: var(--light-bg);
-                box-shadow: 0 15px 20px rgba(0,0,0,0.1);
-                
-                /* Animation & Hiding */
-                max-height: 0;
-                overflow: hidden;
-                padding: 0; /* No padding when hidden */
-                transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
-                z-index: 9; /* Below the header (Z-index 10) */
+                display: flex; flex-direction: column; align-items: center; gap: 25px;
+                position: fixed; top: 90px; left: 0; width: 100%; background: var(--light-bg);
+                box-shadow: 0 15px 20px rgba(0,0,0,0.1); max-height: 0; overflow: hidden;
+                padding: 0; transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+                z-index: 9;
             }
-
-            /* Menu List (UL) - Open State (Triggered by body.menu-open) */
-            body.menu-open .main-navigation ul { 
-                max-height: 400px; /* Enough height to show the links */
-                padding: 30px 0; /* Add padding when open */
-            } 
-
-            /* Link styles within the dropdown */
-            .main-navigation a {
-                font-size: 18px;
+            body.menu-open .main-navigation ul { max-height: 400px; padding: 30px 0; }
+            .main-navigation a { font-size: 18px; }
+            body:not(.scrolled-state) .main-navigation { opacity: 1; visibility: visible; }
+            body:not(.scrolled-state) .hamburger-menu { display: none; }
+            .hamburger-menu { 
+                display: flex; flex-direction: column; justify-content: space-around; 
+                width: 30px; height: 30px; background: transparent; border: none; cursor: pointer; padding: 0; z-index: 12;
             }
-
-            /* Hamburger "X" Animation */
-            /* body.menu-open .hamburger-menu { position: fixed; top: 30px; right: 4%; } - Removed fixed positioning */
+            .hamburger-menu span { width: 30px; height: 3px; background: var(--brand-green); border-radius: 5px; transition: all 0.3s linear; position: relative; transform-origin: 1px; } 
             body.menu-open .hamburger-menu span:nth-child(1) { transform: rotate(45deg); } 
             body.menu-open .hamburger-menu span:nth-child(2) { opacity: 0; transform: translateX(20px); } 
             body.menu-open .hamburger-menu span:nth-child(3) { transform: rotate(-45deg); }
@@ -222,7 +164,8 @@
 
     <header class="site-header">
         <div class="logo-container">
-            <img src="Logo.png" alt="Lifewood Logo" class="logo-image">
+            <a href="index.html"><img src="Logo.png" alt="Lifewood Logo" class="logo-image"></a>
+            <span class="tagline">Always On Never Off</span>
         </div>
         <nav class="main-navigation">
             <button class="hamburger-menu" aria-label="Toggle menu"><span></span><span></span><span></span></button>
@@ -232,6 +175,7 @@
                 <li><a href="operations.html">Operations</a></li>
                 <li><a href="projects.html">projects</a></li>
             </ul>
+            <button id="apply-now-btn" class="cta-button">Apply Now</button>
         </nav>
     </header>
 
@@ -271,10 +215,9 @@
                 <h3>Driven by Purpose, Proven by Results</h3>
                 <p>Since 2004, Lifewood has helped organizations worldwide transform raw information into high-quality data that powers smarter technology. Our work fuels breakthroughs in artificial intelligence, machine learning, and digital heritage preservation.</p>
                 <p>Our goal is to help your technology reach its full potential by building a data foundation you can trust.</p>
-                <!-- NEW: Wrapper for the buttons -->
                 <div class="cta-buttons-wrapper">
                     <a href="services.html" class="cta-button">Explore our Services</a>
-                    <a href="projects.html" class="cta-button">Explore our Projects</a> <!-- NEW BUTTON HERE -->
+                    <a href="projects.html" class="cta-button">Explore our Projects</a>
                 </div>
             </div>
         </div>
@@ -285,7 +228,6 @@
                 <cite class="quote-author">— Lifewood</cite>
             </blockquote>
         </div>
-
     </main>
     
     <footer class="site-footer">
@@ -310,56 +252,186 @@
                     <li><a href="tel:09276155464">+63 927 615 5464</a></li>
                 </ul>
                 <div class="footer-social-links">
-                    <a href="https://www.youtube.com/@LifewoodDataTechnology" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
-                        <img src="youtube.png" alt="YouTube">
-                    </a>
-                    <a href="https://www.facebook.com/LifewoodPH" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-                        <img src="facebook.png" alt="Facebook">
-                    </a>
+                    <a href="https://www.youtube.com/@LifewoodDataTechnology" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><img src="youtube.png" alt="YouTube"></a>
+                    <a href="https://www.facebook.com/LifewoodPH" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="facebook.png" alt="Facebook"></a>
                 </div>
             </div>
         </div>
+        <a href="admin-login.html" class="admin-login-icon" aria-label="Admin Login" title="Admin Login">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5a5.5 5.5 0 0 1 5.5 5.5c0 1.58-.68 3-1.75 3.99.72.74 1.25 1.73 1.25 2.76v.25a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2v-.25c0-1.03.53-2.02 1.25-2.76A5.49 5.49 0 0 1 6.5 8a5.5 5.5 0 0 1 5.5-5.5zm0 1c-2.48 0-4.5 2.02-4.5 4.5s2.02 4.5 4.5 4.5 4.5-2.02 4.5-4.5-2.02-4.5-4.5-4.5zm0 10c-1.93 0-3.5 1.57-3.5 3.5v.25h7v-.25c0-1.93-1.57-3.5-3.5-3.5z"/></svg>
+        </a>
     </footer>
 
+    <!-- Application Modal HTML -->
+    <div id="application-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close" id="modal-close-btn">×</button>
+            <h2>Join Our Team</h2>
+            <p>Fill out the form below to apply for a position at Lifewood.</p>
+            <form id="application-form">
+                <div class="form-group"><label for="appName">Full Name</label><input type="text" id="appName" required></div>
+                <div class="form-group"><label for="appEmail">Email</label><input type="email" id="appEmail" required></div>
+                <div class="form-group"><label for="appPosition">Position Applying For</label><input type="text" id="appPosition" required></div>
+                <div class="form-group"><label for="appSchool">School/University</label><input type="text" id="appSchool" required></div>
+                <div class="form-group"><label for="appCourse">Course</label><input type="text" id="appCourse" required></div>
+                <div class="form-group"><label for="appResumeURL">Link to Resume (URL)</label><input type="url" id="appResumeURL" placeholder="https://..." required></div>
+                <button type="submit" id="submit-application-btn" class="cta-button">Submit Application</button>
+                <p id="form-success-message" style="display: none; color: var(--brand-green); margin-top: 15px;">Thank you! Your application has been submitted.</p>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Toast Notification HTML -->
+    <div id="toast-notification" class="toast">
+        <span id="toast-message"></span>
+    </div>
+
+    <!-- ===== All JavaScript below this line ===== -->
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
     <script>
-        // --- PRELOADER SCRIPT ---
-        window.onload = function() {
-            setTimeout(function() {
-                const preloader = document.getElementById('preloader');
-                preloader.classList.add('preloader-hidden');
-            }, 500);
+        // *** CRITICAL SECURITY WARNING ***
+        // DO NOT expose your API keys like this in a public repository.
+        // For production, use a more secure method like Firebase App Check or environment variables.
+        const firebaseConfig = {
+          apiKey: "AIzaSyCaxTZTSP_Q1z77VvF7vxpjzth_1oShhws",
+          authDomain: "lifewood-app.firebaseapp.com",
+          projectId: "lifewood-app",
+          storageBucket: "lifewood-app.appspot.com",
+          messagingSenderId: "141075525037",
+          appId: "1:141075525037:web:9b236d3367024528088524",
+          measurementId: "G-CB8L8WS3NJ"
         };
 
-        // --- SCROLLING HEADER SCRIPT ---
-        const body = document.body;
-        const scrollThreshold = 1; 
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        function handleHeaderScroll() {
-            if (window.scrollY > scrollThreshold) {
-                body.classList.add('scrolled-state');
-            } else {
-                body.classList.remove('scrolled-state');
+        // --- MAIN SCRIPT EXECUTION ---
+        // Wait for the entire page to be loaded before running ANY script that touches the page.
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- PRELOADER SCRIPT ---
+            const preloader = document.getElementById('preloader');
+            if (preloader) {
+                setTimeout(() => {
+                    preloader.classList.add('preloader-hidden');
+                }, 500);
             }
-        }
-        window.addEventListener('scroll', handleHeaderScroll);
 
-        // --- HAMBURGER MENU SCRIPT ---
-        const hamburgerBtn = document.querySelector('.hamburger-menu');
-        hamburgerBtn.addEventListener('click', function() {
-            document.body.classList.toggle('menu-open');
-        });
+            // --- SCROLLING HEADER SCRIPT ---
+            const body = document.body;
+            const scrollThreshold = 1;
+            function handleHeaderScroll() {
+                if (window.scrollY > scrollThreshold) {
+                    body.classList.add('scrolled-state');
+                } else {
+                    body.classList.remove('scrolled-state');
+                }
+            }
+            window.addEventListener('scroll', handleHeaderScroll);
+            handleHeaderScroll(); // Run once on load to set initial state
 
-        // --- REUSABLE ANIMATION SCRIPT ---
-        const animatedSections = document.querySelectorAll('.scroll-animation-section');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                const animatedElements = entry.target.querySelectorAll('.animate-on-scroll');
-                animatedElements.forEach(el => {
-                    el.classList.toggle('is-visible', entry.isIntersecting);
+            // --- HAMBURGER MENU SCRIPT ---
+            const hamburgerBtn = document.querySelector('.hamburger-menu');
+            if (hamburgerBtn) {
+                hamburgerBtn.addEventListener('click', function() {
+                    body.classList.toggle('menu-open');
                 });
-            });
-        }, { threshold: 0.2 });
-        animatedSections.forEach(section => { observer.observe(section); });
+            }
+
+            // --- REUSABLE ANIMATION SCRIPT ---
+            const animatedSections = document.querySelectorAll('.scroll-animation-section');
+            if (animatedSections.length > 0) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        const animatedElements = entry.target.querySelectorAll('.animate-on-scroll');
+                        animatedElements.forEach(el => {
+                            el.classList.toggle('is-visible', entry.isIntersecting);
+                        });
+                    });
+                }, { threshold: 0.2 });
+                animatedSections.forEach(section => {
+                    observer.observe(section);
+                });
+            }
+            
+            // --- TOAST NOTIFICATION FUNCTION ---
+            function showToast(message, isError = false) {
+                const toast = document.getElementById('toast-notification');
+                const toastMessage = document.getElementById('toast-message');
+                if (!toast || !toastMessage) return;
+
+                toastMessage.textContent = message;
+                if (isError) toast.classList.add('error');
+                else toast.classList.remove('error');
+
+                toast.classList.add('show');
+                setTimeout(() => { toast.classList.remove('show'); }, 3000);
+            }
+
+            // --- MODAL INTERACTION LOGIC ---
+            const applyBtn = document.getElementById('apply-now-btn');
+            const modal = document.getElementById('application-modal');
+            const closeBtn = document.getElementById('modal-close-btn');
+
+            if (applyBtn && modal && closeBtn) {
+                applyBtn.addEventListener('click', () => {
+                    modal.style.display = 'flex';
+                });
+                closeBtn.addEventListener('click', () => {
+                    modal.style.display = 'none';
+                });
+                window.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            }
+
+            // --- FORM SUBMISSION LOGIC ---
+            const applicationForm = document.getElementById('application-form');
+            const submitBtn = document.getElementById('submit-application-btn');
+            
+            if (applicationForm) {
+                applicationForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Submitting...';
+
+                    try {
+                        const newApplicant = {
+                            name: document.getElementById('appName').value,
+                            email: document.getElementById('appEmail').value,
+                            position: document.getElementById('appPosition').value,
+                            school: document.getElementById('appSchool').value,
+                            course: document.getElementById('appCourse').value,
+                            resumeURL: document.getElementById('appResumeURL').value,
+                            status: 'Pending',
+                            submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        };
+
+                        await db.collection('applicants').add(newApplicant);
+                        
+                        showToast("Application submitted successfully!");
+                        
+                        if (modal) modal.style.display = 'none';
+                        applicationForm.reset();
+
+                    } catch (error) {
+                        console.error("Error submitting application:", error);
+                        showToast("Submission failed. Please try again.", true);
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Submit Application';
+                    }
+                });
+            }
+
+        }); // <-- End of the consolidated DOMContentLoaded wrapper
     </script>
 </body>
 </html>
