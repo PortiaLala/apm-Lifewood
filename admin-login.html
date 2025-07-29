@@ -80,7 +80,7 @@
             auth.signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     // Signed in successfully
-                    window.location.href = 'dashboard.html'; // Changed from admin-dashboard.html to match previous context
+                    window.location.href = 'admin-dashboard.html'; // Changed from admin-dashboard.html to match previous context
                 })
                 .catch((error) => {
                     errorMessageDiv.textContent = 'Invalid email or password.';
