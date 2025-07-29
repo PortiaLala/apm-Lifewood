@@ -95,6 +95,9 @@
         .btn-accept:hover { background-color: var(--success); color: #fff; }
         .btn-reject { color: var(--danger); border-color: var(--danger); }
         .btn-reject:hover { background-color: var(--danger); color: #fff; }
+        /* ADDED: Class for remove button, reusing reject styles */
+        .btn-remove { color: var(--danger); border-color: var(--danger); }
+        .btn-remove:hover { background-color: var(--danger); color: #fff; }
         .btn-view { color: var(--brand-green); border-color: var(--brand-green); }
         .btn-view:hover { background-color: var(--brand-green); color: #fff; }
         .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -116,7 +119,7 @@
     <aside class="sidebar">
         <div>
             <div class="sidebar-header">
-                <a href="#"><img src="Logo.png" alt="Lifewood Logo"></a>
+                <a href="index.html"><img src="Logo.png" alt="Lifewood Logo"></a>
             </div>
             <nav class="sidebar-nav">
                 <a href="#" class="active">
@@ -125,7 +128,6 @@
                 </a>
             </nav>
         </div>
-        <!-- UPDATED: Logout button is now just a single icon -->
         <a href="#" id="logout-btn" title="Logout">
              <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
         </a>
@@ -182,6 +184,8 @@
                                     <th>Availability</th>
                                     <th>Resume</th>
                                     <th>Date Accepted</th>
+                                    <!-- ADDED: New column for actions -->
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="employees-table-body"></tbody>
@@ -195,74 +199,204 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
-    <script>
-        // The JavaScript does not need any changes and remains the same.
-        const firebaseConfig = {
-            apiKey: "AIzaSyCaxTZTSP_Q1z77VvF7vxpjzth_1oShhws",
-            authDomain: "lifewood-app.firebaseapp.com",
-            projectId: "lifewood-app",
-            storageBucket: "lifewood-app.appspot.com",
-            messagingSenderId: "141075525037",
-            appId: "1:141075525037:web:9b236d3367024528088524",
-            measurementId: "G-CB8L8WS3NJ"
+<!-- Your main script block -->
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCaxTZTSP_Q1z77VvF7vxpjzth_1oShhws",
+        authDomain: "lifewood-app.firebaseapp.com",
+        projectId: "lifewood-app",
+        storageBucket: "lifewood-app.appspot.com",
+        messagingSenderId: "141075525037",
+        appId: "1:141075525037:web:9b236d3367024528088524",
+        measurementId: "G-CB8L8WS3NJ"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const EMAILJS_SERVICE_ID = 'service_f7p26jc';
+    const EMAILJS_PUBLIC_KEY = 'hO5U0B2-tH3cUDgT2';
+    const EMAILJS_TEMPLATE_ID_ACCEPTED = 'template_vr0qgjf';
+    const EMAILJS_TEMPLATE_ID_REJECTED = 'template_szrcyl9';
+    
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+
+    auth.onAuthStateChanged(user => user ? initializeDashboard() : window.location.replace('admin-login.html'));
+
+    function initializeDashboard() {
+        const applicantsTbody = document.getElementById('applicants-table-body');
+        const employeesTbody = document.getElementById('employees-table-body');
+        const logoutBtn = document.getElementById('logout-btn');
+        const applicantsCardHeader = document.querySelector('#applicants-title').parentElement.parentElement;
+        const employeesCardHeader = document.querySelector('#employees-title').parentElement.parentElement;
+        const applicantsCol = db.collection('applicants');
+        const employeesCol = db.collection('employees');
+
+        const sanitize = (str) => {
+            const temp = document.createElement('div');
+            temp.textContent = str;
+            return temp.innerHTML;
         };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        auth.onAuthStateChanged(user => user ? initializeDashboard() : window.location.replace('admin-login.html'));
-        function initializeDashboard() {
-            const applicantsTbody = document.getElementById('applicants-table-body');
-            const employeesTbody = document.getElementById('employees-table-body');
-            const logoutBtn = document.getElementById('logout-btn');
-            const applicantsCardHeader = document.querySelector('#applicants-title').parentElement.parentElement;
-            const employeesCardHeader = document.querySelector('#employees-title').parentElement.parentElement;
-            const applicantsCol = db.collection('applicants');
-            const employeesCol = db.collection('employees');
-            const sanitize = (str) => { const temp = document.createElement('div'); temp.textContent = str; return temp.innerHTML; };
-            applicantsCol.where("status", "==", "Pending").orderBy("submittedAt", "desc").onSnapshot(snapshot => {
-                let countSpan = applicantsCardHeader.querySelector('.count');
-                if (!countSpan) { countSpan = document.createElement('span'); countSpan.className = 'count'; applicantsCardHeader.appendChild(countSpan); }
-                countSpan.textContent = snapshot.size;
-                applicantsTbody.innerHTML = '';
-                if (snapshot.empty) { applicantsTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 40px 0;">No pending applications.</td></tr>`; return; }
-                snapshot.forEach(doc => {
-                    const app = doc.data(); const fullName = `${app.firstName || ''} ${app.lastName || ''}`.trim(); const row = document.createElement('tr');
-                    row.innerHTML = `<td><strong>${sanitize(fullName)}</strong></td><td>${sanitize(app.email)}</td><td>${sanitize(app.projectAppliedFor)}</td><td>${app.availabilityStart || 'N/A'} - ${app.availabilityEnd || 'N/A'}</td><td><a href="${app.resumeLink}" class="action-btn btn-view" target="_blank" rel="noopener">View</a></td><td class="actions"><button class="action-btn btn-accept" data-id="${doc.id}">✔ Accept</button><button class="action-btn btn-reject" data-id="${doc.id}">✖ Reject</button></td>`;
-                    applicantsTbody.appendChild(row);
-                });
+
+        // Fetch and display PENDING applications
+        applicantsCol.where("status", "==", "Pending").orderBy("submittedAt", "desc").onSnapshot(snapshot => {
+            let countSpan = applicantsCardHeader.querySelector('.count');
+            if (!countSpan) {
+                countSpan = document.createElement('span');
+                countSpan.className = 'count';
+                applicantsCardHeader.appendChild(countSpan);
+            }
+            countSpan.textContent = snapshot.size;
+            applicantsTbody.innerHTML = '';
+            if (snapshot.empty) {
+                applicantsTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 40px 0;">No pending applications.</td></tr>`;
+                return;
+            }
+            snapshot.forEach(doc => {
+                const app = doc.data();
+                const fullName = `${app.firstName || ''} ${app.lastName || ''}`.trim();
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${sanitize(fullName)}</strong></td>
+                    <td>${sanitize(app.email)}</td>
+                    <td>${sanitize(app.projectAppliedFor)}</td>
+                    <td>${app.availabilityStart || 'N/A'} - ${app.availabilityEnd || 'N/A'}</td>
+                    <td><a href="${app.resumeLink}" class="action-btn btn-view" target="_blank" rel="noopener">View</a></td>
+                    <td class="actions">
+                        <button class="action-btn btn-accept" data-id="${doc.id}" data-name="${sanitize(fullName)}" data-email="${sanitize(app.email)}">✔ Accept</button>
+                        <button class="action-btn btn-reject" data-id="${doc.id}" data-name="${sanitize(fullName)}" data-email="${sanitize(app.email)}">✖ Reject</button>
+                    </td>`;
+                applicantsTbody.appendChild(row);
             });
-            employeesCol.orderBy("acceptanceDate", "desc").onSnapshot(snapshot => {
-                let countSpan = employeesCardHeader.querySelector('.count');
-                if (!countSpan) { countSpan = document.createElement('span'); countSpan.className = 'count'; employeesCardHeader.appendChild(countSpan); }
-                countSpan.textContent = snapshot.size;
-                employeesTbody.innerHTML = '';
-                if (snapshot.empty) { employeesTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 40px 0;">No employees found.</td></tr>`; return; }
-                snapshot.forEach(doc => {
-                    const emp = doc.data(); const fullName = `${emp.firstName || ''} ${emp.lastName || ''}`.trim(); const row = document.createElement('tr');
-                    row.innerHTML = `<td><strong>${sanitize(fullName)}</strong></td><td>${sanitize(emp.email)}</td><td>${sanitize(emp.projectAppliedFor)}</td><td>${emp.availabilityStart || 'N/A'} - ${emp.availabilityEnd || 'N/A'}</td><td><a href="${emp.resumeLink}" class="action-btn btn-view" target="_blank" rel="noopener">View</a></td><td>${emp.acceptanceDate}</td>`;
-                    employeesTbody.appendChild(row);
-                });
-            });
-            applicantsTbody.addEventListener('click', async (e) => {
-                const targetButton = e.target.closest('.action-btn'); if (!targetButton) return; const id = targetButton.dataset.id; if (!id) return;
-                const applicantDocRef = applicantsCol.doc(id);
-                if (targetButton.classList.contains('btn-accept')) {
+        });
+
+        // Fetch and display EMPLOYEES
+        employeesCol.orderBy("acceptanceDate", "desc").onSnapshot(snapshot => {
+             let countSpan = employeesCardHeader.querySelector('.count');
+             if (!countSpan) { countSpan = document.createElement('span'); countSpan.className = 'count'; employeesCardHeader.appendChild(countSpan); }
+             countSpan.textContent = snapshot.size;
+             employeesTbody.innerHTML = '';
+             // UPDATED: colspan to 7 to account for new Actions column
+             if (snapshot.empty) {
+                 employeesTbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 40px 0;">No employees found.</td></tr>`;
+                 return;
+             }
+             snapshot.forEach(doc => {
+                 const emp = doc.data();
+                 const fullName = `${emp.firstName || ''} ${emp.lastName || ''}`.trim();
+                 const row = document.createElement('tr');
+                 // UPDATED: Added new <td> with a remove button
+                 row.innerHTML = `
+                    <td><strong>${sanitize(fullName)}</strong></td>
+                    <td>${sanitize(emp.email)}</td>
+                    <td>${sanitize(emp.projectAppliedFor)}</td>
+                    <td>${emp.availabilityStart || 'N/A'} - ${emp.availabilityEnd || 'N/A'}</td>
+                    <td><a href="${emp.resumeLink}" class="action-btn btn-view" target="_blank" rel="noopener">View</a></td>
+                    <td>${emp.acceptanceDate}</td>
+                    <td class="actions">
+                        <button class="action-btn btn-remove" data-id="${doc.id}" data-name="${sanitize(fullName)}">✖ Remove</button>
+                    </td>`;
+                 employeesTbody.appendChild(row);
+             });
+        });
+
+        // Event listener for PENDING APPLICANTS actions
+        applicantsTbody.addEventListener('click', async (e) => {
+            const targetButton = e.target.closest('.action-btn');
+            if (!targetButton) return;
+
+            const id = targetButton.dataset.id;
+            const applicantName = targetButton.dataset.name;
+            const applicantEmail = targetButton.dataset.email;
+
+            // --- ACCEPT LOGIC ---
+            if (targetButton.classList.contains('btn-accept')) {
+                // ADDED: Confirmation dialog for accepting
+                if (confirm(`Are you sure you want to accept ${applicantName}? This will send an acceptance email.`)) {
                     targetButton.disabled = true;
+                    targetButton.textContent = "Processing...";
+                    const templateParams = { applicant_name: applicantName, applicant_email: applicantEmail };
+
                     try {
-                        const appDoc = await applicantDocRef.get(); if (!appDoc.exists) return;
-                        const appData = appDoc.data(); const today = new Date().toISOString().slice(0, 10); const employeeData = { ...appData, status: 'Accepted', acceptanceDate: today };
-                        const batch = db.batch(); batch.set(employeesCol.doc(), employeeData); batch.delete(applicantDocRef); await batch.commit();
-                    } catch (error) { console.error("Error accepting applicant:", error); targetButton.disabled = false; }
-                } else if (targetButton.classList.contains('btn-reject')) {
-                    if (confirm("Are you sure you want to reject this applicant?")) {
-                        targetButton.disabled = true;
-                        await applicantDocRef.delete().catch(error => { console.error("Error rejecting applicant:", error); targetButton.disabled = false; });
+                        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID_ACCEPTED, templateParams);
+                        alert(`Acceptance email sent successfully to ${applicantName}!`);
+                        
+                        const appDoc = await applicantsCol.doc(id).get();
+                        if (!appDoc.exists) throw new Error("Applicant document not found.");
+                        
+                        const appData = appDoc.data();
+                        const today = new Date().toISOString().slice(0, 10);
+                        const employeeData = { ...appData, status: 'Accepted', acceptanceDate: today };
+
+                        const batch = db.batch();
+                        batch.set(employeesCol.doc(), employeeData);
+                        batch.delete(applicantsCol.doc(id));
+                        await batch.commit();
+
+                    } catch (error) {
+                        console.error("Error during acceptance process:", error);
+                        alert("An error occurred. The applicant was not accepted. Please check the console and try again.");
+                        targetButton.disabled = false;
+                        targetButton.innerHTML = "✔ Accept";
                     }
                 }
-            });
-            logoutBtn.addEventListener('click', (e) => { e.preventDefault(); auth.signOut(); });
-        }
-    </script>
+            } 
+            // --- REJECT LOGIC ---
+            else if (targetButton.classList.contains('btn-reject')) {
+                if (confirm(`Are you sure you want to reject ${applicantName}? This will send a rejection email.`)) {
+                    targetButton.disabled = true;
+                    targetButton.textContent = "Processing...";
+                    const templateParams = { applicant_name: applicantName, applicant_email: applicantEmail };
+
+                    try {
+                        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID_REJECTED, templateParams);
+                        alert(`Rejection email sent successfully to ${applicantName}.`);
+                        await applicantsCol.doc(id).delete();
+                    } catch (error) {
+                        console.error("Error during rejection process:", error);
+                        alert("An error occurred. The applicant was not rejected. Please check the console and try again.");
+                        targetButton.disabled = false;
+                        targetButton.innerHTML = "✖ Reject";
+                    }
+                }
+            }
+        });
+
+        // ADDED: New event listener for EMPLOYEE actions
+        employeesTbody.addEventListener('click', async (e) => {
+            const targetButton = e.target.closest('.btn-remove');
+            if (!targetButton) return;
+
+            const id = targetButton.dataset.id;
+            const employeeName = targetButton.dataset.name;
+
+            // ADDED: Confirmation dialog for removing
+            if (confirm(`Are you sure you want to remove ${employeeName} from the system? This action cannot be undone.`)) {
+                targetButton.disabled = true;
+                targetButton.textContent = "Removing...";
+                
+                try {
+                    // Delete the employee document from Firestore
+                    await employeesCol.doc(id).delete();
+                    alert(`${employeeName} has been successfully removed.`);
+                    // The onSnapshot listener will automatically update the table UI.
+                } catch (error) {
+                    console.error("Error removing employee:", error);
+                    alert("An error occurred. The employee was not removed. Please check the console.");
+                    targetButton.disabled = false; // Re-enable on failure
+                    targetButton.innerHTML = "✖ Remove";
+                }
+            }
+        });
+
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            auth.signOut();
+        });
+    }
+</script>
 </body>
 </html>
