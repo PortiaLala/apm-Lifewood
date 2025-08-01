@@ -19,7 +19,6 @@
             --light-bg: #f9f7f7;
             --dark-text: #333;
             --border-color: #ddd;
-            /* MODIFIED: Added color variables for notifications */
             --success: #198754;
             --info: #0d6efd;
             --danger: #dc3545;
@@ -107,7 +106,6 @@
         
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; display: flex; justify-content: center; align-items: center; }
         .modal-content { background: #fff; padding: 0; border-radius: 10px; max-width: 650px; width: 90%; position: relative; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; border-top: 5px solid var(--brand-green); box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
-        /* MODIFIED: Added a subtle background to the header */
         .modal-header { padding: 25px 40px; border-bottom: 1px solid var(--border-color); background-color: #fcfcfc; }
         .modal-header h2 { color: var(--brand-green); margin: 0 0 5px 0; font-size: 24px; }
         .modal-header p { margin: 0; color: #666; }
@@ -117,23 +115,21 @@
         #application-form { padding: 30px 40px; overflow-y: auto; background-color: #fdfdfd; }
         .form-row { display: flex; gap: 20px; }
         .form-row .form-group { flex: 1; }
-        .form-group { margin-bottom: 25px; }
-        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: #555; transition: transform 0.3s ease; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; font-family: 'Manrope', sans-serif; font-size: 16px; color: var(--dark-text); transition: border-color 0.3s ease, box-shadow 0.3s ease, height 0.3s ease, opacity 0.3s ease; }
-        /* MODIFIED: Added micro-interaction on label for focused inputs */
-        .form-group input:focus + label, .form-group textarea:focus + label, .form-group select:focus + label { transform: translateY(-2px); color: var(--brand-orange); }
+        .form-group { margin-bottom: 25px; position: relative; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: #555; transition: all 0.2s ease; position: absolute; top: 14px; left: 15px; background-color: #fdfdfd; padding: 0 5px; pointer-events: none; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; font-family: 'Manrope', sans-serif; font-size: 16px; color: var(--dark-text); transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+        .form-group input:focus + label, .form-group textarea:focus + label, .form-group select:focus + label,
+        .form-group input:not(:placeholder-shown) + label, .form-group textarea:not(:placeholder-shown) + label,
+        .form-group select:valid + label { transform: translateY(-25px) scale(0.9); color: var(--brand-orange); }
+        .form-group select:invalid + label { transform: none; color: #555; }
         .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--brand-orange); box-shadow: 0 0 0 3px rgba(255, 179, 71, 0.2); }
         
-        /* --- MODIFIED: Enhanced Progress Bar --- */
         .progress-bar { display: flex; justify-content: space-between; margin-bottom: 30px; position: relative; }
-        /* Base line for the progress bar */
         .progress-bar::before { content: ''; position: absolute; top: 18px; left: 0; transform: translateY(-50%); height: 4px; width: 100%; background: var(--border-color); z-index: 1; }
-        /* Filled line for the progress bar */
         #progress-line-fill { position: absolute; top: 18px; left: 0; transform: translateY(-50%); height: 4px; width: 0; background: var(--brand-orange); z-index: 2; transition: width 0.4s ease-in-out; }
         .progress-step { z-index: 3; text-align: center; }
         .progress-step .step-number { width: 36px; height: 36px; border-radius: 50%; background: #fff; border: 2px solid var(--border-color); color: #999; display: flex; justify-content: center; align-items: center; font-weight: 800; margin: 0 auto 8px; transition: all 0.4s ease; }
         .progress-step .step-label { font-size: 12px; color: #999; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.4s ease; }
-        /* Active state for the progress step */
         .progress-step.active .step-number { border-color: var(--brand-orange); background-color: var(--brand-orange); color: #fff; transform: scale(1.1); box-shadow: 0 0 10px rgba(255, 179, 71, 0.5); }
         .progress-step.active .step-label { color: var(--brand-green); }
 
@@ -142,7 +138,6 @@
         .form-step.active-step { display: block; }
         .form-navigation { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
         
-        /* --- MODIFIED: Enhanced Buttons --- */
         .btn-prev { background: none; border: none; color: #888; font-weight: 600; cursor: pointer; padding: 10px; font-size: 15px; transition: color 0.3s ease; display: inline-flex; align-items: center; gap: 5px; }
         .btn-prev:hover { color: var(--dark-text); }
         .btn-prev::before { content: '←'; font-size: 18px; }
@@ -193,7 +188,36 @@
         <div class="video-text-section scroll-animation-section"><div class="video-column"><video src="Life.mp4" autoplay loop muted playsinline></video></div><div class="text-column animate-on-scroll slide-from-right"><h3>Driven by Purpose, Proven by Results</h3><p>Since 2004, Lifewood has helped organizations worldwide transform raw information into high-quality data that powers smarter technology. Our work fuels breakthroughs in artificial intelligence, machine learning, and digital heritage preservation.</p><p>Our goal is to help your technology reach its full potential by building a data foundation you can trust.</p><div class="cta-buttons-wrapper"><a href="services.html" class="cta-button">Explore our Services</a><a href="projects.html" class="cta-button">Explore our Projects</a></div></div></div>
         <div class="quote-section scroll-animation-section"><blockquote class="animate-on-scroll fade-in-up"><p>"Always On Never Off"</p><cite class="quote-author">— Lifewood</cite></blockquote></div>
     </main>
-    <footer class="site-footer"><div class="footer-container"><div class="footer-col footer-col-left"><a href="index.html"><img src="Logo.png" alt="Lifewood Logo" class="footer-logo"></a><p class="footer-copyright">© 2024 Lifewood. All Rights Reserved.</p></div><div class="footer-col"><h4>Navigate</h4><ul><li><a href="index.html">Home</a></li><li><a href="services.html">Services</a></li><li><a href="operations.html">Operations</a></li><li><a href="projects.html">Projects</a></li></ul></div><div class="footer-col"><h4>Contact Us</h4><ul><li><a href="mailto:hr.ph@lifewood.com">hr.ph@lifewood.com</a></li><li><a href="tel:09276155464">+63 927 615 5464</a></li></ul><div class="footer-social-links"><a href="https://www.youtube.com/@LifewoodDataTechnology" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><img src="youtube.png" alt="YouTube"></a><a href="https://www.facebook.com/LifewoodPH" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="facebook.png" alt="Facebook"></a></div></div></div></footer>
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-col footer-col-left">
+                <a href="index.html" id="footer-logo-link">
+                    <img src="Logo.png" alt="Lifewood Logo" class="footer-logo">
+                </a>
+                <p class="footer-copyright">© 2024 Lifewood. All Rights Reserved.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Navigate</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="operations.html">Operations</a></li>
+                    <li><a href="projects.html">Projects</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact Us</h4>
+                <ul>
+                    <li><a href="mailto:hr.ph@lifewood.com">hr.ph@lifewood.com</a></li>
+                    <li><a href="tel:09276155464">+63 927 615 5464</a></li>
+                </ul>
+                <div class="footer-social-links">
+                    <a href="https://www.youtube.com/@LifewoodDataTechnology" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><img src="youtube.png" alt="YouTube"></a>
+                    <a href="https://www.facebook.com/LifewoodPH" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="facebook.png" alt="Facebook"></a>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <div id="application-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
@@ -203,7 +227,6 @@
                 <p>Take the first step toward your next career.</p>
             </div>
             <form id="application-form">
-                <!-- MODIFIED: Added fill line div for the progress bar -->
                 <div class="progress-bar">
                     <div id="progress-line-fill"></div>
                     <div class="progress-step active" data-step="1"><div class="step-number">1</div><div class="step-label">Personal</div></div>
@@ -212,20 +235,19 @@
                 </div>
                 <div class="form-step active-step">
                     <div class="form-row">
-                        <!-- MODIFIED: Swapped label and input for focus interaction -->
-                        <div class="form-group"><input type="text" id="appFirstName" required><label for="appFirstName">First Name</label></div>
-                        <div class="form-group"><input type="text" id="appLastName" required><label for="appLastName">Last Name</label></div>
+                        <div class="form-group"><input type="text" id="appFirstName" placeholder=" " required><label for="appFirstName">First Name</label></div>
+                        <div class="form-group"><input type="text" id="appLastName" placeholder=" " required><label for="appLastName">Last Name</label></div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group"><input type="email" id="appEmail" required><label for="appEmail">Email</label></div>
-                        <div class="form-group"><input type="number" id="appAge" min="18" required><label for="appAge">Age</label></div>
+                        <div class="form-group"><input type="email" id="appEmail" placeholder=" " required><label for="appEmail">Email</label></div>
+                        <div class="form-group"><input type="number" id="appAge" min="18" placeholder=" " required><label for="appAge">Age</label></div>
                     </div>
                     <div class="form-navigation"><button type="button" class="btn-next cta-button">Next</button></div>
                 </div>
                 <div class="form-step">
                     <div class="form-group">
                         <select id="appDegree" required>
-                            <option value="" disabled selected>Select your attainment...</option>
+                            <option value="" disabled selected></option>
                             <option value="High School Graduate">High School Graduate</option>
                             <option value="Vocational Graduate">Vocational Graduate</option>
                             <option value="College Undergraduate">College Undergraduate</option>
@@ -235,12 +257,12 @@
                         <label for="appDegree">Highest Educational Attainment</label>
                     </div>
                     <div class="form-group" id="course-program-group" style="display: none;">
-                        <input type="text" id="appCourse" placeholder="e.g., Automotive Servicing, BS in IT">
+                        <input type="text" id="appCourse" placeholder="e.g., BS in IT">
                         <label for="appCourse">Course / Program</label>
                     </div>
                     <div class="form-group">
                         <select id="appProject" required>
-                            <option value="" disabled selected>Select a Project...</option>
+                            <option value="" disabled selected></option>
                             <option value="AI Data Extraction">AI Data Extraction</option>
                             <option value="Machine Learning Enablement">Machine Learning Enablement</option>
                             <option value="Genealogy">Genealogy</option>
@@ -251,11 +273,11 @@
                         </select>
                         <label for="appProject">Project Applied For</label>
                     </div>
-                    <div class="form-group"><textarea id="appExperience" rows="4" placeholder="Briefly describe your relevant experience..."></textarea><label for="appExperience">Relevant Job Experience</label></div>
+                    <div class="form-group"><textarea id="appExperience" rows="3" placeholder=" "></textarea><label for="appExperience">Relevant Job Experience</label></div>
                     <div class="form-navigation"><button type="button" class="btn-prev">Previous</button><button type="button" class="btn-next cta-button">Next</button></div>
                 </div>
                 <div class="form-step">
-                    <div class="form-group"><input type="url" id="appResumeLink" placeholder="https://..." required><label for="appResumeLink">Resume Link (Google Drive, LinkedIn, etc.)</label></div>
+                    <div class="form-group"><input type="url" id="appResumeLink" placeholder=" " required><label for="appResumeLink">Resume Link (Google Drive, etc.)</label></div>
                     <div class="form-row">
                         <div class="form-group"><input type="time" id="appStartTime" required><label for="appStartTime">Available Start Time</label></div>
                         <div class="form-group"><input type="time" id="appEndTime" required><label for="appEndTime">Available End Time</label></div>
@@ -287,6 +309,8 @@
 
         document.addEventListener('DOMContentLoaded', () => {
 
+            // (All other page functions like preloader, scrolling, form logic etc. remain here)
+            // ...
             const preloader = document.getElementById('preloader');
             if (preloader) { setTimeout(() => { preloader.classList.add('preloader-hidden'); }, 500); }
             const body = document.body;
@@ -298,57 +322,27 @@
             if (hamburgerBtn) { hamburgerBtn.addEventListener('click', function() { body.classList.toggle('menu-open'); }); }
             const animatedSections = document.querySelectorAll('.scroll-animation-section');
             if (animatedSections.length > 0) { const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { const animatedElements = entry.target.querySelectorAll('.animate-on-scroll'); animatedElements.forEach(el => { el.classList.toggle('is-visible', entry.isIntersecting); }); }); }, { threshold: 0.2 }); animatedSections.forEach(section => { observer.observe(section); }); }
-            
-            const secretCode = 'adminlifewood2004';
-            let keySequence = '';
-            document.addEventListener('keydown', (e) => {
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') { return; }
-                keySequence += e.key.toLowerCase();
-                keySequence = keySequence.slice(-secretCode.length);
-                if (keySequence === secretCode) { window.location.href = 'admin-login.html'; }
-            });
-
             function showNotification(type, title, message) {
                 const container = document.getElementById('notification-container');
                 const notification = document.createElement('div');
                 notification.className = `notification ${type}`;
-
-                const icons = {
-                    success: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`,
-                    info: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`,
-                    danger: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`
-                };
-
-                notification.innerHTML = `
-                    <div class="notification-icon">${icons[type] || icons.info}</div>
-                    <div class="notification-text">
-                        <strong>${title}</strong>
-                        <p>${message}</p>
-                    </div>
-                `;
+                const icons = { success: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`, info: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`, danger: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>` };
+                notification.innerHTML = `<div class="notification-icon">${icons[type] || icons.info}</div><div class="notification-text"><strong>${title}</strong><p>${message}</p></div>`;
                 container.appendChild(notification);
-
-                setTimeout(() => {
-                    notification.classList.add('fade-out');
-                    notification.addEventListener('animationend', () => notification.remove());
-                }, 5000);
+                setTimeout(() => { notification.classList.add('fade-out'); notification.addEventListener('animationend', () => notification.remove()); }, 5000);
             }
-
             const applyLink = document.getElementById('apply-now-link');
             const modal = document.getElementById('application-modal');
             const closeBtn = document.getElementById('modal-close-btn');
             const applicationForm = document.getElementById('application-form');
-
             if (applyLink && modal && closeBtn) {
                 applyLink.addEventListener('click', (e) => { e.preventDefault(); modal.style.display = 'flex'; showStep(0); applicationForm.reset(); document.getElementById('course-program-group').style.display = 'none'; document.getElementById('appCourse').required = false; });
                 closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
                 window.addEventListener('click', (e) => { if (e.target === modal) { modal.style.display = 'none'; } });
             }
-
             const degreeSelect = document.getElementById('appDegree');
             const courseGroup = document.getElementById('course-program-group');
             const courseInput = document.getElementById('appCourse');
-
             if (degreeSelect) {
                 degreeSelect.addEventListener('change', (e) => {
                     const selectedValue = e.target.value;
@@ -358,122 +352,120 @@
                     if (!isRequired) courseInput.value = '';
                 });
             }
-
             const formSteps = Array.from(document.querySelectorAll('.form-step'));
             const progressSteps = Array.from(document.querySelectorAll('.progress-step'));
             const progressLineFill = document.getElementById('progress-line-fill');
             const nextButtons = document.querySelectorAll('.btn-next');
             const prevButtons = document.querySelectorAll('.btn-prev');
             let currentStep = 0;
-
             const updateProgressBar = () => {
-                progressSteps.forEach((step, index) => {
-                    step.classList.toggle('active', index <= currentStep);
-                });
-                // --- MODIFIED: Update the fill line width ---
+                progressSteps.forEach((step, index) => { step.classList.toggle('active', index <= currentStep); });
                 const totalSteps = progressSteps.length;
                 const progressPercentage = (currentStep / (totalSteps - 1)) * 100;
                 progressLineFill.style.width = `${progressPercentage}%`;
             };
-
             const showStep = (stepIndex) => {
-                formSteps.forEach((step, index) => {
-                    step.classList.toggle('active-step', index === stepIndex);
-                });
+                formSteps.forEach((step, index) => { step.classList.toggle('active-step', index === stepIndex); });
                 currentStep = stepIndex;
                 updateProgressBar();
             };
-
             const validateStep = (stepIndex) => {
                 const currentFormStep = formSteps[stepIndex];
                 const inputs = currentFormStep.querySelectorAll('input[required], select[required], textarea[required]');
                 let isValid = true;
-                
                 inputs.forEach(input => {
-                    input.style.borderColor = ''; 
-                    if (!input.value.trim()) {
-                        isValid = false;
-                        input.style.borderColor = '#dc3545';
-                    }
+                    input.style.borderColor = '';
+                    if (!input.value.trim()) { isValid = false; input.style.borderColor = '#dc3545'; }
                 });
-
-                if (!isValid) {
-                    showNotification('danger', 'Missing Information', 'Please fill out all required fields.');
-                    return false;
-                }
-                
-                if (stepIndex === 0) { 
+                if (!isValid) { showNotification('danger', 'Missing Information', 'Please fill out all required fields.'); return false; }
+                if (stepIndex === 0) {
                     const ageInput = currentFormStep.querySelector('#appAge');
                     const age = parseInt(ageInput.value, 10);
-                    if (age < 18) {
-                        showNotification('danger', 'Age Requirement', 'Sorry, applicants must be 18 years or older.');
-                        ageInput.style.borderColor = '#dc3545';
-                        return false;
-                    }
+                    if (age < 18) { showNotification('danger', 'Age Requirement', 'Sorry, applicants must be 18 years or older.'); ageInput.style.borderColor = '#dc3545'; return false; }
                 }
-                return true; 
+                return true;
             };
-
-            nextButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    if (validateStep(currentStep)) {
-                        if (currentStep < formSteps.length - 1) {
-                            showStep(currentStep + 1);
-                        }
-                    }
-                });
-            });
-
-            prevButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    if (currentStep > 0) {
-                        showStep(currentStep - 1);
-                    }
-                });
-            });
-
+            nextButtons.forEach(button => { button.addEventListener('click', () => { if (validateStep(currentStep)) { if (currentStep < formSteps.length - 1) { showStep(currentStep + 1); } } }); });
+            prevButtons.forEach(button => { button.addEventListener('click', () => { if (currentStep > 0) { showStep(currentStep - 1); } }); });
             const submitBtn = document.getElementById('submit-application-btn');
             if (applicationForm) {
                 applicationForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    if (!validateStep(currentStep)) return; 
-
+                    if (!validateStep(currentStep)) return;
                     submitBtn.disabled = true;
                     submitBtn.textContent = 'Submitting...';
-
                     try {
                         const newApplicant = {
-                            firstName: document.getElementById('appFirstName').value,
-                            lastName: document.getElementById('appLastName').value,
-                            email: document.getElementById('appEmail').value,
-                            age: document.getElementById('appAge').value,
-                            degree: document.getElementById('appDegree').value,
-                            courseProgram: document.getElementById('appCourse').value,
-                            projectAppliedFor: document.getElementById('appProject').value,
-                            experience: document.getElementById('appExperience').value,
-                            resumeLink: document.getElementById('appResumeLink').value,
-                            availabilityStart: document.getElementById('appStartTime').value,
-                            availabilityEnd: document.getElementById('appEndTime').value,
-                            status: 'Pending',
-                            submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            firstName: document.getElementById('appFirstName').value, lastName: document.getElementById('appLastName').value, email: document.getElementById('appEmail').value, age: document.getElementById('appAge').value, degree: document.getElementById('appDegree').value, courseProgram: document.getElementById('appCourse').value, projectAppliedFor: document.getElementById('appProject').value, experience: document.getElementById('appExperience').value, resumeLink: document.getElementById('appResumeLink').value, availabilityStart: document.getElementById('appStartTime').value, availabilityEnd: document.getElementById('appEndTime').value, status: 'Pending', submittedAt: firebase.firestore.FieldValue.serverTimestamp()
                         };
-
                         await db.collection('applicants').add(newApplicant);
-                        
                         showNotification('success', 'Success!', 'Your application has been submitted.');
-                        
                         if (modal) modal.style.display = 'none';
                         applicationForm.reset();
                         showStep(0);
                         document.getElementById('course-program-group').style.display = 'none';
                         document.getElementById('appCourse').required = false;
-
                     } catch (error) {
                         console.error("Error submitting application:", error);
                         showNotification('danger', 'Submission Error', 'Something went wrong. Please try again.');
                     } finally {
                         submitBtn.disabled = false;
                         submitBtn.textContent = 'Submit Application';
+                    }
+                });
+            }
+
+            // --- NEW & UPDATED: SECRET ACCESS LOGIC ---
+
+            const ADMIN_IDENTIFICATION_KEY = "lifewoodmasterkey"; // This is the password for the prompt
+
+            function initiateAdminLogin() {
+                const password = prompt("Enter Admin Identification Key:");
+                
+                // If the user presses Cancel or leaves it blank
+                if (password === null || password === "") {
+                    return; 
+                }
+
+                if (password.toLowerCase() === ADMIN_IDENTIFICATION_KEY) {
+                    window.location.href = 'admin-login.html';
+                } else {
+                    alert("Identification failed. Access denied.");
+                }
+            }
+
+            // Method 1: Keyboard sequence (for desktop users)
+            const secretCode = 'adminlifewood2004';
+            let keySequence = '';
+            document.addEventListener('keydown', (e) => {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') { return; }
+                keySequence += e.key.toLowerCase();
+                keySequence = keySequence.slice(-secretCode.length);
+                if (keySequence === secretCode) {
+                    initiateAdminLogin(); // CHANGED: Call the identification function
+                }
+            });
+
+            // Method 2: Secret tap sequence on footer logo (for mobile and desktop)
+            const adminTrigger = document.getElementById('footer-logo-link');
+            if (adminTrigger) {
+                const requiredTaps = 7; 
+                const maxTapDelay = 500; 
+                let tapCount = 0;
+                let tapTimer;
+
+                adminTrigger.addEventListener('click', (e) => {
+                    e.preventDefault(); 
+                    clearTimeout(tapTimer);
+                    tapCount++;
+
+                    if (tapCount >= requiredTaps) {
+                        initiateAdminLogin(); // CHANGED: Call the identification function
+                        tapCount = 0; 
+                    } else {
+                        tapTimer = setTimeout(() => {
+                            tapCount = 0;
+                        }, maxTapDelay);
                     }
                 });
             }
