@@ -8,109 +8,137 @@
     <link rel="preconnect" href="https://gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="log.png" type="image/png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --brand-green: #046241;
             --brand-orange: #ffb347;
+            --accent-blue: #007bff;
+            --accent-purple: #6f42c1;
             --light-bg: #f7f8fc;
             --dark-text: #2a313a;
             --light-text: #8e94a3;
             --border-color: #e8e9ef;
             --card-bg: #ffffff;
             --success: #198754;
+            --info: #0d6efd;
+            --warning: #ffc107;
             --danger: #dc3545;
             --shadow: 0 5px 20px rgba(42, 49, 58, 0.08);
             --sidebar-width: 260px;
         }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @keyframes slideInFromRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: scale(0.9); } }
+
+        #notification-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
+        .notification { display: flex; align-items: center; gap: 15px; background-color: var(--card-bg); padding: 15px 20px; border-radius: 8px; box-shadow: var(--shadow); border-left: 5px solid; min-width: 300px; animation: slideInFromRight 0.5s ease forwards; }
+        .notification.fade-out { animation: fadeOut 0.5s ease forwards; }
+        .notification-icon { display: flex; align-items: center; justify-content: center; }
+        .notification-icon svg { width: 24px; height: 24px; }
+        .notification-text strong { display: block; font-size: 16px; font-weight: 700; color: var(--dark-text); }
+        .notification-text p { margin: 2px 0 0 0; font-size: 14px; color: var(--light-text); }
+
+        .notification.success { border-color: var(--success); } .notification.success .notification-icon { color: var(--success); }
+        .notification.info { border-color: var(--info); } .notification.info .notification-icon { color: var(--info); }
+        .notification.danger { border-color: var(--danger); } .notification.danger .notification-icon { color: var(--danger); }
+
+
         body { margin: 0; font-family: 'Manrope', sans-serif; background-color: var(--light-bg); color: var(--dark-text); font-size: 16px; }
 
-        /* --- Sidebar Navigation --- */
-        .sidebar {
-            background: var(--card-bg);
-            border-right: 1px solid var(--border-color);
-            width: var(--sidebar-width);
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            display: flex;
-            flex-direction: column;
-            padding: 25px;
-            box-sizing: border-box;
-            z-index: 100;
-        }
+        .sidebar { background: var(--card-bg); border-right: 1px solid var(--border-color); width: var(--sidebar-width); height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; padding: 25px; box-sizing: border-box; z-index: 100; }
         .sidebar-header img { height: 45px; margin-bottom: 40px; }
-        .sidebar-nav a { display: flex; align-items: center; gap: 15px; color: var(--light-text); text-decoration: none; font-weight: 500; padding: 15px; border-radius: 8px; margin: 5px 0; transition: background-color 0.2s ease, color 0.2s ease; }
+        .sidebar-nav a { display: flex; align-items: center; gap: 15px; color: var(--light-text); text-decoration: none; font-weight: 500; padding: 15px; border-radius: 8px; margin: 5px 0; transition: all 0.2s ease; cursor: pointer; }
         .sidebar-nav a:hover { background-color: var(--light-bg); color: var(--dark-text); }
-        .sidebar-nav a.active { background-color: var(--brand-green); color: #fff; font-weight: 700; }
-        .sidebar-nav a .icon { width: 22px; height: 22px; color: var(--light-text); transition: color 0.2s ease; }
-        .sidebar-nav a:hover .icon, .sidebar-nav a:focus .icon { color: var(--dark-text); }
+        .sidebar-nav a.active { background-color: var(--brand-green); color: #fff; font-weight: 700; box-shadow: 0 4px 12px rgba(4, 98, 65, 0.2); }
+        .sidebar-nav a .icon { width: 22px; height: 22px; transition: color 0.2s ease; }
         .sidebar-nav a.active .icon { color: #fff; }
         
-        /* --- UPDATED: Logout Button Style --- */
-        #logout-btn {
-            margin-top: auto; /* Pushes to the bottom */
-            padding: 10px; /* Creates a larger clickable area */
-            border-radius: 50%; /* Makes the button a circle */
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            align-self: center; /* Centers the button in the flex column */
-            text-decoration: none;
-            transition: background-color 0.2s ease;
-        }
-
-        #logout-btn .icon {
-            width: 22px;
-            height: 22px;
-            color: var(--brand-green); /* Icon color is now dark green */
-        }
-
-        #logout-btn:hover {
-            background-color: rgba(4, 98, 65, 0.1); /* Subtle, noticeable green hover */
-        }
+        #logout-btn { margin-top: auto; padding: 10px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; align-self: center; text-decoration: none; transition: background-color 0.2s ease; }
+        #logout-btn .icon { width: 22px; height: 22px; color: var(--brand-green); }
+        #logout-btn:hover { background-color: rgba(4, 98, 65, 0.1); }
         
-        /* --- Main Content Area --- */
         main { margin-left: var(--sidebar-width); padding: 40px; }
-        .main-header h1 { font-size: 32px; font-weight: 800; margin: 0 0 30px 0; color: var(--dark-text); }
-        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 30px; }
-        .dashboard-card { background-color: var(--card-bg); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
-        .card-header { padding: 20px 25px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
-        .card-title-group { display: flex; align-items: center; gap: 15px; }
-        .card-title-group .icon { width: 24px; height: 24px; color: var(--brand-green); }
-        .card-title-group h2 { margin: 0; font-size: 20px; font-weight: 700; }
-        .card-header .count { font-size: 18px; font-weight: 700; background-color: var(--light-bg); color: var(--brand-green); padding: 4px 12px; border-radius: 20px; }
-        .card-body { padding: 10px; }
+        .view-panel { display: none; }
+        .view-panel.active { display: block; animation: fadeIn 0.5s ease; }
+        .view-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
+        .view-header h1 { font-size: 32px; font-weight: 800; margin: 0; color: var(--dark-text); }
+        .filter-controls { display: flex; gap: 10px; }
+        .filter-btn { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--light-text); padding: 8px 16px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; }
+        .filter-btn.active, .filter-btn:hover { background-color: var(--brand-green); color: #fff; border-color: var(--brand-green); }
+
+        #clear-stats-btn { background-color: transparent; border: 1px solid var(--danger); color: var(--danger); padding: 8px 16px; font-size: 14px; font-weight: 700; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease; }
+        #clear-stats-btn:hover { background-color: var(--danger); color: #fff; }
+        #clear-stats-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 30px; margin-bottom: 40px; }
+        .stat-card { background-color: var(--card-bg); border-radius: 16px; box-shadow: var(--shadow); padding: 25px; display: flex; align-items: center; gap: 20px; }
+        .stat-card .icon-wrapper { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .stat-card .icon-wrapper .icon { width: 28px; height: 28px; }
+        .stat-card.green .icon-wrapper { background-color: rgba(4, 98, 65, 0.1); color: var(--brand-green); }
+        .stat-card.blue .icon-wrapper { background-color: rgba(0, 123, 255, 0.1); color: var(--accent-blue); }
+        .stat-card.purple .icon-wrapper { background-color: rgba(111, 66, 193, 0.1); color: var(--accent-purple); }
+        .stat-info .value { font-size: 32px; font-weight: 800; margin: 0 0 2px 0; color: var(--dark-text); }
+        .stat-info .title { font-size: 14px; font-weight: 500; margin: 0; color: var(--light-text); }
         
-        /* --- Table Styles --- */
+        .chart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; }
+        .dashboard-card { background-color: var(--card-bg); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
+        .card-header { padding: 20px 25px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .card-header h2 { margin: 0; font-size: 20px; font-weight: 700; }
+        .chart-filters { display: flex; gap: 15px; font-size: 14px; }
+        .chart-filters label { cursor: pointer; display: flex; align-items: center; gap: 5px; color: var(--light-text); }
+        .card-body { padding: 20px; }
+        
         .table-container { overflow-x: auto; width: 100%; }
         table { width: 100%; border-collapse: collapse; }
         th, td { text-align: left; padding: 15px 20px; border-bottom: 1px solid var(--border-color); font-size: 14px; vertical-align: middle; white-space: nowrap; }
         th { font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--light-text); font-size: 11px; }
         tbody tr:last-child td { border-bottom: none; }
-        td { font-weight: 500; }
         .actions { display: flex; gap: 8px; }
-        .action-btn { background: none; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; padding: 6px 10px; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; }
-        .btn-accept { color: var(--success); border-color: var(--success); }
-        .btn-accept:hover { background-color: var(--success); color: #fff; }
-        .btn-reject { color: var(--danger); border-color: var(--danger); }
-        .btn-reject:hover { background-color: var(--danger); color: #fff; }
-        /* ADDED: Class for remove button, reusing reject styles */
-        .btn-remove { color: var(--danger); border-color: var(--danger); }
-        .btn-remove:hover { background-color: var(--danger); color: #fff; }
-        .btn-view { color: var(--brand-green); border-color: var(--brand-green); }
-        .btn-view:hover { background-color: var(--brand-green); color: #fff; }
-        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .action-btn, .form-btn { background: none; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; padding: 6px 10px; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; }
+        .btn-accept, .btn-pass-interview, .btn-primary { color: var(--success); border-color: var(--success); } .btn-accept:hover, .btn-pass-interview:hover, .btn-primary:hover { background-color: var(--success); color: #fff; }
+        .btn-reject, .btn-fail-interview { color: var(--danger); border-color: var(--danger); } .btn-reject:hover, .btn-fail-interview:hover { background-color: var(--danger); color: #fff; }
+        .btn-remove, .btn-remove-applicant { color: var(--danger); border-color: var(--danger); } .btn-remove:hover, .btn-remove-applicant:hover { background-color: var(--danger); color: #fff; }
+        .btn-view { color: var(--brand-green); border-color: var(--brand-green); } .btn-view:hover { background-color: var(--brand-green); color: #fff; }
+        .btn-reschedule { color: var(--accent-purple); border-color: var(--accent-purple); } .btn-reschedule:hover { background-color: var(--accent-purple); color: #fff; }
+        .action-btn:disabled, .form-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .loader-container { padding: 80px 0; text-align: center; }
+        .loader { width: 40px; height: 40px; border: 4px solid var(--light-bg); border-top-color: var(--brand-green); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
 
-        /* --- Mobile Responsiveness --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay.visible { opacity: 1; pointer-events: auto; }
+        .modal-content { background: var(--card-bg); border-radius: 16px; padding: 30px; width: 90%; max-width: 600px; box-shadow: var(--shadow); position: relative; transform: scale(0.95); transition: transform 0.3s ease; }
+        .modal-overlay.visible .modal-content { transform: scale(1); }
+        .modal-close { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 28px; color: var(--light-text); cursor: pointer; }
+        .modal-content h3 { margin-top: 0; margin-bottom: 20px; font-size: 22px; font-weight: 700; }
+        #modal-project-body .loader-container { padding: 40px 0; }
+        #modal-project-body table { width: 100%; }
+        #modal-project-body th, #modal-project-body td { padding: 10px 15px; }
+        .status-badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .status-badge.employee { background-color: rgba(4, 98, 65, 0.1); color: var(--brand-green); }
+        .status-badge.interview { background-color: rgba(111, 66, 193, 0.1); color: var(--accent-purple); }
+        .status-badge.rejected { background-color: rgba(220, 53, 69, 0.1); color: var(--danger); }
+        .status-badge.pending { background-color: rgba(255, 179, 71, 0.15); color: var(--brand-orange); }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); box-sizing: border-box; font-family: 'Manrope', sans-serif; font-size: 16px; background-color: #fff; }
+        .form-group select option:disabled { color: #ccc; background-color: #f7f7f7; }
+        .form-actions { text-align: right; }
+
+        @media (max-width: 1200px) { .chart-grid { grid-template-columns: 1fr; } }
         @media (max-width: 992px) {
             .sidebar { width: 100%; height: auto; position: static; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px 20px; border-right: none; }
-            .sidebar-header { display: contents; }
-            .sidebar-header img { margin-bottom: 0; }
-            .sidebar-nav { display: none; }
-            #logout-btn { margin-top: 0; align-self: auto; }
-            main { margin-left: 0; padding: 20px; }
-            .main-header h1 { font-size: 26px; }
+            .sidebar-header { display: contents; } .sidebar-header img { margin-bottom: 0; }
+            .sidebar-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; z-index: 101; padding: 5px 0; }
+            .sidebar-nav a { flex-direction: column; gap: 4px; padding: 10px 5px; font-size: 11px; }
+            #logout-btn { display: none; }
+            main { margin-left: 0; padding: 20px; padding-bottom: 80px; }
+            .view-header, .card-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .view-header h1 { font-size: 26px; } .stats-grid { gap: 20px; }
         }
     </style>
 </head>
@@ -118,90 +146,74 @@
 
     <aside class="sidebar">
         <div>
-            <div class="sidebar-header">
-                <a href="index.html"><img src="Logo.png" alt="Lifewood Logo"></a>
-            </div>
+            <div class="sidebar-header"><a href="#"><img src="Logo.png" alt="Lifewood Logo"></a></div>
             <nav class="sidebar-nav">
-                <a href="#" class="active">
-                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
-                    <span>Dashboard</span>
-                </a>
+                <a data-view="dashboard" class="active"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7" /></svg><span>Dashboard</span></a>
+                <a data-view="applicants"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><span>Applicants</span></a>
+                <a data-view="interviews"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg><span>Interviews</span></a>
+                <a data-view="employees"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg><span>Employees</span></a>
             </nav>
         </div>
-        <a href="#" id="logout-btn" title="Logout">
-             <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-        </a>
+        <a href="#" id="logout-btn" title="Logout"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg></a>
     </aside>
 
     <main>
-        <header class="main-header">
-            <h1>Dashboard Overview</h1>
-        </header>
-        <div class="dashboard-grid">
-            <!-- PENDING APPLICATIONS TABLE -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <div class="card-title-group">
-                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <h2 id="applicants-title">Pending Applications</h2>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Project Applied For</th>
-                                    <th>Availability</th>
-                                    <th>Resume</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="applicants-table-body"></tbody>
-                        </table>
-                    </div>
-                </div>
+        <div id="dashboard-view" class="view-panel active">
+            <header class="view-header">
+                <h1>Dashboard Overview</h1>
+                <button id="clear-stats-btn" title="This will permanently delete all rejected applicants. Employees will not be affected.">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+                    Clear History
+                </button>
+            </header>
+            <div class="stats-grid">
+                <div class="stat-card green"><div class="icon-wrapper"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div><div class="stat-info"><p class="value" id="stat-pending">0</p><p class="title">Pending Applications</p></div></div>
+                <div class="stat-card purple"><div class="icon-wrapper"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></div><div class="stat-info"><p class="value" id="stat-interviews">0</p><p class="title">Scheduled Interviews</p></div></div>
+                <div class="stat-card blue"><div class="icon-wrapper"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg></div><div class="stat-info"><p class="value" id="stat-employees">0</p><p class="title">Total Employees</p></div></div>
             </div>
-
-            <!-- EMPLOYEES / INTERNS TABLE -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <div class="card-title-group">
-                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                        <h2 id="employees-title">Employees & Interns</h2>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Project</th>
-                                    <th>Availability</th>
-                                    <th>Resume</th>
-                                    <th>Date Accepted</th>
-                                    <!-- ADDED: New column for actions -->
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="employees-table-body"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            <div class="chart-grid"><div class="dashboard-card"><div class="card-header"><h2>Applicant Decisions</h2></div><div class="card-body"><canvas id="decision-chart"></canvas></div></div><div class="dashboard-card"><div class="card-header"><h2>Project Application Distribution</h2><div class="chart-filters" id="project-chart-filters"><label><input type="radio" name="projectFilter" value="all" checked> All</label><label><input type="radio" name="projectFilter" value="employees"> Employees</label><label><input type="radio" name="projectFilter" value="rejected"> Rejected</label></div></div><div class="card-body"><canvas id="project-chart"></canvas></div></div></div>
         </div>
+        <div id="applicants-view" class="view-panel"><header class="view-header"><h1>Applications</h1><div class="filter-controls" id="applicant-filters"><button class="filter-btn active" data-status="Pending">Pending</button><button class="filter-btn" data-status="Rejected">Rejected</button></div></header><div class="dashboard-card"><div class="card-body" style="padding: 10px;"><div class="table-container"><table><thead><tr><th>Name</th><th>Email</th><th>Project Applied For</th><th>Availability</th><th>Resume</th><th>Actions</th></tr></thead><tbody id="applicants-table-body"><tr><td colspan="6"><div class="loader-container"><div class="loader"></div></div></td></tr></tbody></table></div></div></div></div>
+        <div id="interviews-view" class="view-panel"><header class="view-header"><h1>Scheduled Interviews</h1></header><div class="dashboard-card"><div class="card-body" style="padding: 10px;"><div class="table-container"><table><thead><tr><th>Name</th><th>Email</th><th>Project</th><th>Interview Date & Time</th><th>Resume</th><th>Actions</th></tr></thead><tbody id="interviews-table-body"><tr><td colspan="7"><div class="loader-container"><div class="loader"></div></div></td></tr></tbody></table></div></div></div></div>
+        <div id="employees-view" class="view-panel"><header class="view-header"><h1>Employees & Interns</h1></header><div class="dashboard-card"><div class="card-body" style="padding: 10px;"><div class="table-container"><table><thead><tr><th>Name</th><th>Email</th><th>Project</th><th>Date Accepted</th><th>Resume</th><th>Actions</th></tr></thead><tbody id="employees-table-body"><tr><td colspan="6"><div class="loader-container"><div class="loader"></div></div></td></tr></tbody></table></div></div></div></div>
     </main>
+
+    <!-- Project Details Modal -->
+    <div id="project-details-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">×</button><h3 id="modal-project-title"></h3><div id="modal-project-body"><div class="loader-container"><div class="loader"></div></div></div></div></div>
+
+    <!-- Schedule Interview Modal -->
+    <div id="schedule-interview-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close">×</button>
+            <h3 id="schedule-modal-title"></h3>
+            <form id="schedule-interview-form">
+                <input type="hidden" id="schedule-applicant-id">
+                <input type="hidden" id="schedule-applicant-email">
+                <input type="hidden" id="schedule-applicant-name-hidden">
+                <input type="hidden" id="schedule-mode">
+                <div class="form-group">
+                    <label for="interview-date">Interview Date</label>
+                    <input type="date" id="interview-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="interview-time">Interview Time</label>
+                    <select id="interview-time" required></select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" id="schedule-submit-btn" class="form-btn btn-primary"></button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="notification-container"></div>
+
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
-<!-- Your main script block -->
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyCaxTZTSP_Q1z77VvF7vxpjzth_1oShhws",
@@ -217,186 +229,411 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    const EMAILJS_SERVICE_ID = 'service_f7p26jc';
-    const EMAILJS_PUBLIC_KEY = 'hO5U0B2-tH3cUDgT2';
-    const EMAILJS_TEMPLATE_ID_ACCEPTED = 'template_vr0qgjf';
-    const EMAILJS_TEMPLATE_ID_REJECTED = 'template_szrcyl9';
-    
+    const EMAILJS_SERVICE_ID = 'service_f7p26jc', EMAILJS_PUBLIC_KEY = 'hO5U0B2-tH3cUDgT2';
+    const EMAILJS_TEMPLATE_ID_ACCEPTED = 'template_vr0qgjf', EMAILJS_TEMPLATE_ID_REJECTED = 'template_szrcyl9';
     emailjs.init(EMAILJS_PUBLIC_KEY);
 
+    let isDashboardInitialized = false;
     auth.onAuthStateChanged(user => user ? initializeDashboard() : window.location.replace('admin-login.html'));
 
-    function initializeDashboard() {
-        const applicantsTbody = document.getElementById('applicants-table-body');
-        const employeesTbody = document.getElementById('employees-table-body');
-        const logoutBtn = document.getElementById('logout-btn');
-        const applicantsCardHeader = document.querySelector('#applicants-title').parentElement.parentElement;
-        const employeesCardHeader = document.querySelector('#employees-title').parentElement.parentElement;
-        const applicantsCol = db.collection('applicants');
-        const employeesCol = db.collection('employees');
+    let decisionChartInstance = null, projectChartInstance = null;
+    let allApplicantsData = [], allInterviewsData = [], allEmployeesData = [];
+    let currentApplicantView = 'Pending';
+    
+    const sanitize = (str) => { const temp = document.createElement('div'); temp.textContent = str; return temp.innerHTML; };
+    const formatDate = (timestamp) => timestamp?.toDate ? timestamp.toDate().toISOString().slice(0, 10) : 'N/A';
+    const formatInterviewDate = (dateStr, timeStr) => {
+        if (!dateStr || !timeStr) return 'N/A';
+        const date = new Date(`${dateStr}T${timeStr}`);
+        return date.toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+    };
 
-        const sanitize = (str) => {
-            const temp = document.createElement('div');
-            temp.textContent = str;
-            return temp.innerHTML;
+    function showNotification(type, title, message) {
+        const container = document.getElementById('notification-container');
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+
+        const icons = {
+            success: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`,
+            info: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`,
+            danger: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`
         };
 
-        // Fetch and display PENDING applications
-        applicantsCol.where("status", "==", "Pending").orderBy("submittedAt", "desc").onSnapshot(snapshot => {
-            let countSpan = applicantsCardHeader.querySelector('.count');
-            if (!countSpan) {
-                countSpan = document.createElement('span');
-                countSpan.className = 'count';
-                applicantsCardHeader.appendChild(countSpan);
-            }
-            countSpan.textContent = snapshot.size;
-            applicantsTbody.innerHTML = '';
-            if (snapshot.empty) {
-                applicantsTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 40px 0;">No pending applications.</td></tr>`;
-                return;
-            }
-            snapshot.forEach(doc => {
-                const app = doc.data();
-                const fullName = `${app.firstName || ''} ${app.lastName || ''}`.trim();
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><strong>${sanitize(fullName)}</strong></td>
-                    <td>${sanitize(app.email)}</td>
-                    <td>${sanitize(app.projectAppliedFor)}</td>
-                    <td>${app.availabilityStart || 'N/A'} - ${app.availabilityEnd || 'N/A'}</td>
-                    <td><a href="${app.resumeLink}" class="action-btn btn-view" target="_blank" rel="noopener">View</a></td>
-                    <td class="actions">
-                        <button class="action-btn btn-accept" data-id="${doc.id}" data-name="${sanitize(fullName)}" data-email="${sanitize(app.email)}">✔ Accept</button>
-                        <button class="action-btn btn-reject" data-id="${doc.id}" data-name="${sanitize(fullName)}" data-email="${sanitize(app.email)}">✖ Reject</button>
-                    </td>`;
-                applicantsTbody.appendChild(row);
-            });
-        });
+        notification.innerHTML = `
+            <div class="notification-icon">${icons[type] || icons.info}</div>
+            <div class="notification-text">
+                <strong>${title}</strong>
+                <p>${message}</p>
+            </div>
+        `;
+        container.appendChild(notification);
 
-        // Fetch and display EMPLOYEES
-        employeesCol.orderBy("acceptanceDate", "desc").onSnapshot(snapshot => {
-             let countSpan = employeesCardHeader.querySelector('.count');
-             if (!countSpan) { countSpan = document.createElement('span'); countSpan.className = 'count'; employeesCardHeader.appendChild(countSpan); }
-             countSpan.textContent = snapshot.size;
-             employeesTbody.innerHTML = '';
-             // UPDATED: colspan to 7 to account for new Actions column
-             if (snapshot.empty) {
-                 employeesTbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 40px 0;">No employees found.</td></tr>`;
-                 return;
-             }
-             snapshot.forEach(doc => {
-                 const emp = doc.data();
-                 const fullName = `${emp.firstName || ''} ${emp.lastName || ''}`.trim();
-                 const row = document.createElement('tr');
-                 // UPDATED: Added new <td> with a remove button
-                 row.innerHTML = `
-                    <td><strong>${sanitize(fullName)}</strong></td>
-                    <td>${sanitize(emp.email)}</td>
-                    <td>${sanitize(emp.projectAppliedFor)}</td>
-                    <td>${emp.availabilityStart || 'N/A'} - ${emp.availabilityEnd || 'N/A'}</td>
-                    <td><a href="${emp.resumeLink}" class="action-btn btn-view" target="_blank" rel="noopener">View</a></td>
-                    <td>${emp.acceptanceDate}</td>
-                    <td class="actions">
-                        <button class="action-btn btn-remove" data-id="${doc.id}" data-name="${sanitize(fullName)}">✖ Remove</button>
-                    </td>`;
-                 employeesTbody.appendChild(row);
-             });
-        });
-
-        // Event listener for PENDING APPLICANTS actions
-        applicantsTbody.addEventListener('click', async (e) => {
-            const targetButton = e.target.closest('.action-btn');
-            if (!targetButton) return;
-
-            const id = targetButton.dataset.id;
-            const applicantName = targetButton.dataset.name;
-            const applicantEmail = targetButton.dataset.email;
-
-            // --- ACCEPT LOGIC ---
-            if (targetButton.classList.contains('btn-accept')) {
-                // ADDED: Confirmation dialog for accepting
-                if (confirm(`Are you sure you want to accept ${applicantName}? This will send an acceptance email.`)) {
-                    targetButton.disabled = true;
-                    targetButton.textContent = "Processing...";
-                    const templateParams = { applicant_name: applicantName, applicant_email: applicantEmail };
-
-                    try {
-                        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID_ACCEPTED, templateParams);
-                        alert(`Acceptance email sent successfully to ${applicantName}!`);
-                        
-                        const appDoc = await applicantsCol.doc(id).get();
-                        if (!appDoc.exists) throw new Error("Applicant document not found.");
-                        
-                        const appData = appDoc.data();
-                        const today = new Date().toISOString().slice(0, 10);
-                        const employeeData = { ...appData, status: 'Accepted', acceptanceDate: today };
-
-                        const batch = db.batch();
-                        batch.set(employeesCol.doc(), employeeData);
-                        batch.delete(applicantsCol.doc(id));
-                        await batch.commit();
-
-                    } catch (error) {
-                        console.error("Error during acceptance process:", error);
-                        alert("An error occurred. The applicant was not accepted. Please check the console and try again.");
-                        targetButton.disabled = false;
-                        targetButton.innerHTML = "✔ Accept";
-                    }
-                }
-            } 
-            // --- REJECT LOGIC ---
-            else if (targetButton.classList.contains('btn-reject')) {
-                if (confirm(`Are you sure you want to reject ${applicantName}? This will send a rejection email.`)) {
-                    targetButton.disabled = true;
-                    targetButton.textContent = "Processing...";
-                    const templateParams = { applicant_name: applicantName, applicant_email: applicantEmail };
-
-                    try {
-                        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID_REJECTED, templateParams);
-                        alert(`Rejection email sent successfully to ${applicantName}.`);
-                        await applicantsCol.doc(id).delete();
-                    } catch (error) {
-                        console.error("Error during rejection process:", error);
-                        alert("An error occurred. The applicant was not rejected. Please check the console and try again.");
-                        targetButton.disabled = false;
-                        targetButton.innerHTML = "✖ Reject";
-                    }
-                }
-            }
-        });
-
-        // ADDED: New event listener for EMPLOYEE actions
-        employeesTbody.addEventListener('click', async (e) => {
-            const targetButton = e.target.closest('.btn-remove');
-            if (!targetButton) return;
-
-            const id = targetButton.dataset.id;
-            const employeeName = targetButton.dataset.name;
-
-            // ADDED: Confirmation dialog for removing
-            if (confirm(`Are you sure you want to remove ${employeeName} from the system? This action cannot be undone.`)) {
-                targetButton.disabled = true;
-                targetButton.textContent = "Removing...";
-                
-                try {
-                    // Delete the employee document from Firestore
-                    await employeesCol.doc(id).delete();
-                    alert(`${employeeName} has been successfully removed.`);
-                    // The onSnapshot listener will automatically update the table UI.
-                } catch (error) {
-                    console.error("Error removing employee:", error);
-                    alert("An error occurred. The employee was not removed. Please check the console.");
-                    targetButton.disabled = false; // Re-enable on failure
-                    targetButton.innerHTML = "✖ Remove";
-                }
-            }
-        });
-
-        logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            auth.signOut();
-        });
+        setTimeout(() => {
+            notification.classList.add('fade-out');
+            notification.addEventListener('animationend', () => notification.remove());
+        }, 5000);
     }
+    
+    function populateTimeSlots() {
+        const timeSelect = document.getElementById('interview-time');
+        timeSelect.innerHTML = ''; 
+
+        const startTimeInMinutes = 8 * 60; 
+        const endTimeInMinutes = 16 * 60 + 30;
+        const intervalInMinutes = 15;
+
+        for (let totalMinutes = startTimeInMinutes; totalMinutes <= endTimeInMinutes; totalMinutes += intervalInMinutes) {
+            const hour = Math.floor(totalMinutes / 60);
+            const minute = totalMinutes % 60;
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            let displayHour = hour % 12;
+            if (displayHour === 0) displayHour = 12; 
+            const displayMinute = String(minute).padStart(2, '0');
+            const displayText = `${displayHour}:${displayMinute} ${ampm}`;
+            const value = `${String(hour).padStart(2, '0')}:${displayMinute}`;
+            
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = displayText;
+            option.dataset.display = displayText;
+            timeSelect.appendChild(option);
+        }
+    }
+
+    function updateAvailableTimeSlots() {
+        const selectedDate = document.getElementById('interview-date').value;
+        const timeSelect = document.getElementById('interview-time');
+        const currentInterviewId = document.getElementById('schedule-applicant-id').value;
+        const mode = document.getElementById('schedule-mode').value;
+
+        const bookedTimesOnDate = allInterviewsData
+            .filter(interview => {
+                if (mode === 'update' && interview.id === currentInterviewId) {
+                    return false;
+                }
+                return interview.interviewDate === selectedDate;
+            })
+            .map(interview => interview.interviewTime);
+
+        for (const option of timeSelect.options) {
+            const isBooked = bookedTimesOnDate.includes(option.value);
+            option.disabled = isBooked;
+            option.textContent = isBooked ? `${option.dataset.display} (Booked)` : option.dataset.display;
+        }
+
+        if (timeSelect.options[timeSelect.selectedIndex]?.disabled) {
+            const firstAvailable = Array.from(timeSelect.options).find(opt => !opt.disabled);
+            timeSelect.value = firstAvailable ? firstAvailable.value : '';
+        }
+    }
+
+    function renderCharts() {
+        const filter = document.querySelector('input[name="projectFilter"]:checked')?.value || 'all';
+
+        // Line Chart Logic
+        const monthlyData = {};
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        allEmployeesData.forEach(emp => { if (emp.acceptanceDate?.toDate) { const date = emp.acceptanceDate.toDate(); const key = `${date.getFullYear()}-${String(date.getMonth()).padStart(2, '0')}`; if (!monthlyData[key]) monthlyData[key] = { label: `${monthNames[date.getMonth()]} ${date.getFullYear()}`, accepted: 0, rejected: 0 }; monthlyData[key].accepted++; } });
+        allApplicantsData.forEach(app => { if (app.status === 'Rejected' && app.decisionDate?.toDate) { const date = app.decisionDate.toDate(); const key = `${date.getFullYear()}-${String(date.getMonth()).padStart(2, '0')}`; if (!monthlyData[key]) monthlyData[key] = { label: `${monthNames[date.getMonth()]} ${date.getFullYear()}`, accepted: 0, rejected: 0 }; monthlyData[key].rejected++; } });
+        const sortedKeys = Object.keys(monthlyData).sort(); const decisionLabels = sortedKeys.map(key => monthlyData[key].label); const acceptedData = sortedKeys.map(key => monthlyData[key].accepted); const rejectedData = sortedKeys.map(key => monthlyData[key].rejected);
+        if (decisionChartInstance) decisionChartInstance.destroy();
+        decisionChartInstance = new Chart(document.getElementById('decision-chart').getContext('2d'), { type: 'line', data: { labels: decisionLabels, datasets: [{ label: 'Hired', data: acceptedData, borderColor: 'var(--brand-green)', backgroundColor: 'rgba(4, 98, 65, 0.1)', fill: true, tension: 0.3 }, { label: 'Rejected', data: rejectedData, borderColor: 'var(--danger)', backgroundColor: 'rgba(220, 53, 69, 0.1)', fill: true, tension: 0.3 }] }, options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { position: 'top' } } } });
+
+        // Doughnut Chart Logic
+        const projectCounts = {};
+        const projectColors = ['#046241', '#007bff', '#ffb347', '#6f42c1', '#dc3545', '#20c997', '#fd7e14'];
+        
+        if (filter === 'employees') {
+            allEmployeesData.forEach(data => { const project = data.projectAppliedFor; if (project) projectCounts[project] = (projectCounts[project] || 0) + 1; });
+        } else if (filter === 'rejected') {
+            allApplicantsData.filter(app => app.status === 'Rejected').forEach(data => { const project = data.projectAppliedFor; if (project) projectCounts[project] = (projectCounts[project] || 0) + 1; });
+        } else {
+            [...allApplicantsData, ...allInterviewsData, ...allEmployeesData].forEach(data => { const project = data.projectAppliedFor; if (project) projectCounts[project] = (projectCounts[project] || 0) + 1; });
+        }
+        
+        const projectLabels = Object.keys(projectCounts); const projectData = Object.values(projectCounts);
+        if (projectChartInstance) projectChartInstance.destroy();
+        const projectChartCanvas = document.getElementById('project-chart');
+        projectChartCanvas.onclick = handleChartClick;
+        projectChartInstance = new Chart(projectChartCanvas.getContext('2d'), { type: 'doughnut', data: { labels: projectLabels, datasets: [{ label: 'Applications', data: projectData, backgroundColor: projectColors, hoverOffset: 4 }] }, options: { responsive: true, plugins: { legend: { position: 'right' }, tooltip: { callbacks: { footer: () => 'Click to see details', } } } } });
+    }
+
+    async function handleChartClick(event) {
+        if (!projectChartInstance) return;
+        const points = projectChartInstance.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
+        if (points.length) {
+            const firstPoint = points[0];
+            const project = projectChartInstance.data.labels[firstPoint.index];
+            const activeFilter = document.querySelector('input[name="projectFilter"]:checked')?.value || 'all';
+            showProjectDetailsModal(project, activeFilter);
+        }
+    }
+    
+    async function showProjectDetailsModal(projectName, filter) {
+        const modal = document.getElementById('project-details-modal');
+        const modalTitle = document.getElementById('modal-project-title');
+        const modalBody = document.getElementById('modal-project-body');
+        modalTitle.textContent = `Applicants for: ${projectName}`;
+        modalBody.innerHTML = '<div class="loader-container"><div class="loader"></div></div>';
+        modal.classList.add('visible');
+
+        try {
+            let tableHtml = `<div class="table-container"><table><thead><tr><th>Name</th><th>Email</th><th>Status</th></tr></thead><tbody>`;
+
+            if (filter === 'rejected') {
+                const querySnapshot = await db.collection('applicants').where('projectAppliedFor', '==', projectName).where('status', '==', 'Rejected').get();
+                if (querySnapshot.empty) {
+                    tableHtml += `<tr><td colspan="3" style="text-align:center;">No rejected applicants found for this project.</td></tr>`;
+                } else {
+                    querySnapshot.forEach(doc => {
+                        const data = doc.data();
+                        tableHtml += `<tr><td><strong>${sanitize(data.firstName)} ${sanitize(data.lastName)}</strong></td><td>${sanitize(data.email)}</td><td><span class="status-badge rejected">Rejected</span></td></tr>`;
+                    });
+                }
+            } else if (filter === 'employees') {
+                const querySnapshot = await db.collection('employees').where('projectAppliedFor', '==', projectName).get();
+                if (querySnapshot.empty) {
+                    tableHtml += `<tr><td colspan="3" style="text-align:center;">No employees found for this project.</td></tr>`;
+                } else {
+                    querySnapshot.forEach(doc => {
+                        const data = doc.data();
+                        tableHtml += `<tr><td><strong>${sanitize(data.firstName)} ${sanitize(data.lastName)}</strong></td><td>${sanitize(data.email)}</td><td><span class="status-badge employee">Employee</span></td></tr>`;
+                    });
+                }
+            } else { // filter === 'all'
+                const employeesPromise = db.collection('employees').where('projectAppliedFor', '==', projectName).get();
+                const applicantsPromise = db.collection('applicants').where('projectAppliedFor', '==', projectName).get();
+                const interviewsPromise = db.collection('interviews').where('projectAppliedFor', '==', projectName).get();
+                const [employeeDocs, applicantDocs, interviewDocs] = await Promise.all([employeesPromise, applicantsPromise, interviewsPromise]);
+
+                if (employeeDocs.empty && applicantDocs.empty && interviewDocs.empty) {
+                     tableHtml += '<tr><td colspan="3" style="text-align:center; padding: 20px 0;">No applicants found for this project.</td></tr>';
+                } else {
+                    employeeDocs.forEach(doc => { const data = doc.data(); tableHtml += `<tr><td><strong>${sanitize(data.firstName)} ${sanitize(data.lastName)}</strong></td><td>${sanitize(data.email)}</td><td><span class="status-badge employee">Employee</span></td></tr>`; });
+                    interviewDocs.forEach(doc => { const data = doc.data(); tableHtml += `<tr><td><strong>${sanitize(data.firstName)} ${sanitize(data.lastName)}</strong></td><td>${sanitize(data.email)}</td><td><span class="status-badge interview">Interview</span></td></tr>`; });
+                    applicantDocs.forEach(doc => { const data = doc.data(); const statusClass = data.status === 'Rejected' ? 'rejected' : 'pending'; tableHtml += `<tr><td><strong>${sanitize(data.firstName)} ${sanitize(data.lastName)}</strong></td><td>${sanitize(data.email)}</td><td><span class="status-badge ${statusClass}">${sanitize(data.status)}</span></td></tr>`; });
+                }
+            }
+            
+            tableHtml += '</tbody></table></div>';
+            modalBody.innerHTML = tableHtml;
+        } catch (error) {
+            console.error("Error showing project details:", error);
+            modalBody.innerHTML = '<p style="color: var(--danger);">Could not load details. Please try again.</p>';
+        }
+    }
+
+    function renderApplicantsTable() { /* Unchanged but restored */ }
+    function renderInterviewsTable() { /* New function */ }
+    function renderEmployeesTable() { /* New function */ }
+    function updateDashboardUI() { /* New master update function */ }
+    
+    function initializeDashboard() {
+        if (isDashboardInitialized) return;
+
+        populateTimeSlots();
+        
+        const applicantsCol = db.collection('applicants');
+        const employeesCol = db.collection('employees');
+        const interviewsCol = db.collection('interviews');
+        
+        const sidebarNav = document.querySelector('.sidebar-nav');
+        const mainContent = document.querySelector('main');
+        const scheduleModal = document.getElementById('schedule-interview-modal');
+        const scheduleForm = document.getElementById('schedule-interview-form');
+        const projectModal = document.getElementById('project-details-modal');
+        const interviewDateInput = document.getElementById('interview-date');
+
+        // MODIFIED: Restoring the full function bodies
+        function renderApplicantsTable() {
+            const applicantsTbody = document.getElementById('applicants-table-body');
+            const dataToRender = allApplicantsData.filter(app => app.status === currentApplicantView);
+            
+            if (currentApplicantView === 'Pending') {
+                applicantsTbody.parentElement.querySelector('thead tr').innerHTML = `<th>Name</th><th>Email</th><th>Project Applied For</th><th>Availability</th><th>Resume</th><th>Actions</th>`;
+                if (dataToRender.length === 0) { applicantsTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 40px 0; color: var(--light-text);">No pending applications.</td></tr>`; return; }
+                applicantsTbody.innerHTML = '';
+                dataToRender.forEach(app => { const row = document.createElement('tr'); row.innerHTML = `<td><strong>${sanitize(app.firstName)} ${sanitize(app.lastName)}</strong></td><td>${sanitize(app.email)}</td><td>${sanitize(app.projectAppliedFor)}</td><td>${app.availabilityStart || 'N/A'} - ${app.availabilityEnd || 'N/A'}</td><td><a href="${app.resumeLink}" class="action-btn btn-view" target="_blank" rel="noopener">View</a></td><td class="actions"><button class="action-btn btn-accept" data-id="${app.id}" data-name="${sanitize(app.firstName)} ${sanitize(app.lastName)}" data-email="${sanitize(app.email)}">✔ Schedule Interview</button><button class="action-btn btn-reject" data-id="${app.id}" data-name="${sanitize(app.firstName)}" data-email="${sanitize(app.email)}">✖ Reject</button></td>`; applicantsTbody.appendChild(row); });
+            } else if (currentApplicantView === 'Rejected') {
+                applicantsTbody.parentElement.querySelector('thead tr').innerHTML = `<th>Name</th><th>Email</th><th>Project Applied For</th><th>Decision Date</th><th>Resume</th><th>Actions</th>`;
+                if (dataToRender.length === 0) { applicantsTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 40px 0; color: var(--light-text);">No rejected applicants found.</td></tr>`; return; }
+                applicantsTbody.innerHTML = '';
+                dataToRender.forEach(app => { const row = document.createElement('tr'); row.innerHTML = `<td><strong>${sanitize(app.firstName)} ${sanitize(app.lastName)}</strong></td><td>${sanitize(app.email)}</td><td>${sanitize(app.projectAppliedFor)}</td><td>${formatDate(app.decisionDate)}</td><td><a href="${app.resumeLink}" class="action-btn btn-view" target="_blank" rel="noopener">View</a></td><td class="actions"><button class="action-btn btn-remove-applicant" data-id="${app.id}" data-name="${sanitize(app.firstName)}">✖ Delete</button></td>`; applicantsTbody.appendChild(row); });
+            }
+        }
+
+        function renderInterviewsTable() {
+            const interviewsTbody = document.getElementById('interviews-table-body');
+            interviewsTbody.innerHTML = allInterviewsData.length === 0 ? `<tr><td colspan="7" style="text-align: center; padding: 40px 0; color: var(--light-text);">No interviews scheduled.</td></tr>` : '';
+            allInterviewsData.forEach(iv => { 
+                const row = document.createElement('tr'); 
+                row.innerHTML = `<td><strong>${sanitize(iv.firstName)} ${sanitize(iv.lastName)}</strong></td><td>${sanitize(iv.email)}</td><td>${sanitize(iv.projectAppliedFor)}</td><td>${formatInterviewDate(iv.interviewDate, iv.interviewTime)}</td><td><a href="${iv.resumeLink}" class="action-btn btn-view" target="_blank" rel="noopener">View</a></td><td class="actions"><button class="action-btn btn-reschedule" data-id="${iv.id}" data-name="${sanitize(iv.firstName)} ${sanitize(iv.lastName)}" data-email="${sanitize(iv.email)}" data-date="${iv.interviewDate}" data-time="${iv.interviewTime}">Reschedule</button><button class="action-btn btn-pass-interview" data-id="${iv.id}" data-name="${sanitize(iv.firstName)}" data-email="${sanitize(iv.email)}">✔ Pass</button><button class="action-btn btn-fail-interview" data-id="${iv.id}" data-name="${sanitize(iv.firstName)}" data-email="${sanitize(iv.email)}">✖ Fail</button></td>`; 
+                interviewsTbody.appendChild(row); 
+            });
+        }
+
+        function renderEmployeesTable() {
+            const employeesTbody = document.getElementById('employees-table-body');
+            employeesTbody.innerHTML = allEmployeesData.length === 0 ? `<tr><td colspan="6" style="text-align: center; padding: 40px 0; color: var(--light-text);">No employees found.</td></tr>` : '';
+            allEmployeesData.forEach(emp => { const row = document.createElement('tr'); row.innerHTML = `<td><strong>${sanitize(emp.firstName)} ${sanitize(emp.lastName)}</strong></td><td>${sanitize(emp.email)}</td><td>${sanitize(emp.projectAppliedFor)}</td><td>${formatDate(emp.acceptanceDate)}</td><td><a href="${emp.resumeLink}" class="action-btn btn-view" target="_blank" rel="noopener">View</a></td><td class="actions"><button class="action-btn btn-remove" data-id="${emp.id}" data-name="${sanitize(emp.firstName)}">✖ Remove</button></td>`; employeesTbody.appendChild(row); });
+        }
+
+        function updateDashboardUI() {
+            document.getElementById('stat-pending').textContent = allApplicantsData.filter(doc => doc.status === 'Pending').length;
+            document.getElementById('stat-interviews').textContent = allInterviewsData.length;
+            document.getElementById('stat-employees').textContent = allEmployeesData.length;
+            
+            renderApplicantsTable();
+            renderInterviewsTable();
+            renderEmployeesTable();
+            renderCharts();
+        }
+
+        interviewDateInput.addEventListener('change', updateAvailableTimeSlots);
+
+        applicantsCol.orderBy("submittedAt", "desc").onSnapshot(snapshot => {
+            allApplicantsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            updateDashboardUI();
+        });
+
+        interviewsCol.orderBy("interviewDate", "asc").onSnapshot(snapshot => {
+            allInterviewsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            updateDashboardUI();
+        });
+
+        employeesCol.orderBy("acceptanceDate", "desc").onSnapshot(snapshot => {
+            allEmployeesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            updateDashboardUI();
+        });
+
+        sidebarNav.addEventListener('click', (e) => {
+            const targetLink = e.target.closest('a'); if (!targetLink || !targetLink.dataset.view) return;
+            const targetViewId = `${targetLink.dataset.view}-view`;
+            sidebarNav.querySelector('.active')?.classList.remove('active');
+            targetLink.classList.add('active');
+            document.querySelectorAll('.view-panel').forEach(panel => panel.classList.toggle('active', panel.id === targetViewId));
+        });
+        
+        document.getElementById('applicant-filters').addEventListener('click', (e) => { if (e.target.tagName === 'BUTTON') { currentApplicantView = e.target.dataset.status; document.querySelector('#applicant-filters .filter-btn.active').classList.remove('active'); e.target.classList.add('active'); renderApplicantsTable(); } });
+        
+        document.getElementById('project-chart-filters').addEventListener('change', (e) => { if (e.target.name === 'projectFilter') renderCharts(); });
+        
+        [scheduleModal, projectModal].forEach(modal => {
+            modal.addEventListener('click', (e) => { if (e.target === modal || e.target.classList.contains('modal-close')) { modal.classList.remove('visible'); } });
+        });
+
+        scheduleForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            
+            const applicantId = document.getElementById('schedule-applicant-id').value;
+            const applicantName = document.getElementById('schedule-applicant-name-hidden').value;
+            const applicantEmail = document.getElementById('schedule-applicant-email').value;
+            const interviewDate = document.getElementById('interview-date').value;
+            const interviewTime = document.getElementById('interview-time').value;
+            const mode = document.getElementById('schedule-mode').value;
+
+            submitBtn.textContent = (mode === 'create' ? 'Scheduling...' : 'Rescheduling...');
+
+            try {
+                let subject, body, notificationTitle, notificationMessage;
+                const formattedDate = formatInterviewDate(interviewDate, interviewTime);
+                
+                if (mode === 'create') {
+                    const appDocRef = applicantsCol.doc(applicantId);
+                    const appDoc = await appDocRef.get();
+                    if (!appDoc.exists) throw new Error("Applicant not found.");
+                    const interviewData = { ...appDoc.data(), status: 'Interview', interviewDate, interviewTime };
+                    const batch = db.batch();
+                    batch.set(interviewsCol.doc(applicantId), interviewData);
+                    batch.delete(appDocRef);
+                    await batch.commit();
+                    
+                    subject = "Invitation to Interview with Lifewood";
+                    body = `Dear ${applicantName},\n\nCongratulations! We were impressed with your application and would like to invite you for an interview.\n\nYour interview is scheduled for:\nDate & Time: ${formattedDate}\n\nPlease let us know if this schedule works for you.\n\nBest regards,\nThe Lifewood HR Team`;
+                    notificationTitle = 'Interview Scheduled';
+                    notificationMessage = `Your email client is open to notify ${applicantName}.`;
+                } else { // mode === 'update'
+                    await interviewsCol.doc(applicantId).update({ interviewDate, interviewTime });
+                    subject = "Update: Your Lifewood Interview has been Rescheduled";
+                    body = `Dear ${applicantName},\n\nPlease note that your interview with Lifewood has been rescheduled.\n\nYour new interview schedule is:\nDate & Time: ${formattedDate}\n\nWe apologize for any inconvenience this may cause. Please let us know if you have any questions.\n\nBest regards,\nThe Lifewood HR Team`;
+                    notificationTitle = 'Interview Rescheduled';
+                    notificationMessage = `Your email client is open to notify ${applicantName}.`;
+                }
+
+                const mailtoLink = `mailto:${applicantEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.location.href = mailtoLink;
+
+                showNotification('success', notificationTitle, notificationMessage);
+                scheduleModal.classList.remove('visible');
+
+            } catch (error) {
+                console.error("Error handling schedule:", error);
+                showNotification('danger', 'Scheduling Error', 'Could not save the schedule. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+
+        mainContent.addEventListener('click', async (e) => {
+            const targetButton = e.target.closest('.action-btn'); if (!targetButton) return;
+            const id = targetButton.dataset.id, name = targetButton.dataset.name, email = targetButton.dataset.email;
+
+            function openScheduleModal(mode) {
+                const modalTitle = document.getElementById('schedule-modal-title');
+                const submitBtn = document.getElementById('schedule-submit-btn');
+
+                document.getElementById('schedule-applicant-id').value = id;
+                document.getElementById('schedule-applicant-email').value = email;
+                document.getElementById('schedule-applicant-name-hidden').value = name;
+                document.getElementById('schedule-mode').value = mode;
+                
+                interviewDateInput.setAttribute('min', new Date().toISOString().split('T')[0]);
+
+                if (mode === 'create') {
+                    modalTitle.textContent = `Schedule Interview for ${name}`;
+                    submitBtn.textContent = 'Schedule & Notify';
+                    scheduleForm.reset();
+                    interviewDateInput.value = new Date().toISOString().split('T')[0];
+                } else { // mode === 'update'
+                    modalTitle.textContent = `Reschedule Interview for ${name}`;
+                    submitBtn.textContent = 'Reschedule & Notify';
+                    document.getElementById('interview-date').value = targetButton.dataset.date;
+                    document.getElementById('interview-time').value = targetButton.dataset.time;
+                }
+                
+                updateAvailableTimeSlots();
+                scheduleModal.classList.add('visible');
+            }
+            
+            if (targetButton.classList.contains('btn-accept')) { openScheduleModal('create'); }
+            else if (targetButton.classList.contains('btn-reschedule')) { openScheduleModal('update'); }
+            else if (targetButton.classList.contains('btn-reject')) { if (!confirm(`Reject ${name}?`)) return; targetButton.disabled = true; targetButton.textContent = "Processing..."; try { await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID_REJECTED, { applicant_name: name, applicant_email: email }); await applicantsCol.doc(id).update({ status: 'Rejected', decisionDate: firebase.firestore.FieldValue.serverTimestamp() }); showNotification('info', 'Applicant Rejected', `${name} has been notified of the decision.`); } catch (error) { console.error("Rejection Error:", error); showNotification('danger', 'Email Error', 'Could not send the rejection email.'); } finally { targetButton.disabled = false; targetButton.innerHTML = "✖ Reject"; }}
+            else if (targetButton.classList.contains('btn-pass-interview')) { if (!confirm(`Pass ${name} and send final hiring email?`)) return; targetButton.disabled = true; targetButton.textContent = "Processing..."; try { const interviewDocRef = interviewsCol.doc(id); const interviewDoc = await interviewDocRef.get(); if (!interviewDoc.exists) throw new Error("Interview document not found."); await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID_ACCEPTED, { applicant_name: name, applicant_email: email }); const employeeData = { ...interviewDoc.data(), status: 'Accepted', acceptanceDate: firebase.firestore.FieldValue.serverTimestamp() }; delete employeeData.interviewDate; delete employeeData.interviewTime; const batch = db.batch(); batch.set(employeesCol.doc(id), employeeData); batch.delete(interviewDocRef); await batch.commit(); showNotification('success', 'New Hire!', `The welcome email is on its way to ${name}.`); } catch (error) { console.error("Acceptance Error:", error); showNotification('danger', 'Hiring Error', 'An error occurred while finalizing the hire.'); } finally { targetButton.disabled = false; targetButton.innerHTML = "✔ Pass"; }}
+            else if (targetButton.classList.contains('btn-fail-interview')) { if (!confirm(`Fail ${name} and send rejection email?`)) return; targetButton.disabled = true; targetButton.textContent = "Processing..."; try { const interviewDocRef = interviewsCol.doc(id); const interviewDoc = await interviewDocRef.get(); if (!interviewDoc.exists) throw new Error("Interview document not found."); await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID_REJECTED, { applicant_name: name, applicant_email: email }); const rejectedData = { ...interviewDoc.data(), status: 'Rejected', decisionDate: firebase.firestore.FieldValue.serverTimestamp() }; delete rejectedData.interviewDate; delete rejectedData.interviewTime; const batch = db.batch(); batch.set(applicantsCol.doc(id), rejectedData); batch.delete(interviewDocRef); await batch.commit(); showNotification('info', 'Interview Failed', `${name} has been notified of the decision.`); } catch (error) { console.error("Rejection Error:", error); showNotification('danger', 'Email Error', 'Could not send the rejection email.'); } finally { targetButton.disabled = false; targetButton.innerHTML = "✖ Fail"; }}
+            else if (targetButton.classList.contains('btn-remove')) { if (!confirm(`Remove ${name}? This cannot be undone.`)) return; targetButton.disabled = true; targetButton.textContent = "Removing..."; try { await employeesCol.doc(id).delete(); showNotification('info', 'Employee Removed', `The record for ${name} has been deleted.`); } catch (error) { console.error("Remove Error:", error); showNotification('danger', 'Deletion Error', 'Could not remove the employee record.'); } finally { targetButton.disabled = false; targetButton.innerHTML = "✖ Remove"; }}
+            else if (targetButton.classList.contains('btn-remove-applicant')) { if (!confirm(`Permanently delete rejected application for ${name}?`)) return; targetButton.disabled = true; targetButton.textContent = "Deleting..."; try { await applicantsCol.doc(id).delete(); showNotification('info', 'Application Removed', `The record for ${name} has been deleted.`); } catch (error) { console.error("Delete Applicant Error:", error); showNotification('danger', 'Deletion Error', 'Could not remove the applicant record.'); } finally { targetButton.disabled = false; targetButton.innerHTML = "✖ Delete"; }}
+        });
+
+        document.getElementById('clear-stats-btn').addEventListener('click', async (e) => {
+             const btn = e.currentTarget;
+             if (!confirm("WARNING: This will permanently delete all 'Rejected' applicant records. This action cannot be undone. Proceed?")) return;
+             btn.disabled = true; btn.innerHTML = 'Clearing...';
+             try {
+                 const rejectedQuery = await applicantsCol.where('status', '==', 'Rejected').get();
+                 if (rejectedQuery.empty) { showNotification('info', 'All Clear', 'There are no rejected applicant records to remove.'); return; }
+                 const batch = db.batch(); rejectedQuery.docs.forEach(doc => batch.delete(doc.ref));
+                 await batch.commit(); showNotification('success', 'History Cleared', 'Rejected applicant history has been successfully removed.');
+             } catch (error) { console.error("Error clearing stats:", error); showNotification('danger', 'Error', 'Could not clear history. See console for details.'); }
+             finally { btn.disabled = false; btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg> Clear History`; }
+        });
+        
+        document.getElementById('logout-btn').addEventListener('click', (e) => { e.preventDefault(); auth.signOut(); });
+    
+        isDashboardInitialized = true;
+    }
+
 </script>
 </body>
 </html>
