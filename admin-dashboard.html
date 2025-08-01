@@ -237,7 +237,8 @@
     auth.onAuthStateChanged(user => user ? initializeDashboard() : window.location.replace('admin-login.html'));
 
     let decisionChartInstance = null, projectChartInstance = null;
-    let allApplicantsData = [], allInterviewsData = [], allEmployeesData = [];
+    // MODIFIED: Added allRejectedData array
+    let allApplicantsData = [], allInterviewsData = [], allEmployeesData = [], allRejectedData = [];
     let currentApplicantView = 'Pending';
     
     const sanitize = (str) => { const temp = document.createElement('div'); temp.textContent = str; return temp.innerHTML; };
@@ -327,6 +328,7 @@
         }
     }
 
+    // MODIFIED: This function now reads from `allRejectedData` for rejected counts
     function renderCharts() {
         const filter = document.querySelector('input[name="projectFilter"]:checked')?.value || 'all';
 
@@ -334,7 +336,9 @@
         const monthlyData = {};
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         allEmployeesData.forEach(emp => { if (emp.acceptanceDate?.toDate) { const date = emp.acceptanceDate.toDate(); const key = `${date.getFullYear()}-${String(date.getMonth()).padStart(2, '0')}`; if (!monthlyData[key]) monthlyData[key] = { label: `${monthNames[date.getMonth()]} ${date.getFullYear()}`, accepted: 0, rejected: 0 }; monthlyData[key].accepted++; } });
-        allApplicantsData.forEach(app => { if (app.status === 'Rejected' && app.decisionDate?.toDate) { const date = app.decisionDate.toDate(); const key = `${date.getFullYear()}-${String(date.getMonth()).padStart(2, '0')}`; if (!monthlyData[key]) monthlyData[key] = { label: `${monthNames[date.getMonth()]} ${date.getFullYear()}`, accepted: 0, rejected: 0 }; monthlyData[key].rejected++; } });
+        // Reads from the new `allRejectedData` array
+        allRejectedData.forEach(rej => { if (rej.decisionDate?.toDate) { const date = rej.decisionDate.toDate(); const key = `${date.getFullYear()}-${String(date.getMonth()).padStart(2, '0')}`; if (!monthlyData[key]) monthlyData[key] = { label: `${monthNames[date.getMonth()]} ${date.getFullYear()}`, accepted: 0, rejected: 0 }; monthlyData[key].rejected++; } });
+        
         const sortedKeys = Object.keys(monthlyData).sort(); const decisionLabels = sortedKeys.map(key => monthlyData[key].label); const acceptedData = sortedKeys.map(key => monthlyData[key].accepted); const rejectedData = sortedKeys.map(key => monthlyData[key].rejected);
         if (decisionChartInstance) decisionChartInstance.destroy();
         decisionChartInstance = new Chart(document.getElementById('decision-chart').getContext('2d'), { type: 'line', data: { labels: decisionLabels, datasets: [{ label: 'Hired', data: acceptedData, borderColor: 'var(--brand-green)', backgroundColor: 'rgba(4, 98, 65, 0.1)', fill: true, tension: 0.3 }, { label: 'Rejected', data: rejectedData, borderColor: 'var(--danger)', backgroundColor: 'rgba(220, 53, 69, 0.1)', fill: true, tension: 0.3 }] }, options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { position: 'top' } } } });
@@ -346,9 +350,11 @@
         if (filter === 'employees') {
             allEmployeesData.forEach(data => { const project = data.projectAppliedFor; if (project) projectCounts[project] = (projectCounts[project] || 0) + 1; });
         } else if (filter === 'rejected') {
-            allApplicantsData.filter(app => app.status === 'Rejected').forEach(data => { const project = data.projectAppliedFor; if (project) projectCounts[project] = (projectCounts[project] || 0) + 1; });
+            // Reads from the new `allRejectedData` array
+            allRejectedData.forEach(data => { const project = data.projectAppliedFor; if (project) projectCounts[project] = (projectCounts[project] || 0) + 1; });
         } else {
-            [...allApplicantsData, ...allInterviewsData, ...allEmployeesData].forEach(data => { const project = data.projectAppliedFor; if (project) projectCounts[project] = (projectCounts[project] || 0) + 1; });
+            // Includes `allRejectedData` in the "all" filter
+            [...allApplicantsData, ...allInterviewsData, ...allEmployeesData, ...allRejectedData].forEach(data => { const project = data.projectAppliedFor; if (project) projectCounts[project] = (projectCounts[project] || 0) + 1; });
         }
         
         const projectLabels = Object.keys(projectCounts); const projectData = Object.values(projectCounts);
@@ -369,6 +375,7 @@
         }
     }
     
+    // MODIFIED: This function now queries the `rejected` collection
     async function showProjectDetailsModal(projectName, filter) {
         const modal = document.getElementById('project-details-modal');
         const modalTitle = document.getElementById('modal-project-title');
@@ -381,7 +388,8 @@
             let tableHtml = `<div class="table-container"><table><thead><tr><th>Name</th><th>Email</th><th>Status</th></tr></thead><tbody>`;
 
             if (filter === 'rejected') {
-                const querySnapshot = await db.collection('applicants').where('projectAppliedFor', '==', projectName).where('status', '==', 'Rejected').get();
+                // Queries the new `rejected` collection
+                const querySnapshot = await db.collection('rejected').where('projectAppliedFor', '==', projectName).get();
                 if (querySnapshot.empty) {
                     tableHtml += `<tr><td colspan="3" style="text-align:center;">No rejected applicants found for this project.</td></tr>`;
                 } else {
@@ -404,14 +412,16 @@
                 const employeesPromise = db.collection('employees').where('projectAppliedFor', '==', projectName).get();
                 const applicantsPromise = db.collection('applicants').where('projectAppliedFor', '==', projectName).get();
                 const interviewsPromise = db.collection('interviews').where('projectAppliedFor', '==', projectName).get();
-                const [employeeDocs, applicantDocs, interviewDocs] = await Promise.all([employeesPromise, applicantsPromise, interviewsPromise]);
+                const rejectedPromise = db.collection('rejected').where('projectAppliedFor', '==', projectName).get(); // Query rejected collection
+                const [employeeDocs, applicantDocs, interviewDocs, rejectedDocs] = await Promise.all([employeesPromise, applicantsPromise, interviewsPromise, rejectedPromise]);
 
-                if (employeeDocs.empty && applicantDocs.empty && interviewDocs.empty) {
+                if (employeeDocs.empty && applicantDocs.empty && interviewDocs.empty && rejectedDocs.empty) {
                      tableHtml += '<tr><td colspan="3" style="text-align:center; padding: 20px 0;">No applicants found for this project.</td></tr>';
                 } else {
                     employeeDocs.forEach(doc => { const data = doc.data(); tableHtml += `<tr><td><strong>${sanitize(data.firstName)} ${sanitize(data.lastName)}</strong></td><td>${sanitize(data.email)}</td><td><span class="status-badge employee">Employee</span></td></tr>`; });
                     interviewDocs.forEach(doc => { const data = doc.data(); tableHtml += `<tr><td><strong>${sanitize(data.firstName)} ${sanitize(data.lastName)}</strong></td><td>${sanitize(data.email)}</td><td><span class="status-badge interview">Interview</span></td></tr>`; });
-                    applicantDocs.forEach(doc => { const data = doc.data(); const statusClass = data.status === 'Rejected' ? 'rejected' : 'pending'; tableHtml += `<tr><td><strong>${sanitize(data.firstName)} ${sanitize(data.lastName)}</strong></td><td>${sanitize(data.email)}</td><td><span class="status-badge ${statusClass}">${sanitize(data.status)}</span></td></tr>`; });
+                    applicantDocs.forEach(doc => { const data = doc.data(); tableHtml += `<tr><td><strong>${sanitize(data.firstName)} ${sanitize(data.lastName)}</strong></td><td>${sanitize(data.email)}</td><td><span class="status-badge pending">Pending</span></td></tr>`; });
+                    rejectedDocs.forEach(doc => { const data = doc.data(); tableHtml += `<tr><td><strong>${sanitize(data.firstName)} ${sanitize(data.lastName)}</strong></td><td>${sanitize(data.email)}</td><td><span class="status-badge rejected">Rejected</span></td></tr>`; });
                 }
             }
             
@@ -423,10 +433,65 @@
         }
     }
 
-    function renderApplicantsTable() { /* Unchanged but restored */ }
-    function renderInterviewsTable() { /* New function */ }
-    function renderEmployeesTable() { /* New function */ }
-    function updateDashboardUI() { /* New master update function */ }
+    // MODIFIED: Reads from `allRejectedData` for the 'Rejected' view.
+    function renderApplicantsTable() {
+        const applicantsTbody = document.getElementById('applicants-table-body');
+        
+        if (currentApplicantView === 'Pending') {
+            const dataToRender = allApplicantsData; // No filter needed, this array is only for pending
+            applicantsTbody.parentElement.querySelector('thead tr').innerHTML = `<th>Name</th><th>Email</th><th>Project Applied For</th><th>Availability</th><th>Resume</th><th>Actions</th>`;
+            if (dataToRender.length === 0) {
+                applicantsTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 40px 0; color: var(--light-text);">No pending applications.</td></tr>`; return;
+            }
+            applicantsTbody.innerHTML = '';
+            dataToRender.forEach(app => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td><strong>${sanitize(app.firstName)} ${sanitize(app.lastName)}</strong></td><td>${sanitize(app.email)}</td><td>${sanitize(app.projectAppliedFor)}</td><td>${app.availabilityStart || 'N/A'} - ${app.availabilityEnd || 'N/A'}</td><td><a href="${app.resumeLink}" class="action-btn btn-view" target="_blank" rel="noopener">View</a></td><td class="actions"><button class="action-btn btn-accept" data-id="${app.id}" data-name="${sanitize(app.firstName)} ${sanitize(app.lastName)}" data-email="${sanitize(app.email)}">✔ Schedule Interview</button><button class="action-btn btn-reject" data-id="${app.id}" data-name="${sanitize(app.firstName)}" data-email="${sanitize(app.email)}">✖ Reject</button></td>`;
+                applicantsTbody.appendChild(row);
+            });
+        } else if (currentApplicantView === 'Rejected') {
+            const dataToRender = allRejectedData; // Reading from the new array
+            applicantsTbody.parentElement.querySelector('thead tr').innerHTML = `<th>Name</th><th>Email</th><th>Project Applied For</th><th>Decision Date</th><th>Resume</th><th>Actions</th>`;
+             if (dataToRender.length === 0) {
+                applicantsTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 40px 0; color: var(--light-text);">No rejected applicants found.</td></tr>`; return;
+            }
+            applicantsTbody.innerHTML = '';
+            dataToRender.forEach(app => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td><strong>${sanitize(app.firstName)} ${sanitize(app.lastName)}</strong></td><td>${sanitize(app.email)}</td><td>${sanitize(app.projectAppliedFor)}</td><td>${formatDate(app.decisionDate)}</td><td><a href="${app.resumeLink}" class="action-btn btn-view" target="_blank" rel="noopener">View</a></td><td class="actions"><button class="action-btn btn-remove-applicant" data-id="${app.id}" data-name="${sanitize(app.firstName)}">✖ Delete</button></td>`;
+                applicantsTbody.appendChild(row);
+            });
+        }
+    }
+    
+    function renderInterviewsTable() {
+        const interviewsTbody = document.getElementById('interviews-table-body');
+        interviewsTbody.innerHTML = allInterviewsData.length === 0 ? `<tr><td colspan="7" style="text-align: center; padding: 40px 0; color: var(--light-text);">No interviews scheduled.</td></tr>` : '';
+        allInterviewsData.forEach(iv => { 
+            const row = document.createElement('tr'); 
+            row.innerHTML = `<td><strong>${sanitize(iv.firstName)} ${sanitize(iv.lastName)}</strong></td><td>${sanitize(iv.email)}</td><td>${sanitize(iv.projectAppliedFor)}</td><td>${formatInterviewDate(iv.interviewDate, iv.interviewTime)}</td><td><a href="${iv.resumeLink}" class="action-btn btn-view" target="_blank" rel="noopener">View</a></td><td class="actions"><button class="action-btn btn-reschedule" data-id="${iv.id}" data-name="${sanitize(iv.firstName)} ${sanitize(iv.lastName)}" data-email="${sanitize(iv.email)}" data-date="${iv.interviewDate}" data-time="${iv.interviewTime}">Reschedule</button><button class="action-btn btn-pass-interview" data-id="${iv.id}" data-name="${sanitize(iv.firstName)}" data-email="${sanitize(iv.email)}">✔ Pass</button><button class="action-btn btn-fail-interview" data-id="${iv.id}" data-name="${sanitize(iv.firstName)}" data-email="${sanitize(iv.email)}">✖ Fail</button></td>`; 
+            interviewsTbody.appendChild(row); 
+        });
+    }
+
+    function renderEmployeesTable() {
+        const employeesTbody = document.getElementById('employees-table-body');
+        employeesTbody.innerHTML = allEmployeesData.length === 0 ? `<tr><td colspan="6" style="text-align: center; padding: 40px 0; color: var(--light-text);">No employees found.</td></tr>` : '';
+        allEmployeesData.forEach(emp => { const row = document.createElement('tr'); row.innerHTML = `<td><strong>${sanitize(emp.firstName)} ${sanitize(emp.lastName)}</strong></td><td>${sanitize(emp.email)}</td><td>${sanitize(emp.projectAppliedFor)}</td><td>${formatDate(emp.acceptanceDate)}</td><td><a href="${emp.resumeLink}" class="action-btn btn-view" target="_blank" rel="noopener">View</a></td><td class="actions"><button class="action-btn btn-remove" data-id="${emp.id}" data-name="${sanitize(emp.firstName)}">✖ Remove</button></td>`; employeesTbody.appendChild(row); });
+    }
+    
+    // MODIFIED: Updated stat count logic for pending applicants.
+    function updateDashboardUI() {
+        // Since `allApplicantsData` now only contains pending ones, we can just use .length
+        document.getElementById('stat-pending').textContent = allApplicantsData.length;
+        document.getElementById('stat-interviews').textContent = allInterviewsData.length;
+        document.getElementById('stat-employees').textContent = allEmployeesData.length;
+        
+        renderApplicantsTable();
+        renderInterviewsTable();
+        renderEmployeesTable();
+        renderCharts();
+    }
     
     function initializeDashboard() {
         if (isDashboardInitialized) return;
@@ -436,6 +501,8 @@
         const applicantsCol = db.collection('applicants');
         const employeesCol = db.collection('employees');
         const interviewsCol = db.collection('interviews');
+        // NEW: Define the new `rejected` collection
+        const rejectedCol = db.collection('rejected');
         
         const sidebarNav = document.querySelector('.sidebar-nav');
         const mainContent = document.querySelector('main');
@@ -444,53 +511,9 @@
         const projectModal = document.getElementById('project-details-modal');
         const interviewDateInput = document.getElementById('interview-date');
 
-        // MODIFIED: Restoring the full function bodies
-        function renderApplicantsTable() {
-            const applicantsTbody = document.getElementById('applicants-table-body');
-            const dataToRender = allApplicantsData.filter(app => app.status === currentApplicantView);
-            
-            if (currentApplicantView === 'Pending') {
-                applicantsTbody.parentElement.querySelector('thead tr').innerHTML = `<th>Name</th><th>Email</th><th>Project Applied For</th><th>Availability</th><th>Resume</th><th>Actions</th>`;
-                if (dataToRender.length === 0) { applicantsTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 40px 0; color: var(--light-text);">No pending applications.</td></tr>`; return; }
-                applicantsTbody.innerHTML = '';
-                dataToRender.forEach(app => { const row = document.createElement('tr'); row.innerHTML = `<td><strong>${sanitize(app.firstName)} ${sanitize(app.lastName)}</strong></td><td>${sanitize(app.email)}</td><td>${sanitize(app.projectAppliedFor)}</td><td>${app.availabilityStart || 'N/A'} - ${app.availabilityEnd || 'N/A'}</td><td><a href="${app.resumeLink}" class="action-btn btn-view" target="_blank" rel="noopener">View</a></td><td class="actions"><button class="action-btn btn-accept" data-id="${app.id}" data-name="${sanitize(app.firstName)} ${sanitize(app.lastName)}" data-email="${sanitize(app.email)}">✔ Schedule Interview</button><button class="action-btn btn-reject" data-id="${app.id}" data-name="${sanitize(app.firstName)}" data-email="${sanitize(app.email)}">✖ Reject</button></td>`; applicantsTbody.appendChild(row); });
-            } else if (currentApplicantView === 'Rejected') {
-                applicantsTbody.parentElement.querySelector('thead tr').innerHTML = `<th>Name</th><th>Email</th><th>Project Applied For</th><th>Decision Date</th><th>Resume</th><th>Actions</th>`;
-                if (dataToRender.length === 0) { applicantsTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 40px 0; color: var(--light-text);">No rejected applicants found.</td></tr>`; return; }
-                applicantsTbody.innerHTML = '';
-                dataToRender.forEach(app => { const row = document.createElement('tr'); row.innerHTML = `<td><strong>${sanitize(app.firstName)} ${sanitize(app.lastName)}</strong></td><td>${sanitize(app.email)}</td><td>${sanitize(app.projectAppliedFor)}</td><td>${formatDate(app.decisionDate)}</td><td><a href="${app.resumeLink}" class="action-btn btn-view" target="_blank" rel="noopener">View</a></td><td class="actions"><button class="action-btn btn-remove-applicant" data-id="${app.id}" data-name="${sanitize(app.firstName)}">✖ Delete</button></td>`; applicantsTbody.appendChild(row); });
-            }
-        }
-
-        function renderInterviewsTable() {
-            const interviewsTbody = document.getElementById('interviews-table-body');
-            interviewsTbody.innerHTML = allInterviewsData.length === 0 ? `<tr><td colspan="7" style="text-align: center; padding: 40px 0; color: var(--light-text);">No interviews scheduled.</td></tr>` : '';
-            allInterviewsData.forEach(iv => { 
-                const row = document.createElement('tr'); 
-                row.innerHTML = `<td><strong>${sanitize(iv.firstName)} ${sanitize(iv.lastName)}</strong></td><td>${sanitize(iv.email)}</td><td>${sanitize(iv.projectAppliedFor)}</td><td>${formatInterviewDate(iv.interviewDate, iv.interviewTime)}</td><td><a href="${iv.resumeLink}" class="action-btn btn-view" target="_blank" rel="noopener">View</a></td><td class="actions"><button class="action-btn btn-reschedule" data-id="${iv.id}" data-name="${sanitize(iv.firstName)} ${sanitize(iv.lastName)}" data-email="${sanitize(iv.email)}" data-date="${iv.interviewDate}" data-time="${iv.interviewTime}">Reschedule</button><button class="action-btn btn-pass-interview" data-id="${iv.id}" data-name="${sanitize(iv.firstName)}" data-email="${sanitize(iv.email)}">✔ Pass</button><button class="action-btn btn-fail-interview" data-id="${iv.id}" data-name="${sanitize(iv.firstName)}" data-email="${sanitize(iv.email)}">✖ Fail</button></td>`; 
-                interviewsTbody.appendChild(row); 
-            });
-        }
-
-        function renderEmployeesTable() {
-            const employeesTbody = document.getElementById('employees-table-body');
-            employeesTbody.innerHTML = allEmployeesData.length === 0 ? `<tr><td colspan="6" style="text-align: center; padding: 40px 0; color: var(--light-text);">No employees found.</td></tr>` : '';
-            allEmployeesData.forEach(emp => { const row = document.createElement('tr'); row.innerHTML = `<td><strong>${sanitize(emp.firstName)} ${sanitize(emp.lastName)}</strong></td><td>${sanitize(emp.email)}</td><td>${sanitize(emp.projectAppliedFor)}</td><td>${formatDate(emp.acceptanceDate)}</td><td><a href="${emp.resumeLink}" class="action-btn btn-view" target="_blank" rel="noopener">View</a></td><td class="actions"><button class="action-btn btn-remove" data-id="${emp.id}" data-name="${sanitize(emp.firstName)}">✖ Remove</button></td>`; employeesTbody.appendChild(row); });
-        }
-
-        function updateDashboardUI() {
-            document.getElementById('stat-pending').textContent = allApplicantsData.filter(doc => doc.status === 'Pending').length;
-            document.getElementById('stat-interviews').textContent = allInterviewsData.length;
-            document.getElementById('stat-employees').textContent = allEmployeesData.length;
-            
-            renderApplicantsTable();
-            renderInterviewsTable();
-            renderEmployeesTable();
-            renderCharts();
-        }
-
         interviewDateInput.addEventListener('change', updateAvailableTimeSlots);
 
+        // MODIFIED: This query now inherently only gets pending applicants.
         applicantsCol.orderBy("submittedAt", "desc").onSnapshot(snapshot => {
             allApplicantsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             updateDashboardUI();
@@ -506,6 +529,13 @@
             updateDashboardUI();
         });
 
+        // NEW: Listener for the `rejected` collection
+        rejectedCol.orderBy("decisionDate", "desc").onSnapshot(snapshot => {
+            allRejectedData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            updateDashboardUI();
+        });
+
+
         sidebarNav.addEventListener('click', (e) => {
             const targetLink = e.target.closest('a'); if (!targetLink || !targetLink.dataset.view) return;
             const targetViewId = `${targetLink.dataset.view}-view`;
@@ -514,7 +544,14 @@
             document.querySelectorAll('.view-panel').forEach(panel => panel.classList.toggle('active', panel.id === targetViewId));
         });
         
-        document.getElementById('applicant-filters').addEventListener('click', (e) => { if (e.target.tagName === 'BUTTON') { currentApplicantView = e.target.dataset.status; document.querySelector('#applicant-filters .filter-btn.active').classList.remove('active'); e.target.classList.add('active'); renderApplicantsTable(); } });
+        document.getElementById('applicant-filters').addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                currentApplicantView = e.target.dataset.status;
+                document.querySelector('#applicant-filters .filter-btn.active').classList.remove('active');
+                e.target.classList.add('active');
+                renderApplicantsTable();
+            }
+        });
         
         document.getElementById('project-chart-filters').addEventListener('change', (e) => { if (e.target.name === 'projectFilter') renderCharts(); });
         
@@ -581,6 +618,7 @@
             const id = targetButton.dataset.id, name = targetButton.dataset.name, email = targetButton.dataset.email;
 
             function openScheduleModal(mode) {
+                // ... (no changes in this function)
                 const modalTitle = document.getElementById('schedule-modal-title');
                 const submitBtn = document.getElementById('schedule-submit-btn');
 
@@ -609,24 +647,107 @@
             
             if (targetButton.classList.contains('btn-accept')) { openScheduleModal('create'); }
             else if (targetButton.classList.contains('btn-reschedule')) { openScheduleModal('update'); }
-            else if (targetButton.classList.contains('btn-reject')) { if (!confirm(`Reject ${name}?`)) return; targetButton.disabled = true; targetButton.textContent = "Processing..."; try { await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID_REJECTED, { applicant_name: name, applicant_email: email }); await applicantsCol.doc(id).update({ status: 'Rejected', decisionDate: firebase.firestore.FieldValue.serverTimestamp() }); showNotification('info', 'Applicant Rejected', `${name} has been notified of the decision.`); } catch (error) { console.error("Rejection Error:", error); showNotification('danger', 'Email Error', 'Could not send the rejection email.'); } finally { targetButton.disabled = false; targetButton.innerHTML = "✖ Reject"; }}
+            // MODIFIED: Rejection logic now moves document to `rejected` collection
+            else if (targetButton.classList.contains('btn-reject')) { 
+                if (!confirm(`Reject ${name}?`)) return; 
+                targetButton.disabled = true; targetButton.textContent = "Processing..."; 
+                try { 
+                    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID_REJECTED, { applicant_name: name, applicant_email: email });
+                    
+                    const appDocRef = applicantsCol.doc(id);
+                    const appDoc = await appDocRef.get();
+                    if (appDoc.exists) {
+                        const batch = db.batch();
+                        // Copy data to the 'rejected' collection
+                        const rejectedData = { ...appDoc.data(), status: 'Rejected', decisionDate: firebase.firestore.FieldValue.serverTimestamp() };
+                        batch.set(rejectedCol.doc(id), rejectedData);
+                        // Delete from the 'applicants' collection
+                        batch.delete(appDocRef);
+                        await batch.commit();
+                    }
+                    showNotification('info', 'Applicant Rejected', `${name} has been moved to the rejected list.`); 
+                } catch (error) { 
+                    console.error("Rejection Error:", error); 
+                    showNotification('danger', 'Email Error', 'Could not process the rejection.'); 
+                } finally { 
+                    targetButton.disabled = false; targetButton.innerHTML = "✖ Reject"; 
+                }
+            }
             else if (targetButton.classList.contains('btn-pass-interview')) { if (!confirm(`Pass ${name} and send final hiring email?`)) return; targetButton.disabled = true; targetButton.textContent = "Processing..."; try { const interviewDocRef = interviewsCol.doc(id); const interviewDoc = await interviewDocRef.get(); if (!interviewDoc.exists) throw new Error("Interview document not found."); await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID_ACCEPTED, { applicant_name: name, applicant_email: email }); const employeeData = { ...interviewDoc.data(), status: 'Accepted', acceptanceDate: firebase.firestore.FieldValue.serverTimestamp() }; delete employeeData.interviewDate; delete employeeData.interviewTime; const batch = db.batch(); batch.set(employeesCol.doc(id), employeeData); batch.delete(interviewDocRef); await batch.commit(); showNotification('success', 'New Hire!', `The welcome email is on its way to ${name}.`); } catch (error) { console.error("Acceptance Error:", error); showNotification('danger', 'Hiring Error', 'An error occurred while finalizing the hire.'); } finally { targetButton.disabled = false; targetButton.innerHTML = "✔ Pass"; }}
-            else if (targetButton.classList.contains('btn-fail-interview')) { if (!confirm(`Fail ${name} and send rejection email?`)) return; targetButton.disabled = true; targetButton.textContent = "Processing..."; try { const interviewDocRef = interviewsCol.doc(id); const interviewDoc = await interviewDocRef.get(); if (!interviewDoc.exists) throw new Error("Interview document not found."); await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID_REJECTED, { applicant_name: name, applicant_email: email }); const rejectedData = { ...interviewDoc.data(), status: 'Rejected', decisionDate: firebase.firestore.FieldValue.serverTimestamp() }; delete rejectedData.interviewDate; delete rejectedData.interviewTime; const batch = db.batch(); batch.set(applicantsCol.doc(id), rejectedData); batch.delete(interviewDocRef); await batch.commit(); showNotification('info', 'Interview Failed', `${name} has been notified of the decision.`); } catch (error) { console.error("Rejection Error:", error); showNotification('danger', 'Email Error', 'Could not send the rejection email.'); } finally { targetButton.disabled = false; targetButton.innerHTML = "✖ Fail"; }}
+            // MODIFIED: Interview fail logic now moves document to `rejected` collection
+            else if (targetButton.classList.contains('btn-fail-interview')) { 
+                if (!confirm(`Fail ${name} and send rejection email?`)) return; 
+                targetButton.disabled = true; targetButton.textContent = "Processing..."; 
+                try { 
+                    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID_REJECTED, { applicant_name: name, applicant_email: email });
+                    
+                    const interviewDocRef = interviewsCol.doc(id);
+                    const interviewDoc = await interviewDocRef.get();
+                    if (interviewDoc.exists) {
+                        const rejectedData = { ...interviewDoc.data(), status: 'Rejected', decisionDate: firebase.firestore.FieldValue.serverTimestamp() }; 
+                        delete rejectedData.interviewDate; 
+                        delete rejectedData.interviewTime;
+                        
+                        const batch = db.batch();
+                        // Copy to 'rejected' collection
+                        batch.set(rejectedCol.doc(id), rejectedData);
+                        // Delete from 'interviews' collection
+                        batch.delete(interviewDocRef); 
+                        await batch.commit(); 
+                    }
+                    showNotification('info', 'Interview Failed', `${name} has been moved to the rejected list.`); 
+                } catch (error) { 
+                    console.error("Rejection Error:", error); 
+                    showNotification('danger', 'Email Error', 'Could not send the rejection email.'); 
+                } finally { 
+                    targetButton.disabled = false; targetButton.innerHTML = "✖ Fail"; 
+                }
+            }
             else if (targetButton.classList.contains('btn-remove')) { if (!confirm(`Remove ${name}? This cannot be undone.`)) return; targetButton.disabled = true; targetButton.textContent = "Removing..."; try { await employeesCol.doc(id).delete(); showNotification('info', 'Employee Removed', `The record for ${name} has been deleted.`); } catch (error) { console.error("Remove Error:", error); showNotification('danger', 'Deletion Error', 'Could not remove the employee record.'); } finally { targetButton.disabled = false; targetButton.innerHTML = "✖ Remove"; }}
-            else if (targetButton.classList.contains('btn-remove-applicant')) { if (!confirm(`Permanently delete rejected application for ${name}?`)) return; targetButton.disabled = true; targetButton.textContent = "Deleting..."; try { await applicantsCol.doc(id).delete(); showNotification('info', 'Application Removed', `The record for ${name} has been deleted.`); } catch (error) { console.error("Delete Applicant Error:", error); showNotification('danger', 'Deletion Error', 'Could not remove the applicant record.'); } finally { targetButton.disabled = false; targetButton.innerHTML = "✖ Delete"; }}
+            // MODIFIED: This now deletes from the `rejected` collection
+            else if (targetButton.classList.contains('btn-remove-applicant')) {
+                if (!confirm(`Permanently delete rejected application for ${name}?`)) return;
+                targetButton.disabled = true;
+                targetButton.textContent = "Deleting...";
+                try {
+                    await rejectedCol.doc(id).delete();
+                    showNotification('info', 'Application Removed', `The record for ${name} has been deleted.`);
+                } catch (error) {
+                    console.error("Delete Applicant Error:", error);
+                    showNotification('danger', 'Deletion Error', 'Could not remove the applicant record.');
+                } finally {
+                    targetButton.disabled = false;
+                    targetButton.innerHTML = "✖ Delete";
+                }
+            }
         });
 
+        // MODIFIED: This now targets the `rejected` collection
         document.getElementById('clear-stats-btn').addEventListener('click', async (e) => {
              const btn = e.currentTarget;
-             if (!confirm("WARNING: This will permanently delete all 'Rejected' applicant records. This action cannot be undone. Proceed?")) return;
-             btn.disabled = true; btn.innerHTML = 'Clearing...';
+             if (!confirm("WARNING: This will permanently delete all records from the 'Rejected' history. This action cannot be undone. Proceed?")) return;
+             
+             btn.disabled = true;
+             btn.innerHTML = 'Clearing...';
+
              try {
-                 const rejectedQuery = await applicantsCol.where('status', '==', 'Rejected').get();
-                 if (rejectedQuery.empty) { showNotification('info', 'All Clear', 'There are no rejected applicant records to remove.'); return; }
-                 const batch = db.batch(); rejectedQuery.docs.forEach(doc => batch.delete(doc.ref));
-                 await batch.commit(); showNotification('success', 'History Cleared', 'Rejected applicant history has been successfully removed.');
-             } catch (error) { console.error("Error clearing stats:", error); showNotification('danger', 'Error', 'Could not clear history. See console for details.'); }
-             finally { btn.disabled = false; btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg> Clear History`; }
+                 const rejectedQuery = await rejectedCol.get();
+                 if (rejectedQuery.empty) {
+                     showNotification('info', 'All Clear', 'There are no rejected applicant records to remove.');
+                     return;
+                 }
+                 const batch = db.batch();
+                 rejectedQuery.docs.forEach(doc => batch.delete(doc.ref));
+                 await batch.commit();
+                 showNotification('success', 'History Cleared', 'Rejected applicant history has been successfully removed.');
+             } catch (error) {
+                 console.error("Error clearing stats:", error);
+                 showNotification('danger', 'Error', 'Could not clear history. See console for details.');
+             }
+             finally {
+                 btn.disabled = false;
+                 btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg> Clear History`;
+             }
         });
         
         document.getElementById('logout-btn').addEventListener('click', (e) => { e.preventDefault(); auth.signOut(); });
