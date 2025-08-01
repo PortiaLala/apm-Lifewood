@@ -18,12 +18,31 @@
             --brand-orange: #ffb347;
             --light-bg: #f9f7f7;
             --dark-text: #333;
+            --border-color: #ddd;
+            /* MODIFIED: Added color variables for notifications */
+            --success: #198754;
+            --info: #0d6efd;
+            --danger: #dc3545;
         }
         body { margin: 0; font-family: 'Manrope', sans-serif; background-color: #ffffff; color: var(--dark-text); overflow-x: hidden; }
         #preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; background-color: var(--light-bg); display: flex; justify-content: center; align-items: center; transition: opacity 0.75s ease, visibility 0.75s ease; }
         .preloader-hidden { opacity: 0; visibility: hidden; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
         #preloader .hexagon-shape { animation: spin 2s linear infinite; width: 60px; height: 70px; background-color: var(--brand-orange); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+        
+        @keyframes slideInFromRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: scale(0.9); } }
+        #notification-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
+        .notification { display: flex; align-items: center; gap: 15px; background-color: #fff; padding: 15px 20px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); border-left: 5px solid; min-width: 300px; animation: slideInFromRight 0.5s ease forwards; }
+        .notification.fade-out { animation: fadeOut 0.5s ease forwards; }
+        .notification-icon { display: flex; align-items: center; justify-content: center; }
+        .notification-icon svg { width: 24px; height: 24px; }
+        .notification-text strong { display: block; font-size: 16px; font-weight: 700; color: var(--dark-text); }
+        .notification-text p { margin: 2px 0 0 0; font-size: 14px; color: #666; }
+        .notification.success { border-color: var(--success); } .notification.success .notification-icon { color: var(--success); }
+        .notification.info { border-color: var(--info); } .notification.info .notification-icon { color: var(--info); }
+        .notification.danger { border-color: var(--danger); } .notification.danger .notification-icon { color: var(--danger); }
+        
         .site-header { position: fixed; top: 0; left: 0; z-index: 10; box-sizing: border-box; height: 100vh; width: 100%; background-color: var(--light-bg); display: flex; justify-content: center; align-items: center; overflow: hidden; transition: height 1.5s ease, padding 1.5s ease, background-color 1.5s ease; }
         .logo-container { display: flex; flex-direction: column; align-items: center; gap: 10px; transition: gap 1.5s ease, align-items 1.5s ease; }
         .logo-image { width: 50vw; max-width: 600px; height: auto; transition: width 1.5s ease, height 1.5s ease; }
@@ -47,22 +66,7 @@
         .video-overlay-text h1 { font-size: 50px; font-weight: 800; margin-bottom: 20px; }
         .video-overlay-text p { font-size: 20px; max-width: 900px; margin: 0 auto; line-height: 1.6; }
         
-        .cta-button {
-            display: inline-block;
-            padding: 12px 30px;
-            background-color: transparent;
-            color: var(--brand-orange);
-            border: 2px solid var(--brand-orange);
-            text-decoration: none;
-            font-weight: 800;
-            border-radius: 50px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-size: 16px;
-            transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-            text-shadow: none;
-            cursor: pointer;
-        }
+        .cta-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 30px; background-color: transparent; color: var(--brand-orange); border: 2px solid var(--brand-orange); text-decoration: none; font-weight: 800; border-radius: 50px; text-transform: uppercase; letter-spacing: 1.5px; font-size: 16px; transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease; text-shadow: none; cursor: pointer; }
         .cta-button:hover { background-color: var(--brand-orange); color: var(--brand-green); transform: translateY(-3px); box-shadow: 0 5px 15px rgba(255, 179, 71, 0.4); }
         .video-overlay-text .cta-button { margin-top: 30px; }
         .cta-buttons-wrapper { display: flex; gap: 20px; margin-top: 30px; justify-content: center; flex-wrap: wrap; }
@@ -100,34 +104,49 @@
         .footer-social-links { display: flex; gap: 15px; margin-top: 20px; }
         .footer-social-links img { width: 24px; height: 24px; transition: opacity 0.3s ease, transform 0.3s ease; }
         .footer-social-links a:hover img { opacity: 0.8; transform: scale(1.1); }
-        .admin-login-icon { position: absolute; bottom: 20px; right: 20px; width: 28px; height: 28px; color: var(--brand-green); opacity: 0.6; transition: opacity 0.3s ease, transform 0.3s ease, color 0.3s ease; }
-        .admin-login-icon svg { width: 100%; height: 100%; fill: currentColor; }
-        .admin-login-icon:hover { opacity: 1; transform: scale(1.1); color: var(--brand-orange); }
-
+        
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; display: flex; justify-content: center; align-items: center; }
-        .modal-content { background: #fff; padding: 40px; border-radius: 8px; max-width: 800px; width: 90%; position: relative; max-height: 80vh; overflow-y: auto; }
-        .modal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 28px; cursor: pointer; color: #aaa; }
-        .modal-content h2 { color: var(--brand-green); margin-top: 0; }
-        .modal-content .form-group { margin-bottom: 15px; }
-        .modal-content .form-group label { display: block; font-weight: 600; margin-bottom: 5px; }
-        /* ===== CSS CHANGE: Added 'select' to this rule for consistent styling ===== */
-        .modal-content .form-group input, .modal-content .form-group textarea, .modal-content .form-group select { 
-            width: 100%; 
-            padding: 10px; 
-            border: 1px solid #ccc; 
-            border-radius: 4px; 
-            box-sizing: border-box; 
-            /* Added font styles for better consistency across elements */
-            font-family: 'Manrope', sans-serif;
-            font-size: 16px;
-            color: var(--dark-text);
-        }
-        .form-row { display: flex; gap: 15px; }
-        .form-row .form-group { flex: 1; }
+        .modal-content { background: #fff; padding: 0; border-radius: 10px; max-width: 650px; width: 90%; position: relative; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; border-top: 5px solid var(--brand-green); box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        /* MODIFIED: Added a subtle background to the header */
+        .modal-header { padding: 25px 40px; border-bottom: 1px solid var(--border-color); background-color: #fcfcfc; }
+        .modal-header h2 { color: var(--brand-green); margin: 0 0 5px 0; font-size: 24px; }
+        .modal-header p { margin: 0; color: #666; }
+        .modal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 28px; cursor: pointer; color: #aaa; transition: color 0.3s ease; }
+        .modal-close:hover { color: var(--dark-text); }
 
-        .toast { visibility: hidden; min-width: 250px; background-color: var(--brand-green); color: #fff; text-align: center; border-radius: 5px; padding: 16px; position: fixed; z-index: 2000; right: 30px; top: 30px; font-size: 17px; opacity: 0; transition: opacity 0.5s, top 0.5s, visibility 0.5s; }
-        .toast.show { visibility: visible; opacity: 1; top: 50px; }
-        .toast.error { background-color: #dc3545; }
+        #application-form { padding: 30px 40px; overflow-y: auto; background-color: #fdfdfd; }
+        .form-row { display: flex; gap: 20px; }
+        .form-row .form-group { flex: 1; }
+        .form-group { margin-bottom: 25px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: #555; transition: transform 0.3s ease; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; font-family: 'Manrope', sans-serif; font-size: 16px; color: var(--dark-text); transition: border-color 0.3s ease, box-shadow 0.3s ease, height 0.3s ease, opacity 0.3s ease; }
+        /* MODIFIED: Added micro-interaction on label for focused inputs */
+        .form-group input:focus + label, .form-group textarea:focus + label, .form-group select:focus + label { transform: translateY(-2px); color: var(--brand-orange); }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--brand-orange); box-shadow: 0 0 0 3px rgba(255, 179, 71, 0.2); }
+        
+        /* --- MODIFIED: Enhanced Progress Bar --- */
+        .progress-bar { display: flex; justify-content: space-between; margin-bottom: 30px; position: relative; }
+        /* Base line for the progress bar */
+        .progress-bar::before { content: ''; position: absolute; top: 18px; left: 0; transform: translateY(-50%); height: 4px; width: 100%; background: var(--border-color); z-index: 1; }
+        /* Filled line for the progress bar */
+        #progress-line-fill { position: absolute; top: 18px; left: 0; transform: translateY(-50%); height: 4px; width: 0; background: var(--brand-orange); z-index: 2; transition: width 0.4s ease-in-out; }
+        .progress-step { z-index: 3; text-align: center; }
+        .progress-step .step-number { width: 36px; height: 36px; border-radius: 50%; background: #fff; border: 2px solid var(--border-color); color: #999; display: flex; justify-content: center; align-items: center; font-weight: 800; margin: 0 auto 8px; transition: all 0.4s ease; }
+        .progress-step .step-label { font-size: 12px; color: #999; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.4s ease; }
+        /* Active state for the progress step */
+        .progress-step.active .step-number { border-color: var(--brand-orange); background-color: var(--brand-orange); color: #fff; transform: scale(1.1); box-shadow: 0 0 10px rgba(255, 179, 71, 0.5); }
+        .progress-step.active .step-label { color: var(--brand-green); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .form-step { display: none; animation: fadeIn 0.5s ease-in-out; }
+        .form-step.active-step { display: block; }
+        .form-navigation { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* --- MODIFIED: Enhanced Buttons --- */
+        .btn-prev { background: none; border: none; color: #888; font-weight: 600; cursor: pointer; padding: 10px; font-size: 15px; transition: color 0.3s ease; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-prev:hover { color: var(--dark-text); }
+        .btn-prev::before { content: '←'; font-size: 18px; }
+        .btn-next.cta-button::after { content: '→'; font-size: 18px; margin-left: 5px; }
 
         @media (max-width: 900px) {
             .pop-out-section, .video-text-section { flex-direction: column; text-align: center; }
@@ -142,21 +161,12 @@
             body.scrolled-state .logo-image { width: 180px; height: 38px; }
             body.scrolled-state .tagline { display: none; }
             .main-navigation { justify-content: flex-end; }
-            .main-navigation ul { 
-                display: flex; flex-direction: column; align-items: center; gap: 25px;
-                position: fixed; top: 90px; left: 0; width: 100%; background: var(--light-bg);
-                box-shadow: 0 15px 20px rgba(0,0,0,0.1); max-height: 0; overflow: hidden;
-                padding: 0; transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
-                z-index: 9;
-            }
+            .main-navigation ul { display: flex; flex-direction: column; align-items: center; gap: 25px; position: fixed; top: 90px; left: 0; width: 100%; background: var(--light-bg); box-shadow: 0 15px 20px rgba(0,0,0,0.1); max-height: 0; overflow: hidden; padding: 0; transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out; z-index: 9; }
             body.menu-open .main-navigation ul { max-height: 400px; padding: 30px 0; }
             .main-navigation a { font-size: 18px; }
             body:not(.scrolled-state) .main-navigation { opacity: 1; visibility: visible; }
             body:not(.scrolled-state) .hamburger-menu { display: none; }
-            .hamburger-menu { 
-                display: flex; flex-direction: column; justify-content: space-around; 
-                width: 30px; height: 30px; background: transparent; border: none; cursor: pointer; padding: 0; z-index: 12;
-            }
+            .hamburger-menu { display: flex; flex-direction: column; justify-content: space-around; width: 30px; height: 30px; background: transparent; border: none; cursor: pointer; padding: 0; z-index: 12; }
             .hamburger-menu span { width: 30px; height: 3px; background: var(--brand-green); border-radius: 5px; transition: all 0.3s linear; position: relative; transform-origin: 1px; } 
             body.menu-open .hamburger-menu span:nth-child(1) { transform: rotate(45deg); } 
             body.menu-open .hamburger-menu span:nth-child(2) { opacity: 0; transform: translateX(20px); } 
@@ -168,6 +178,9 @@
             .footer-col-left { order: 3; } 
             .footer-logo { margin-left: auto; margin-right: auto; }
             .footer-social-links { justify-content: center; }
+            .modal-header { padding: 20px; }
+            #application-form { padding: 20px; }
+            .form-row { flex-direction: column; gap: 0; }
         }
     </style>
 </head>
@@ -180,56 +193,81 @@
         <div class="video-text-section scroll-animation-section"><div class="video-column"><video src="Life.mp4" autoplay loop muted playsinline></video></div><div class="text-column animate-on-scroll slide-from-right"><h3>Driven by Purpose, Proven by Results</h3><p>Since 2004, Lifewood has helped organizations worldwide transform raw information into high-quality data that powers smarter technology. Our work fuels breakthroughs in artificial intelligence, machine learning, and digital heritage preservation.</p><p>Our goal is to help your technology reach its full potential by building a data foundation you can trust.</p><div class="cta-buttons-wrapper"><a href="services.html" class="cta-button">Explore our Services</a><a href="projects.html" class="cta-button">Explore our Projects</a></div></div></div>
         <div class="quote-section scroll-animation-section"><blockquote class="animate-on-scroll fade-in-up"><p>"Always On Never Off"</p><cite class="quote-author">— Lifewood</cite></blockquote></div>
     </main>
-    <footer class="site-footer"><div class="footer-container"><div class="footer-col footer-col-left"><a href="index.html"><img src="Logo.png" alt="Lifewood Logo" class="footer-logo"></a><p class="footer-copyright">© 2024 Lifewood. All Rights Reserved.</p></div><div class="footer-col"><h4>Navigate</h4><ul><li><a href="index.html">Home</a></li><li><a href="services.html">Services</a></li><li><a href="operations.html">Operations</a></li><li><a href="projects.html">Projects</a></li></ul></div><div class="footer-col"><h4>Contact Us</h4><ul><li><a href="mailto:hr.ph@lifewood.com">hr.ph@lifewood.com</a></li><li><a href="tel:09276155464">+63 927 615 5464</a></li></ul><div class="footer-social-links"><a href="https://www.youtube.com/@LifewoodDataTechnology" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><img src="youtube.png" alt="YouTube"></a><a href="https://www.facebook.com/LifewoodPH" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="facebook.png" alt="Facebook"></a></div></div></div><a href="admin-login.html" class="admin-login-icon" aria-label="Admin Login" title="Admin Login"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5a5.5 5.5 0 0 1 5.5 5.5c0 1.58-.68 3-1.75 3.99.72.74 1.25 1.73 1.25 2.76v.25a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2v-.25c0-1.03.53-2.02 1.25-2.76A5.49 5.49 0 0 1 6.5 8a5.5 5.5 0 0 1 5.5-5.5zm0 1c-2.48 0-4.5 2.02-4.5 4.5s2.02 4.5 4.5 4.5 4.5-2.02 4.5-4.5-2.02-4.5-4.5-4.5zm0 10c-1.93 0-3.5 1.57-3.5 3.5v.25h7v-.25c0-1.93-1.57-3.5-3.5-3.5z"/></svg></a></footer>
+    <footer class="site-footer"><div class="footer-container"><div class="footer-col footer-col-left"><a href="index.html"><img src="Logo.png" alt="Lifewood Logo" class="footer-logo"></a><p class="footer-copyright">© 2024 Lifewood. All Rights Reserved.</p></div><div class="footer-col"><h4>Navigate</h4><ul><li><a href="index.html">Home</a></li><li><a href="services.html">Services</a></li><li><a href="operations.html">Operations</a></li><li><a href="projects.html">Projects</a></li></ul></div><div class="footer-col"><h4>Contact Us</h4><ul><li><a href="mailto:hr.ph@lifewood.com">hr.ph@lifewood.com</a></li><li><a href="tel:09276155464">+63 927 615 5464</a></li></ul><div class="footer-social-links"><a href="https://www.youtube.com/@LifewoodDataTechnology" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><img src="youtube.png" alt="YouTube"></a><a href="https://www.facebook.com/LifewoodPH" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="facebook.png" alt="Facebook"></a></div></div></div></footer>
 
     <div id="application-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
-            <button class="modal-close" id="modal-close-btn">×</button>
-            <h2>Become a part of Lifewood</h2>
-            <p>Tell us about yourself and take the first step toward your next career.</p>
+            <div class="modal-header">
+                <button class="modal-close" id="modal-close-btn">×</button>
+                <h2>Become a part of Lifewood</h2>
+                <p>Take the first step toward your next career.</p>
+            </div>
             <form id="application-form">
-                <div class="form-row">
-                    <div class="form-group"><label for="appFirstName">First Name</label><input type="text" id="appFirstName" required></div>
-                    <div class="form-group"><label for="appLastName">Last Name</label><input type="text" id="appLastName" required></div>
+                <!-- MODIFIED: Added fill line div for the progress bar -->
+                <div class="progress-bar">
+                    <div id="progress-line-fill"></div>
+                    <div class="progress-step active" data-step="1"><div class="step-number">1</div><div class="step-label">Personal</div></div>
+                    <div class="progress-step" data-step="2"><div class="step-number">2</div><div class="step-label">Professional</div></div>
+                    <div class="progress-step" data-step="3"><div class="step-number">3</div><div class="step-label">Logistics</div></div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group"><label for="appEmail">Email</label><input type="email" id="appEmail" required></div>
-                    <div class="form-group"><label for="appAge">Age</label><input type="number" id="appAge" min="18" required></div>
+                <div class="form-step active-step">
+                    <div class="form-row">
+                        <!-- MODIFIED: Swapped label and input for focus interaction -->
+                        <div class="form-group"><input type="text" id="appFirstName" required><label for="appFirstName">First Name</label></div>
+                        <div class="form-group"><input type="text" id="appLastName" required><label for="appLastName">Last Name</label></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><input type="email" id="appEmail" required><label for="appEmail">Email</label></div>
+                        <div class="form-group"><input type="number" id="appAge" min="18" required><label for="appAge">Age</label></div>
+                    </div>
+                    <div class="form-navigation"><button type="button" class="btn-next cta-button">Next</button></div>
                 </div>
-                <div class="form-group"><label for="appDegree">Degree</label><input type="text" id="appDegree" required></div>
-                
-                <!-- ===== HTML CHANGE: Replaced text input with a select dropdown ===== -->
-                <div class="form-group">
-                    <label for="appProject">Project Applied For</label>
-                    <select id="appProject" required>
-                        <option value="" disabled selected>Select a Project...</option>
-                        <option value="AI Data Extraction">AI Data Extraction</option>
-                        <option value="Machine Learning Enablement">Machine Learning Enablement</option>
-                        <option value="Genealogy">Genealogy</option>
-                        <option value="Natural Language Processing">Natural Language Processing</option>
-                        <option value="AI Enabled Customer service">AI Enabled Customer service</option>
-                        <option value="Computer vision">Computer vision</option>
-                        <option value="Autonomous driving technology">Autonomous driving technology</option>
-                    </select>
+                <div class="form-step">
+                    <div class="form-group">
+                        <select id="appDegree" required>
+                            <option value="" disabled selected>Select your attainment...</option>
+                            <option value="High School Graduate">High School Graduate</option>
+                            <option value="Vocational Graduate">Vocational Graduate</option>
+                            <option value="College Undergraduate">College Undergraduate</option>
+                            <option value="College Graduate">College Graduate</option>
+                            <option value="Postgraduate">Postgraduate</option>
+                        </select>
+                        <label for="appDegree">Highest Educational Attainment</label>
+                    </div>
+                    <div class="form-group" id="course-program-group" style="display: none;">
+                        <input type="text" id="appCourse" placeholder="e.g., Automotive Servicing, BS in IT">
+                        <label for="appCourse">Course / Program</label>
+                    </div>
+                    <div class="form-group">
+                        <select id="appProject" required>
+                            <option value="" disabled selected>Select a Project...</option>
+                            <option value="AI Data Extraction">AI Data Extraction</option>
+                            <option value="Machine Learning Enablement">Machine Learning Enablement</option>
+                            <option value="Genealogy">Genealogy</option>
+                            <option value="Natural Language Processing">Natural Language Processing</option>
+                            <option value="AI Enabled Customer service">AI Enabled Customer service</option>
+                            <option value="Computer vision">Computer vision</option>
+                            <option value="Autonomous driving technology">Autonomous driving technology</option>
+                        </select>
+                        <label for="appProject">Project Applied For</label>
+                    </div>
+                    <div class="form-group"><textarea id="appExperience" rows="4" placeholder="Briefly describe your relevant experience..."></textarea><label for="appExperience">Relevant Job Experience</label></div>
+                    <div class="form-navigation"><button type="button" class="btn-prev">Previous</button><button type="button" class="btn-next cta-button">Next</button></div>
                 </div>
-                
-                <div class="form-group"><label for="appExperience">Relevant Job Experience</label><textarea id="appExperience" rows="4"></textarea></div>
-                <div class="form-group"><label for="appResumeLink">Resume Link (Google Drive, LinkedIn, etc.)</label><input type="url" id="appResumeLink" placeholder="https://..." required></div>
-                <div class="form-row">
-                    <div class="form-group"><label for="appStartTime">Available Start Time</label><input type="time" id="appStartTime" required></div>
-                    <div class="form-group"><label for="appEndTime">Available End Time</label><input type="time" id="appEndTime" required></div>
+                <div class="form-step">
+                    <div class="form-group"><input type="url" id="appResumeLink" placeholder="https://..." required><label for="appResumeLink">Resume Link (Google Drive, LinkedIn, etc.)</label></div>
+                    <div class="form-row">
+                        <div class="form-group"><input type="time" id="appStartTime" required><label for="appStartTime">Available Start Time</label></div>
+                        <div class="form-group"><input type="time" id="appEndTime" required><label for="appEndTime">Available End Time</label></div>
+                    </div>
+                    <div class="form-navigation"><button type="button" class="btn-prev">Previous</button><button type="submit" id="submit-application-btn" class="cta-button">Submit Application</button></div>
                 </div>
-                <button type="submit" id="submit-application-btn" class="cta-button">Submit Application</button>
             </form>
         </div>
     </div>
     
-    <!-- Toast Notification HTML -->
-    <div id="toast-notification" class="toast"><span id="toast-message"></span></div>
+    <div id="notification-container"></div>
 
-    <!-- ===== All JavaScript below this line ===== -->
-    
-    <!-- Firebase SDKs (Storage SDK is no longer needed) -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
@@ -244,13 +282,11 @@
           measurementId: "G-CB8L8WS3NJ"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
         document.addEventListener('DOMContentLoaded', () => {
 
-            // Preloader, Header, Hamburger, Animation scripts all remain the same...
             const preloader = document.getElementById('preloader');
             if (preloader) { setTimeout(() => { preloader.classList.add('preloader-hidden'); }, 500); }
             const body = document.body;
@@ -263,44 +299,156 @@
             const animatedSections = document.querySelectorAll('.scroll-animation-section');
             if (animatedSections.length > 0) { const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { const animatedElements = entry.target.querySelectorAll('.animate-on-scroll'); animatedElements.forEach(el => { el.classList.toggle('is-visible', entry.isIntersecting); }); }); }, { threshold: 0.2 }); animatedSections.forEach(section => { observer.observe(section); }); }
             
-            function showToast(message, isError = false) {
-                const toast = document.getElementById('toast-notification');
-                const toastMessage = document.getElementById('toast-message');
-                if (!toast || !toastMessage) return;
-                toastMessage.textContent = message;
-                if (isError) toast.classList.add('error'); else toast.classList.remove('error');
-                toast.classList.add('show');
-                setTimeout(() => { toast.classList.remove('show'); }, 3000);
+            const secretCode = 'adminlifewood2004';
+            let keySequence = '';
+            document.addEventListener('keydown', (e) => {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') { return; }
+                keySequence += e.key.toLowerCase();
+                keySequence = keySequence.slice(-secretCode.length);
+                if (keySequence === secretCode) { window.location.href = 'admin-login.html'; }
+            });
+
+            function showNotification(type, title, message) {
+                const container = document.getElementById('notification-container');
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+
+                const icons = {
+                    success: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`,
+                    info: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`,
+                    danger: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`
+                };
+
+                notification.innerHTML = `
+                    <div class="notification-icon">${icons[type] || icons.info}</div>
+                    <div class="notification-text">
+                        <strong>${title}</strong>
+                        <p>${message}</p>
+                    </div>
+                `;
+                container.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.classList.add('fade-out');
+                    notification.addEventListener('animationend', () => notification.remove());
+                }, 5000);
             }
 
             const applyLink = document.getElementById('apply-now-link');
             const modal = document.getElementById('application-modal');
             const closeBtn = document.getElementById('modal-close-btn');
+            const applicationForm = document.getElementById('application-form');
+
             if (applyLink && modal && closeBtn) {
-                applyLink.addEventListener('click', (e) => { e.preventDefault(); modal.style.display = 'flex'; });
+                applyLink.addEventListener('click', (e) => { e.preventDefault(); modal.style.display = 'flex'; showStep(0); applicationForm.reset(); document.getElementById('course-program-group').style.display = 'none'; document.getElementById('appCourse').required = false; });
                 closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
                 window.addEventListener('click', (e) => { if (e.target === modal) { modal.style.display = 'none'; } });
             }
 
-            // --- JAVASCRIPT: NO CHANGES NEEDED HERE ---
-            // The form submission logic works correctly with the <select> element
-            const applicationForm = document.getElementById('application-form');
+            const degreeSelect = document.getElementById('appDegree');
+            const courseGroup = document.getElementById('course-program-group');
+            const courseInput = document.getElementById('appCourse');
+
+            if (degreeSelect) {
+                degreeSelect.addEventListener('change', (e) => {
+                    const selectedValue = e.target.value;
+                    const isRequired = selectedValue === 'College Undergraduate' || selectedValue === 'Vocational Graduate';
+                    courseGroup.style.display = isRequired ? 'block' : 'none';
+                    courseInput.required = isRequired;
+                    if (!isRequired) courseInput.value = '';
+                });
+            }
+
+            const formSteps = Array.from(document.querySelectorAll('.form-step'));
+            const progressSteps = Array.from(document.querySelectorAll('.progress-step'));
+            const progressLineFill = document.getElementById('progress-line-fill');
+            const nextButtons = document.querySelectorAll('.btn-next');
+            const prevButtons = document.querySelectorAll('.btn-prev');
+            let currentStep = 0;
+
+            const updateProgressBar = () => {
+                progressSteps.forEach((step, index) => {
+                    step.classList.toggle('active', index <= currentStep);
+                });
+                // --- MODIFIED: Update the fill line width ---
+                const totalSteps = progressSteps.length;
+                const progressPercentage = (currentStep / (totalSteps - 1)) * 100;
+                progressLineFill.style.width = `${progressPercentage}%`;
+            };
+
+            const showStep = (stepIndex) => {
+                formSteps.forEach((step, index) => {
+                    step.classList.toggle('active-step', index === stepIndex);
+                });
+                currentStep = stepIndex;
+                updateProgressBar();
+            };
+
+            const validateStep = (stepIndex) => {
+                const currentFormStep = formSteps[stepIndex];
+                const inputs = currentFormStep.querySelectorAll('input[required], select[required], textarea[required]');
+                let isValid = true;
+                
+                inputs.forEach(input => {
+                    input.style.borderColor = ''; 
+                    if (!input.value.trim()) {
+                        isValid = false;
+                        input.style.borderColor = '#dc3545';
+                    }
+                });
+
+                if (!isValid) {
+                    showNotification('danger', 'Missing Information', 'Please fill out all required fields.');
+                    return false;
+                }
+                
+                if (stepIndex === 0) { 
+                    const ageInput = currentFormStep.querySelector('#appAge');
+                    const age = parseInt(ageInput.value, 10);
+                    if (age < 18) {
+                        showNotification('danger', 'Age Requirement', 'Sorry, applicants must be 18 years or older.');
+                        ageInput.style.borderColor = '#dc3545';
+                        return false;
+                    }
+                }
+                return true; 
+            };
+
+            nextButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    if (validateStep(currentStep)) {
+                        if (currentStep < formSteps.length - 1) {
+                            showStep(currentStep + 1);
+                        }
+                    }
+                });
+            });
+
+            prevButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    if (currentStep > 0) {
+                        showStep(currentStep - 1);
+                    }
+                });
+            });
+
             const submitBtn = document.getElementById('submit-application-btn');
-            
             if (applicationForm) {
                 applicationForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
+                    if (!validateStep(currentStep)) return; 
+
                     submitBtn.disabled = true;
                     submitBtn.textContent = 'Submitting...';
 
                     try {
-                        // Create the applicant data object from the new form fields
                         const newApplicant = {
                             firstName: document.getElementById('appFirstName').value,
                             lastName: document.getElementById('appLastName').value,
                             email: document.getElementById('appEmail').value,
                             age: document.getElementById('appAge').value,
                             degree: document.getElementById('appDegree').value,
+                            courseProgram: document.getElementById('appCourse').value,
                             projectAppliedFor: document.getElementById('appProject').value,
                             experience: document.getElementById('appExperience').value,
                             resumeLink: document.getElementById('appResumeLink').value,
@@ -310,17 +458,19 @@
                             submittedAt: firebase.firestore.FieldValue.serverTimestamp()
                         };
 
-                        // Save the applicant data to Firestore
                         await db.collection('applicants').add(newApplicant);
                         
-                        showToast("Application submitted successfully!");
+                        showNotification('success', 'Success!', 'Your application has been submitted.');
                         
                         if (modal) modal.style.display = 'none';
                         applicationForm.reset();
+                        showStep(0);
+                        document.getElementById('course-program-group').style.display = 'none';
+                        document.getElementById('appCourse').required = false;
 
                     } catch (error) {
                         console.error("Error submitting application:", error);
-                        showToast("Submission failed. Please try again.", true);
+                        showNotification('danger', 'Submission Error', 'Something went wrong. Please try again.');
                     } finally {
                         submitBtn.disabled = false;
                         submitBtn.textContent = 'Submit Application';
